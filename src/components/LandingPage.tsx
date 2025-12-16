@@ -129,14 +129,14 @@ function LandingPage() {
 
       {/* Header */}
       <header className="sticky top-0 z-40 border-b border-gray-100 bg-white/70 backdrop-blur">
-        <div className="container mx-auto flex items-center justify-between px-4 py-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary-600 to-primary-700 shadow-sm">
+        <div className="container mx-auto flex items-center justify-between px-4 py-3 sm:py-4">
+          <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary-600 to-primary-700 shadow-sm sm:h-10 sm:w-10">
               <Shield className="h-5 w-5 text-white" />
             </div>
-            <div className="leading-tight">
-              <div className="text-lg font-bold text-gray-900">Blue Drum AI</div>
-              <div className="text-xs text-gray-500">Evidence-based legal vigilance</div>
+            <div className="min-w-0 leading-tight">
+              <div className="truncate text-base font-bold text-gray-900 sm:text-lg">Blue Drum AI</div>
+              <div className="hidden text-xs text-gray-500 sm:block">Evidence-based legal vigilance</div>
             </div>
           </div>
 
@@ -155,8 +155,12 @@ function LandingPage() {
             </button>
           </nav>
 
-          <button onClick={() => setShowForm(true)} className="btn-primary flex items-center gap-2">
-            Join waitlist
+          <button
+            onClick={() => setShowForm(true)}
+            className="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-3 py-2 text-xs font-semibold text-white shadow-sm hover:bg-primary-700 sm:px-5 sm:py-3 sm:text-sm"
+          >
+            <span className="sm:hidden">Join waitlist</span>
+            <span className="hidden sm:inline">Join waitlist</span>
             <ArrowRight className="h-4 w-4" />
           </button>
         </div>
