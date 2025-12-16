@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" role="img" aria-label="Blue Drum AI">
+  <defs>
+    <linearGradient id="bdai_g" x1="24" y1="24" x2="232" y2="232" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#2563eb"/>
+      <stop offset="1" stop-color="#1d4ed8"/>
+    </linearGradient>
+  </defs>
+  <rect x="24" y="24" width="208" height="208" rx="48" fill="url(#bdai_g)"/>
+  <!-- Shield mark -->
+  <path
+    d="M128 74c20 16 40 18 56 20v46c0 34-23 56-56 72-33-16-56-38-56-72V94c16-2 36-4 56-20Z"
+    fill="#ffffff"
+    fill-rule="evenodd"
+    clip-rule="evenodd"
+  />
+</svg>
+
+
