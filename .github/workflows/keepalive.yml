@@ -1,0 +1,35 @@
+name: Keep Render Service Alive
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Every 10 minutes
+    - cron: "*/10 * * * *"
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Ping health + db endpoints
+        env:
+          HEALTH_URL: ${{ secrets.RENDER_HEALTH_URL }}
+        run: |
+          if [ -z "$HEALTH_URL" ]; then
+            echo "Missing secret RENDER_HEALTH_URL"
+            exit 1
+          fi
+          echo "Pinging: $HEALTH_URL"
+          curl -fsS --max-time 20 "$HEALTH_URL"
+
+          # If HEALTH_URL ends with /health, derive /health/db; otherwise append it.
+          if echo "$HEALTH_URL" | grep -q "/health$"; then
+            DB_URL="${HEALTH_URL%/health}/health/db"
+          else
+            DB_URL="${HEALTH_URL%/}/health/db"
+          fi
+
+          echo "Pinging: $DB_URL"
+          curl -fsS --max-time 20 "$DB_URL"
+
+

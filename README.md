@@ -2,6 +2,38 @@
 
 Early signup landing page for Blue Drum AI - Your Legal Vigilance Partner.
 
+## Deploy to Render (frontend + backend)
+
+This repo includes:
+- **Frontend**: Vite static site (this folder)
+- **Backend**: Express API in `backend/`
+
+### 1) Create Supabase waitlist table
+
+Run `supabase/waitlist.sql` in Supabase SQL Editor.
+
+### 2) Deploy using Render Blueprint
+
+1. Push this repo to GitHub.
+2. In Render: **New > Blueprint** and select this repo (Render will read `render.yaml`).
+3. After services are created, set Render environment variables:
+   - **Backend (`bluedrumai-api`)**:
+     - `SUPABASE_URL`
+     - `SUPABASE_SERVICE_ROLE_KEY` (secret)
+   - **Frontend (`bluedrumai-web`)**:
+     - `VITE_API_BASE_URL` = your backend URL (example: `https://bluedrumai-api.onrender.com`)
+4. Trigger a redeploy of the frontend after setting `VITE_API_BASE_URL` (it is injected at build time).
+
+### 3) Keep the Render backend alive (free tier)
+
+This repo includes a GitHub Action scheduled ping:
+- Workflow: `.github/workflows/keepalive.yml`
+- It calls your backend `/health` and `/health/db` endpoints every 10 minutes.
+  - `/health/db` performs a tiny Supabase query so your Supabase project stays active on free tier.
+
+Add a GitHub repo secret:
+- `RENDER_HEALTH_URL` = `https://YOUR_BACKEND.onrender.com/health`
+
 ## Features
 
 - Modern, responsive design
@@ -28,47 +60,19 @@ npm run build
 ```
 
 ## Backend Integration
-
-Currently, signups are stored in localStorage. To connect to a real backend:
-
-1. **Option 1: Supabase** (Recommended)
-   - Create a `waitlist` table in Supabase
-   - Update `SignupForm.tsx` to use Supabase client
-   - Add your Supabase URL and anon key
-
-2. **Option 2: Express Backend**
-   - Create an endpoint: `POST /api/waitlist`
-   - Update the API call in `SignupForm.tsx`
-   - Add your backend URL to environment variables
-
-3. **Option 3: Third-party Service**
-   - Use services like ConvertKit, Mailchimp, or Resend
-   - Update the API call accordingly
+This project now uses the included **Express backend** in `backend/` to write waitlist signups into Supabase.
 
 ## Environment Variables
-
-Create a `.env` file (optional for now):
+Frontend:
 
 ```env
-VITE_API_URL=your_backend_url
-VITE_SUPABASE_URL=your_supabase_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+VITE_API_BASE_URL=http://localhost:3001
 ```
 
+Backend: see `backend/ENV.sample.txt` (create `backend/.env` locally; do not commit).
+
 ## Deployment
-
-### Vercel (Recommended)
-1. Push to GitHub
-2. Import project in Vercel
-3. Deploy
-
-### Netlify
-1. Build: `npm run build`
-2. Deploy `dist` folder to Netlify
-
-### Other Platforms
-- Build the project: `npm run build`
-- Deploy the `dist` folder to any static hosting service
+Use Render Blueprint (recommended) — see **Deploy to Render** section above.
 
 ## Next Steps
 

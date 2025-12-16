@@ -35,6 +35,17 @@ app.get('/health', (_req, res) => {
   res.json({ ok: true })
 })
 
+app.get('/health/db', async (_req, res) => {
+  try {
+    // Tiny, cheap query just to keep Supabase active and verify connectivity
+    const { error } = await supabaseAdmin.from('waitlist').select('id').limit(1)
+    if (error) return res.status(500).json({ ok: false, db: false })
+    return res.json({ ok: true, db: true })
+  } catch {
+    return res.status(500).json({ ok: false, db: false })
+  }
+})
+
 const waitlistLimiter = rateLimit({
   windowMs: 10 * 60 * 1000,
   max: 30,
