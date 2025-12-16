@@ -75,7 +75,7 @@ function SignupForm({ onClose }: SignupFormProps) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 p-3 pt-6 backdrop-blur-sm sm:items-center sm:p-4"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
@@ -86,14 +86,14 @@ function SignupForm({ onClose }: SignupFormProps) {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="max-h-[90vh] overflow-y-auto">
-          <div className="bg-gradient-to-r from-primary-600 to-primary-700 px-5 py-5 text-white sm:px-6">
+          <div className="bg-gradient-to-r from-primary-600 to-primary-700 px-4 py-4 text-white sm:px-6 sm:py-5">
             <div className="flex items-start justify-between gap-4">
             <div>
               <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold">
                 <Sparkles className="h-4 w-4" />
                 Early access
               </div>
-              <h2 className="mt-3 text-2xl font-bold sm:text-3xl">Join the Waitlist</h2>
+              <h2 className="mt-2 text-xl font-bold sm:mt-3 sm:text-3xl">Join the Waitlist</h2>
               <p className="mt-1 text-sm text-white/80">Get notified when we open private beta.</p>
             </div>
             <button
@@ -115,7 +115,7 @@ function SignupForm({ onClose }: SignupFormProps) {
               <p className="text-gray-600">We’ll email you when early access opens.</p>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="space-y-5 px-5 py-6 sm:px-6">
+            <form onSubmit={handleSubmit} className="space-y-4 px-4 py-5 sm:space-y-5 sm:px-6 sm:py-6">
             <div>
               <label htmlFor="email" className="mb-2 block text-sm font-semibold text-gray-700">
                 Email address
@@ -135,7 +135,26 @@ function SignupForm({ onClose }: SignupFormProps) {
 
             <div>
               <div className="mb-2 block text-sm font-semibold text-gray-700">I’m interested in</div>
-              <div className="grid gap-2">
+
+              {/* Mobile: compact select */}
+              <div className="sm:hidden">
+                <select
+                  value={gender}
+                  onChange={(e) => setGender(e.target.value as any)}
+                  disabled={status === 'loading'}
+                  className="input-field"
+                >
+                  <option value="" disabled>
+                    Select an option
+                  </option>
+                  <option value="male">Men’s module</option>
+                  <option value="female">Women’s module</option>
+                  <option value="both">Both</option>
+                </select>
+              </div>
+
+              {/* Desktop: detailed cards */}
+              <div className="hidden grid gap-2 sm:grid">
                 <label className="group flex cursor-pointer items-start gap-3 rounded-xl border border-gray-200 p-3 hover:bg-gray-50 sm:p-4">
                   <input
                     type="radio"
@@ -195,7 +214,7 @@ function SignupForm({ onClose }: SignupFormProps) {
             <button
               type="submit"
               disabled={status === 'loading'}
-              className="w-full btn-primary flex items-center justify-center gap-2 py-4 text-base"
+              className="w-full btn-primary flex items-center justify-center gap-2 py-3 text-sm sm:py-4 sm:text-base"
             >
               {status === 'loading' ? (
                 <>
