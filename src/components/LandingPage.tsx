@@ -562,7 +562,7 @@ function LandingPage() {
         className="fixed bottom-5 right-5 z-40 flex items-center gap-2 rounded-full bg-white px-3 py-2 shadow-lg ring-1 ring-black/5 hover:shadow-xl sm:px-4 sm:py-3"
         aria-label="Open safety & documentation check"
       >
-        <img src="/drum.svg" alt="Blue Drum risk check" className="h-8 w-8 bd-drum-animate" />
+        <img src="/drum.svg" alt="Blue Drum risk check" className="h-10 w-10 sm:h-12 sm:w-12 bd-drum-animate" />
         <span className="hidden text-sm font-semibold text-gray-900 sm:inline">Risk check</span>
       </button>
     </div>
