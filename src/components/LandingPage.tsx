@@ -11,6 +11,7 @@ import {
   Users,
 } from 'lucide-react'
 import SignupForm from './SignupForm'
+import RiskCalculator from './RiskCalculator'
 
 type Feature = {
   title: string
@@ -57,6 +58,7 @@ function Card({
 
 function LandingPage() {
   const [showForm, setShowForm] = useState(false)
+  const [showRisk, setShowRisk] = useState(false)
   const [openFaq, setOpenFaq] = useState<number | null>(0)
 
   const features: Feature[] = useMemo(
@@ -551,6 +553,18 @@ function LandingPage() {
       </footer>
 
       {showForm ? <SignupForm onClose={() => setShowForm(false)} /> : null}
+      {showRisk ? <RiskCalculator onClose={() => setShowRisk(false)} /> : null}
+
+      {/* Blue Drum bubble */}
+      <button
+        type="button"
+        onClick={() => setShowRisk(true)}
+        className="fixed bottom-5 right-5 z-40 flex items-center gap-2 rounded-full bg-white px-3 py-2 shadow-lg ring-1 ring-black/5 hover:shadow-xl sm:px-4 sm:py-3"
+        aria-label="Open safety & documentation check"
+      >
+        <img src="/drum.svg" alt="Blue Drum risk check" className="h-8 w-8 bd-drum-animate" />
+        <span className="hidden text-sm font-semibold text-gray-900 sm:inline">Risk check</span>
+      </button>
     </div>
   )
 }

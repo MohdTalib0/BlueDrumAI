@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" role="img" aria-label="Blue water drum">
+  <defs>
+    <linearGradient id="drumBody" x1="56" y1="52" x2="200" y2="212" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#60a5fa"/>
+      <stop offset="0.55" stop-color="#2563eb"/>
+      <stop offset="1" stop-color="#1d4ed8"/>
+    </linearGradient>
+    <linearGradient id="drumRim" x1="64" y1="56" x2="192" y2="56" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#93c5fd"/>
+      <stop offset="1" stop-color="#3b82f6"/>
+    </linearGradient>
+    <radialGradient id="shine" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(96 108) rotate(30) scale(70 120)">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.35"/>
+      <stop offset="0.55" stop-color="#ffffff" stop-opacity="0.08"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- shadow -->
+  <ellipse cx="128" cy="214" rx="66" ry="14" fill="#0b1220" opacity="0.12"/>
+
+  <!-- drum body -->
+  <path d="M72 70c0-10 8-18 18-18h76c10 0 18 8 18 18v116c0 22-18 40-40 40H112c-22 0-40-18-40-40V70Z" fill="url(#drumBody)"/>
+
+  <!-- top rim -->
+  <ellipse cx="128" cy="62" rx="74" ry="22" fill="url(#drumRim)"/>
+  <ellipse cx="128" cy="62" rx="66" ry="18" fill="#1e40af" opacity="0.35"/>
+
+  <!-- bottom rim -->
+  <ellipse cx="128" cy="186" rx="64" ry="18" fill="#1e40af" opacity="0.25"/>
+  <ellipse cx="128" cy="186" rx="72" ry="20" fill="#1d4ed8" opacity="0.18"/>
+
+  <!-- side highlights -->
+  <path d="M92 78c-6 6-10 16-10 28v72c0 18 10 32 24 38" fill="none" stroke="#bfdbfe" stroke-width="10" stroke-linecap="round" opacity="0.45"/>
+  <path d="M168 82c10 10 16 26 16 44v46c0 10-2 18-6 26" fill="none" stroke="#0b2a6a" stroke-width="10" stroke-linecap="round" opacity="0.25"/>
+
+  <!-- subtle shine -->
+  <path d="M72 70c0-10 8-18 18-18h76c10 0 18 8 18 18v116c0 22-18 40-40 40H112c-22 0-40-18-40-40V70Z" fill="url(#shine)"/>
+</svg>
+
+

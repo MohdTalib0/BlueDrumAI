@@ -11,6 +11,7 @@ create table if not exists public.waitlist (
   source text not null default 'landing_page',
   ip inet,
   user_agent text,
+  meta jsonb,
   created_at timestamptz not null default now()
 );
 
