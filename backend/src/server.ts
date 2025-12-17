@@ -48,7 +48,7 @@ const allowedOrigins = isProduction
 
 app.use(
   cors({
-    origin: (origin, cb) => {
+    origin: (origin: string | undefined, cb: (err: Error | null, allow?: boolean) => void) => {
       // allow same-origin / curl / server-to-server
       if (!origin) return cb(null, true)
 
@@ -78,11 +78,11 @@ const healthLimiter = rateLimit({
   legacyHeaders: false,
 })
 
-app.get('/health', healthLimiter, (_req, res) => {
+app.get('/health', healthLimiter, (_req: express.Request, res: express.Response) => {
   res.json({ ok: true, timestamp: new Date().toISOString() })
 })
 
-app.get('/health/db', healthLimiter, async (_req, res) => {
+app.get('/health/db', healthLimiter, async (_req: express.Request, res: express.Response) => {
   try {
     // Generic health check - simple query without exposing table structure
     // Using a minimal query that doesn't reveal schema details
@@ -111,7 +111,7 @@ const WaitlistBodySchema = z.object({
   meta: z.record(z.unknown()).optional(),
 })
 
-app.post('/api/waitlist', waitlistLimiter, async (req, res) => {
+app.post('/api/waitlist', waitlistLimiter, async (req: express.Request, res: express.Response) => {
   const parsed = WaitlistBodySchema.safeParse(req.body)
   if (!parsed.success) {
     return res.status(400).json({
@@ -214,7 +214,7 @@ const RiskCheckBodySchema = z.object({
   manualInput: z.string().max(2000).optional(),
 })
 
-app.post('/api/risk-check', riskCheckLimiter, async (req, res, next) => {
+app.post('/api/risk-check', riskCheckLimiter, async (req: express.Request, res: express.Response, next: express.NextFunction) => {
   const parsed = RiskCheckBodySchema.safeParse(req.body)
   if (!parsed.success) {
     return res.status(400).json({
