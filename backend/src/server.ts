@@ -43,13 +43,13 @@ app.use(
 app.use(requestIdMiddleware)
 
 // API request logging (after request ID is set)
-app.use(apiLoggerMiddleware)
+//app.use(apiLoggerMiddleware)
 
 // Activity tracking
-app.use(activityTrackerMiddleware)
+//app.use(activityTrackerMiddleware)
 
 // Session tracking (for authenticated routes)
-app.use(trackSession)
+//app.use(trackSession)
 
 // CORS configuration
 // Allow both www and non-www versions, and localhost for development
@@ -119,9 +119,9 @@ app.use(
 app.use(express.json({ limit: '200kb' }))
 
 // API Routes
-app.use('/api/auth', authRoutes)
-app.use('/api/vault', vaultRoutes)
-app.use('/api/health', healthRoutes)
+//app.use('/api/auth', authRoutes)
+//app.use('/api/vault', vaultRoutes)
+//app.use('/api/health', healthRoutes)
 
 // Rate limit health checks to prevent abuse
 const healthLimiter = rateLimit({
