@@ -8,7 +8,7 @@ import { supabaseAdmin } from './supabase'
 import { generateRiskCheckAdvice } from './services/ai'
 import { requestIdMiddleware } from './middleware/requestId'
 import { errorHandler, notFoundHandler } from './middleware/errorHandler'
-// { apiLoggerMiddleware } from './middleware/auditLogger'
+//import { apiLoggerMiddleware } from './middleware/auditLogger'
 //import { activityTrackerMiddleware } from './middleware/activityTracker'
 //import { trackSession } from './middleware/sessionTracker'
 import { sanitizeEmail, sanitizeAnswers, sanitizeManualInput } from './utils/sanitize'
@@ -51,66 +51,40 @@ app.use(requestIdMiddleware)
 // Session tracking (for authenticated routes)
 //app.use(trackSession)
 
-// CORS configuration
-// Allow both www and non-www versions, and localhost for development
-const getAllowedOrigins = () => {
-  if (isProduction) {
-    const origins: (string | RegExp)[] = []
-    
-    // Add FRONTEND_URL if set
-    if (FRONTEND_URL) {
-      origins.push(FRONTEND_URL)
-      
-      // Also add www and non-www versions
-      const url = new URL(FRONTEND_URL)
-      if (url.hostname.startsWith('www.')) {
-        // If FRONTEND_URL has www, also allow non-www
-        origins.push(FRONTEND_URL.replace('www.', ''))
-      } else {
-        // If FRONTEND_URL doesn't have www, also allow www version
-        origins.push(FRONTEND_URL.replace(url.hostname, `www.${url.hostname}`))
-      }
-    }
-    
-    // Allow common production domains
-    origins.push(/^https:\/\/.*\.bluedrumai\.com$/) // Any subdomain of bluedrumai.com
-    origins.push('https://www.bluedrumai.com')
-    origins.push('https://bluedrumai.com')
-    
-    return origins
-  }
-  
-  // Development: allow localhost
-  return [
-    FRONTEND_URL,
-    'http://localhost:5173',
-    'http://127.0.0.1:5173',
-    /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/,
-  ]
-}
+// CORS configuration - Simplified based on production best practices
+const baseOrigins = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'http://127.0.0.1:5173',
+  'https://www.bluedrumai.com',
+  'https://bluedrumai.com',
+  'https://api.bluedrumai.com',
+]
 
-const allowedOrigins = getAllowedOrigins()
+const corsOrigins = process.env.CORS_ORIGIN 
+  ? process.env.CORS_ORIGIN.split(',').map((origin: string) => origin.trim())
+  : []
+
+const allowedOrigins = [
+  ...baseOrigins,
+  ...corsOrigins,
+  ...(FRONTEND_URL && !baseOrigins.includes(FRONTEND_URL) && !corsOrigins.includes(FRONTEND_URL) ? [FRONTEND_URL] : []),
+].filter(Boolean)
 
 app.use(
   cors({
-    origin: (origin: string | undefined, cb: (err: Error | null, allow?: boolean) => void) => {
-      // allow same-origin / curl / server-to-server (no origin header)
-      if (!origin) return cb(null, true)
+    origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true)
 
-      // Check against allowed origins
-      for (const allowed of allowedOrigins) {
-        if (typeof allowed === 'string') {
-          if (origin === allowed) return cb(null, true)
-        } else if (allowed instanceof RegExp) {
-          if (allowed.test(origin)) return cb(null, true)
-        }
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true)
       }
 
-      // Log rejected origin for debugging
-      console.warn(`[CORS] Rejected origin: ${origin}`)
-      return cb(new Error(`Not allowed by CORS: ${origin}`))
+      console.warn(`[CORS] Blocked request from origin: ${origin}`)
+      return callback(new Error('Not allowed by CORS'), false)
     },
-    credentials: true, // Allow credentials for authenticated requests
+    credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-ID'],
   }),
@@ -393,13 +367,13 @@ app.use(errorHandler)
 
 app.listen(PORT, () => {
   // eslint-disable-next-line no-console
-  console.log(`Backend listening on http://localhost:${PORT}`)
+  console.log(`🚀 Backend listening on http://localhost:${PORT}`)
   // eslint-disable-next-line no-console
-  console.log(`[Server] CORS configured for origins:`, allowedOrigins)
+  console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`)
   // eslint-disable-next-line no-console
-  console.log(`[Server] Frontend URL: ${FRONTEND_URL}`)
+  console.log(`🔗 CORS allowed origins:`, allowedOrigins)
   // eslint-disable-next-line no-console
-  console.log(`[Server] Environment: ${process.env.NODE_ENV || 'development'}`)
+  console.log(`🌐 Frontend URL: ${FRONTEND_URL}`)
 })
 
 
