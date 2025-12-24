@@ -30,6 +30,7 @@ import { useNavigate } from 'react-router-dom'
 import { format, formatDistanceToNow } from 'date-fns'
 import DocumentViewer from '../../../components/vault/DocumentViewer'
 import { DashboardLayout } from '../../../layouts/DashboardLayout'
+import ExportButton from '../../../components/export/ExportButton'
 
 interface VaultEntry {
   id: string
@@ -445,6 +446,13 @@ export default function TimelineView() {
                   <Grid3x3 className="h-4 w-4" />
                 </button>
               </div>
+
+              {/* Export Button */}
+              {entries.length > 0 && (
+                <div className="flex items-center">
+                  <ExportButton exportType="vault" variant="outline" />
+                </div>
+              )}
             </div>
 
             {/* Bulk Actions */}

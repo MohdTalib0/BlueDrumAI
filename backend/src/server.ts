@@ -17,6 +17,7 @@ import vaultRoutes from './routes/vault'
 import incomeRoutes from './routes/income'
 import analyzeRoutes from './routes/analyze'
 import dashboardRoutes from './routes/dashboard'
+import exportRoutes from './routes/export'
 import healthRoutes from './routes/health'
 
 const app = express()
@@ -101,6 +102,7 @@ app.use('/api/vault', vaultRoutes)
 app.use('/api/income', incomeRoutes)
 app.use('/api/analyze', analyzeRoutes)
 app.use('/api/dashboard', dashboardRoutes)
+app.use('/api/export', exportRoutes)
 app.use('/api/health', healthRoutes)
 
 // Rate limit health checks to prevent abuse

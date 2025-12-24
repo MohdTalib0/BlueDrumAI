@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState, useMemo, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Shield,
@@ -69,12 +69,27 @@ export default function Dashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [loadingStats, setLoadingStats] = useState(true)
   const [error, setError] = useState('')
+  const fetchingRef = useRef(false)
+  const lastFetchRef = useRef<number>(0)
 
   useEffect(() => {
     const fetchStats = async () => {
-      if (loading || !user || !sessionToken) return
+      // Prevent multiple simultaneous fetches
+      if (fetchingRef.current) return
+      
+      // Prevent fetching too frequently (at least 5 seconds between fetches)
+      const now = Date.now()
+      if (now - lastFetchRef.current < 5000 && stats !== null) {
+        return
+      }
+
+      if (loading || !user || !sessionToken) {
+        setLoadingStats(false)
+        return
+      }
 
       try {
+        fetchingRef.current = true
         setLoadingStats(true)
         setError('')
 
@@ -91,16 +106,18 @@ export default function Dashboard() {
 
         const data = await response.json()
         setStats(data.stats)
+        lastFetchRef.current = Date.now()
       } catch (err: any) {
         console.error('Error fetching dashboard stats:', err)
         setError(err.message || 'Failed to load dashboard')
       } finally {
         setLoadingStats(false)
+        fetchingRef.current = false
       }
     }
 
     fetchStats()
-  }, [loading, user, sessionToken])
+  }, [loading, user?.id, sessionToken]) // Only depend on user.id, not the whole user object
 
   // Calculate trend indicators
   const readinessTrend = useMemo(() => {
@@ -495,16 +512,8 @@ export default function Dashboard() {
 
       {/* Recent Activity Feed */}
       <div>
-        <div className="mb-4 flex items-center justify-between">
+        <div className="mb-4">
           <h2 className="text-lg font-semibold text-gray-900">Recent Activity</h2>
-          {stats && stats.recentActivity.length > 0 && (
-            <button
-              onClick={() => navigate('/dashboard/vault/timeline')}
-              className="text-sm font-medium text-primary-600 hover:text-primary-700"
-            >
-              View All
-            </button>
-          )}
         </div>
 
         {loadingStats ? (

@@ -1,6 +1,6 @@
 import { ReactNode, useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { Home, Upload, LogOut, Clock4, Menu, X, TrendingUp, AlertTriangle } from 'lucide-react'
+import { Home, Upload, LogOut, Clock4, Menu, X, TrendingUp, AlertTriangle, History, FileText } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 
 interface Props {
@@ -22,7 +22,9 @@ export function DashboardLayout({ children, title = 'Dashboard', subtitle, right
       { label: 'Vault Timeline', icon: Clock4, href: '/dashboard/vault/timeline' },
       { label: 'Upload Evidence', icon: Upload, href: '/dashboard/vault/upload' },
       { label: 'Income Tracker', icon: TrendingUp, href: '/dashboard/income-tracker' },
+      { label: 'Income History', icon: History, href: '/dashboard/income-tracker/history' },
       { label: 'Red Flag Radar', icon: AlertTriangle, href: '/dashboard/red-flag-radar' },
+      { label: 'Analysis History', icon: FileText, href: '/dashboard/red-flag-radar/history' },
     ],
     []
   )

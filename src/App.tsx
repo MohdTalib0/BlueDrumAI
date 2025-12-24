@@ -61,7 +61,7 @@ function App() {
         }
       />
       <Route
-        path="/dashboard/vault"
+        path="/dashboard/vault/timeline"
         element={
           <ProtectedRoute>
             <TimelineView />
@@ -77,7 +77,7 @@ function App() {
         }
       />
       <Route
-        path="/dashboard/vault/timeline"
+        path="/dashboard/vault"
         element={
           <ProtectedRoute>
             <TimelineView />
