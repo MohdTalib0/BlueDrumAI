@@ -1,4 +1,5 @@
 import { useMemo, useState, type ComponentType, type ReactNode } from 'react'
+import { useNavigate, Link } from 'react-router-dom'
 import {
   AlertTriangle,
   ArrowRight,
@@ -12,6 +13,7 @@ import {
 } from 'lucide-react'
 import SignupForm from './SignupForm'
 import RiskCalculator from './RiskCalculator'
+import { useAuth } from '../context/AuthContext'
 
 type Feature = {
   title: string
@@ -57,6 +59,8 @@ function Card({
 }
 
 function LandingPage() {
+  const { user, signOut } = useAuth()
+  const navigate = useNavigate()
   const [showForm, setShowForm] = useState(false)
   const [showRisk, setShowRisk] = useState(false)
   const [openFaq, setOpenFaq] = useState<number | null>(0)
@@ -157,14 +161,49 @@ function LandingPage() {
             </button>
           </nav>
 
-          <button
-            onClick={() => setShowForm(true)}
-            className="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-3 py-2 text-xs font-semibold text-white shadow-sm hover:bg-primary-700 sm:px-5 sm:py-3 sm:text-sm"
-          >
-            <span className="sm:hidden">Join waitlist</span>
-            <span className="hidden sm:inline">Join waitlist</span>
-            <ArrowRight className="h-4 w-4" />
-          </button>
+          <div className="flex items-center gap-2">
+            {user ? (
+              <>
+                <button
+                  onClick={() => navigate('/dashboard')}
+                  className="hidden items-center gap-2 rounded-xl border border-gray-300 bg-white px-3 py-2 text-xs font-semibold text-gray-700 shadow-sm hover:bg-gray-50 sm:flex sm:px-4 sm:py-2 sm:text-sm"
+                >
+                  Dashboard
+                </button>
+                <button
+                  onClick={() => signOut().then(() => navigate('/sign-in'))}
+                  className="inline-flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-3 py-2 text-xs font-semibold text-gray-700 shadow-sm hover:bg-gray-50 sm:px-4 sm:py-2 sm:text-sm"
+                >
+                  Sign out
+                </button>
+              </>
+            ) : (
+              <>
+                <div className="hidden items-center gap-2 sm:flex">
+                  <Link
+                    to="/sign-in"
+                    className="inline-flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-3 py-2 text-xs font-semibold text-gray-700 shadow-sm hover:bg-gray-50 sm:px-4 sm:py-2 sm:text-sm"
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    to="/sign-up"
+                    className="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-3 py-2 text-xs font-semibold text-white shadow-sm hover:bg-primary-700 sm:px-4 sm:py-2 sm:text-sm"
+                  >
+                    Sign Up
+                  </Link>
+                </div>
+                <button
+                  onClick={() => setShowForm(true)}
+                  className="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-3 py-2 text-xs font-semibold text-white shadow-sm hover:bg-primary-700 sm:px-5 sm:py-3 sm:text-sm"
+                >
+                  <span className="sm:hidden">Join waitlist</span>
+                  <span className="hidden sm:inline">Join waitlist</span>
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+              </>
+            )}
+          </div>
         </div>
       </header>
 
