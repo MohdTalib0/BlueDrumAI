@@ -155,7 +155,7 @@ export function DashboardLayout({ children, title = 'Dashboard', subtitle, right
                 <div className="flex items-center gap-3">
                   <div>
                     <h1 className="text-2xl font-semibold text-gray-900 -tracking-[0.08em]" style={{ fontFamily: 'Inter, sans-serif' }}>{title}</h1>
-                    <p className="text-base text-gray-500 mt-1" style={{ fontFamily: 'Inter, sans-serif' }}>{subtitle || `Welcome back, ${user?.email ?? ''}`}</p>
+                    <p className="text-base text-gray-500 mt-1" style={{ fontFamily: 'Inter, sans-serif' }}>{subtitle || `Welcome back, ${user?.email ?? 'User'}`}</p>
                   </div>
                 </div>
               <div className="flex items-center gap-3">

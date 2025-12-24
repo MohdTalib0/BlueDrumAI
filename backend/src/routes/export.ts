@@ -1,7 +1,7 @@
 import express from 'express'
 import { requireAuth, getUserId } from '../middleware/auth'
 import { generateVaultPDF, getVaultEntriesForPDF } from '../services/vaultPDFGenerator'
-import { generateIncomeAffidavit } from '../services/affidavitGenerator'
+import { generateAffidavitPDF } from '../services/affidavitGenerator'
 import { generateChatAnalysisPDF } from '../services/chatAnalysisPDF'
 import { supabaseAdmin } from '../supabase'
 import { logAuditEvent } from '../middleware/auditLogger'
@@ -94,13 +94,13 @@ router.post('/affidavit', requireAuth, async (req: express.Request, res: express
     const { data: userData } = await supabaseAdmin.from('users').select('email, first_name, last_name').eq('id', userId).single()
 
     // Generate PDF
-    const pdfBuffer = await generateIncomeAffidavit({
+    const pdfBuffer = await generateAffidavitPDF({
+      userEmail: userData?.email || 'user@example.com',
       monthYear: entry.month_year,
-      grossIncome: parseFloat(entry.gross_income),
+      grossIncome: parseFloat(entry.gross_income.toString()),
       deductions: entry.deductions || {},
       expenses: entry.expenses || {},
-      disposableIncome: parseFloat(entry.disposable_income),
-      fullName: userData ? `${userData.first_name || ''} ${userData.last_name || ''}`.trim() : 'User',
+      disposableIncome: parseFloat(entry.disposable_income.toString()),
       notes: entry.notes || '',
     })
 

@@ -69,8 +69,40 @@ export default function Dashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [loadingStats, setLoadingStats] = useState(true)
   const [error, setError] = useState('')
+  const [userProfile, setUserProfile] = useState<{ first_name?: string; last_name?: string; email?: string } | null>(null)
   const fetchingRef = useRef(false)
   const lastFetchRef = useRef<number>(0)
+
+  // Fetch user profile to get name
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      if (loading || !user?.id || !sessionToken) return
+
+      try {
+        const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
+        const response = await fetch(`${apiBase}/api/auth/me`, {
+          headers: {
+            Authorization: `Bearer ${sessionToken}`,
+          },
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          if (data.ok && data.user) {
+            setUserProfile({
+              first_name: data.user.first_name,
+              last_name: data.user.last_name,
+              email: data.user.email,
+            })
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching user profile:', err)
+      }
+    }
+
+    fetchUserProfile()
+  }, [loading, user?.id, sessionToken])
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -166,8 +198,13 @@ export default function Dashboard() {
     )
   }
 
+  // Get display name
+  const displayName = userProfile?.first_name || userProfile?.last_name
+    ? [userProfile.first_name, userProfile.last_name].filter(Boolean).join(' ')
+    : userProfile?.email || user?.email || 'User'
+
   return (
-    <DashboardLayout title="Dashboard" subtitle={`Welcome back, ${user.email}`}>
+    <DashboardLayout title="Dashboard" subtitle={`Welcome back, ${displayName}`}>
       {/* Error Message */}
       {error && (
         <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-red-800">
