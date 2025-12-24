@@ -1,88 +1,71 @@
-# Blue Drum AI - Landing Page
+# Blue Drum AI
 
-Early signup landing page for Blue Drum AI - Your Legal Vigilance Partner.
+Evidence-based legal protection platform for Indian men and women navigating relationship disputes.
 
-## Deploy to Render (frontend + backend)
+## 🎯 What We Do
 
-This repo includes:
-- **Frontend**: Vite static site (this folder)
-- **Backend**: Express API in `backend/`
+Blue Drum AI provides a proactive "Digital Legal Shield" to help users:
+- **Document evidence** with timestamps and metadata
+- **Organize files** into lawyer-ready case files
+- **Identify risks** through AI-powered analysis
+- **Protect rights** with secure, encrypted storage
 
-### 1) Create Supabase waitlist table
+## 🚀 Quick Start
 
-Run `supabase/waitlist.sql` in Supabase SQL Editor.
-
-### 2) Deploy using Render Blueprint
-
-1. Push this repo to GitHub.
-2. In Render: **New > Blueprint** and select this repo (Render will read `render.yaml`).
-3. After services are created, set Render environment variables:
-   - **Backend (`bluedrumai-api`)**:
-     - `SUPABASE_URL`
-     - `SUPABASE_SERVICE_ROLE_KEY` (secret)
-   - **Frontend (`bluedrumai-web`)**:
-     - `VITE_API_BASE_URL` = your backend URL (example: `https://bluedrumai-api.onrender.com`)
-4. Trigger a redeploy of the frontend after setting `VITE_API_BASE_URL` (it is injected at build time).
-
-### 3) Keep the Render backend alive (free tier)
-
-This repo includes a GitHub Action scheduled ping:
-- Workflow: `.github/workflows/keepalive.yml`
-- It calls your backend `/health` and `/health/db` endpoints every 10 minutes.
-  - `/health/db` performs a tiny Supabase query so your Supabase project stays active on free tier.
-
-Add a GitHub repo secret:
-- `RENDER_HEALTH_URL` = `https://YOUR_BACKEND.onrender.com/health`
-
-## Features
-
-- Modern, responsive design
-- Email waitlist signup
-- Gender-specific module selection
-- Mobile-friendly
-- Ready to deploy
-
-## Setup
-
-1. Install dependencies:
 ```bash
+# Install dependencies
 npm install
+cd backend && npm install && cd ..
+
+# Set up environment variables (see docs/SETUP.md)
+cp backend/ENV.sample.txt backend/.env
+# Edit backend/.env with your keys
+
+# Run migrations in Supabase SQL Editor (see docs/SETUP.md)
+
+# Start development servers
+cd backend && npm run dev  # Terminal 1
+npm run dev                 # Terminal 2
 ```
 
-2. Start development server:
-```bash
-npm run dev
+Visit `http://localhost:5173`
+
+## 📚 Documentation
+
+- [Setup Guide](./docs/SETUP.md) - Complete setup instructions
+- [Clerk-Supabase Integration](./docs/CLERK_SUPABASE_INTEGRATION.md) - Authentication & Storage setup
+- [Architecture](./docs/ARCHITECTURE.md) - System design and architecture
+- [API Documentation](./docs/API.md) - Backend API reference
+- [Database Schema](./docs/DATABASE.md) - Database structure
+- [Migrations Guide](./docs/MIGRATIONS.md) - Database migration instructions
+- [Repository Structure](./docs/STRUCTURE.md) - Project organization
+
+## 🏗️ Project Structure
+
+```
+├── backend/          # Express + TypeScript API
+├── src/             # React + TypeScript frontend
+├── supabase/        # Database migrations
+└── docs/            # Documentation
 ```
 
-3. Build for production:
-```bash
-npm run build
-```
+## ✨ Features
 
-## Backend Integration
-This project now uses the included **Express backend** in `backend/` to write waitlist signups into Supabase.
+- ✅ **Authentication** - Clerk integration with sign up/in/reset
+- ✅ **Consent Vault** - Secure file upload and organization
+- ✅ **AI Analysis** - Risk assessment and legal context
+- ✅ **Audit Logging** - Production-grade data collection
+- ✅ **Analytics** - User behavior and feature usage tracking
 
-## Environment Variables
-Frontend:
+## 🔒 Security
 
-```env
-VITE_API_BASE_URL=http://localhost:3001
-```
+- JWT token validation
+- Row Level Security (RLS)
+- Input sanitization
+- Rate limiting
+- Audit trails
+- Encrypted storage
 
-Backend: see `backend/ENV.sample.txt` (create `backend/.env` locally; do not commit).
-
-## Deployment
-Use Render Blueprint (recommended) — see **Deploy to Render** section above.
-
-## Next Steps
-
-1. Set up backend/Supabase for email collection
-2. Add analytics (Google Analytics, PostHog)
-3. Add social media links
-4. Customize colors/branding
-5. Add more content sections
-
-## License
+## 📝 License
 
 Private - All rights reserved
-

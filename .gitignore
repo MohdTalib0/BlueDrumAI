@@ -1,3 +1,25 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Production builds
+dist/
+dist-ssr/
+build/
+*.local
+
+# Backend build
+backend/dist/
+
+# Environment variables
+.env
+.env.local
+.env.production.local
+.env.development.local
+backend/.env
+backend/.env.local
+
 # Logs
 logs
 *.log
@@ -6,11 +28,6 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
-
-node_modules
-dist
-dist-ssr
-*.local
 
 # Editor directories and files
 .vscode/*
@@ -23,18 +40,15 @@ dist-ssr
 *.sln
 *.sw?
 
-# Environment variables
-.env
-.env.local
-.env.production.local
-
-# Backend env (never commit secrets)
-backend/.env
-
-# Coverage / test artifacts
+# Testing
 coverage
 .nyc_output
 
-# OS junk
+# OS
 Thumbs.db
+.DS_Store
 
+# Temporary files
+*.tmp
+*.temp
+.cache

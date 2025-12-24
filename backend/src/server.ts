@@ -8,13 +8,17 @@ import { supabaseAdmin } from './supabase'
 import { generateRiskCheckAdvice } from './services/ai'
 import { requestIdMiddleware } from './middleware/requestId'
 import { errorHandler, notFoundHandler } from './middleware/errorHandler'
-//import { apiLoggerMiddleware } from './middleware/auditLogger'
-//import { activityTrackerMiddleware } from './middleware/activityTracker'
-//import { trackSession } from './middleware/sessionTracker'
+import { apiLoggerMiddleware } from './middleware/auditLogger'
+import { activityTrackerMiddleware } from './middleware/activityTracker'
+import { trackSession } from './middleware/sessionTracker'
 import { sanitizeEmail, sanitizeAnswers, sanitizeManualInput } from './utils/sanitize'
-//import authRoutes from './routes/auth'
-//import vaultRoutes from './routes/vault'
-//import healthRoutes from './routes/health'
+import authRoutes from './routes/auth'
+import vaultRoutes from './routes/vault'
+import incomeRoutes from './routes/income'
+import analyzeRoutes from './routes/analyze'
+import dashboardRoutes from './routes/dashboard'
+import exportRoutes from './routes/export'
+import healthRoutes from './routes/health'
 
 const app = express()
 
@@ -43,13 +47,13 @@ app.use(
 app.use(requestIdMiddleware)
 
 // API request logging (after request ID is set)
-//app.use(apiLoggerMiddleware)
+app.use(apiLoggerMiddleware)
 
 // Activity tracking
-//app.use(activityTrackerMiddleware)
+app.use(activityTrackerMiddleware)
 
 // Session tracking (for authenticated routes)
-//app.use(trackSession)
+app.use(trackSession)
 
 // CORS configuration - Simplified based on production best practices
 const baseOrigins = [
@@ -93,9 +97,13 @@ app.use(
 app.use(express.json({ limit: '200kb' }))
 
 // API Routes
-//app.use('/api/auth', authRoutes)
-//app.use('/api/vault', vaultRoutes)
-//app.use('/api/health', healthRoutes)
+app.use('/api/auth', authRoutes)
+app.use('/api/vault', vaultRoutes)
+app.use('/api/income', incomeRoutes)
+app.use('/api/analyze', analyzeRoutes)
+app.use('/api/dashboard', dashboardRoutes)
+app.use('/api/export', exportRoutes)
+app.use('/api/health', healthRoutes)
 
 // Rate limit health checks to prevent abuse
 const healthLimiter = rateLimit({
@@ -274,12 +282,25 @@ app.post('/api/risk-check', riskCheckLimiter, async (req: express.Request, res: 
       })
     }
 
+    // Get user ID from email (if exists)
+    let supabaseUserId: string | null = null
+    try {
+      const { data: userData } = await supabaseAdmin.from('users').select('id').eq('email', email).single()
+      supabaseUserId = userData?.id || null
+    } catch {
+      // User might not exist yet, that's okay
+    }
+
     // Generate AI response
-    const aiResponse = await generateRiskCheckAdvice({
-      gender,
-      answers,
-      manualInput: manualInput || undefined,
-    })
+    const aiResponse = await generateRiskCheckAdvice(
+      {
+        gender,
+        answers,
+        manualInput: manualInput || undefined,
+      },
+      supabaseUserId,
+      undefined // Will be set after insert
+    )
 
     // Store in database
     const { data: riskCheck, error: dbError } = await supabaseAdmin
