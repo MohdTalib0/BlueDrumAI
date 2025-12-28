@@ -39,10 +39,19 @@ function SignupForm({ onClose }: SignupFormProps) {
 
     try {
       const apiBase = (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:3001'
+      const supabaseAnonKey = (import.meta as any).env?.VITE_SUPABASE_ANON_KEY
 
-      const resp = await fetch(`${apiBase}/api/waitlist`, {
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+      
+      // Add Supabase anon key if available (required for edge functions)
+      if (supabaseAnonKey) {
+        headers['Authorization'] = `Bearer ${supabaseAnonKey}`
+        headers['apikey'] = supabaseAnonKey
+      }
+
+      const resp = await fetch(`${apiBase}/waitlist`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           email,
           interest: gender,

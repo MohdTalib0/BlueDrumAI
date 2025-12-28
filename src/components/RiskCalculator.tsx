@@ -173,6 +173,7 @@ export default function RiskCalculator({
 
     try {
       const apiBase = apiBaseUrl || (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:3001'
+      const supabaseAnonKey = (import.meta as any).env?.VITE_SUPABASE_ANON_KEY
 
       // Combine all manual inputs into one string
       const allManualInputs = [
@@ -182,9 +183,17 @@ export default function RiskCalculator({
         .filter(Boolean)
         .join('\n\n')
 
-      const resp = await fetch(`${apiBase}/api/risk-check`, {
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+      
+      // Add Supabase anon key if available (required for edge functions)
+      if (supabaseAnonKey) {
+        headers['Authorization'] = `Bearer ${supabaseAnonKey}`
+        headers['apikey'] = supabaseAnonKey
+      }
+
+      const resp = await fetch(`${apiBase}/risk-check`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           email,
           gender,
