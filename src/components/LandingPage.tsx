@@ -9,6 +9,12 @@ import {
   Shield,
   Sparkles,
   Users,
+  MessageSquare,
+  GitCompare,
+  BookOpen,
+  Bot,
+  Zap,
+  Brain,
 } from 'lucide-react'
 import SignupForm from './SignupForm'
 import RiskCalculator from './RiskCalculator'
@@ -194,6 +200,13 @@ function LandingPage() {
             <button onClick={() => scrollTo('how')} className="btn-secondary w-full flex items-center justify-center sm:w-auto">
               See how it works
             </button>
+            <button 
+              onClick={() => setShowRisk(true)} 
+              className="w-full flex items-center justify-center gap-2 rounded-xl border-2 border-orange-300 bg-gradient-to-r from-orange-50 to-yellow-50 px-6 py-3 text-sm font-bold text-orange-700 shadow-md hover:from-orange-100 hover:to-yellow-100 transition-all sm:w-auto"
+            >
+              <AlertTriangle className="h-5 w-5" />
+              Free Risk Check
+            </button>
           </div>
 
           <div className="mx-auto mt-14 grid max-w-5xl grid-cols-1 gap-4 md:grid-cols-3">
@@ -214,6 +227,300 @@ function LandingPage() {
                 </div>
               </Card>
             ))}
+          </div>
+
+          {/* Risk Check Quick Access */}
+          <div className="mx-auto mt-12 max-w-2xl">
+            <Card className="border-2 border-orange-200 bg-gradient-to-r from-orange-50 to-yellow-50 p-6 text-center">
+              <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-between">
+                <div className="text-left">
+                  <div className="flex items-center gap-2 mb-2">
+                    <AlertTriangle className="h-5 w-5 text-orange-600" />
+                    <h3 className="text-lg font-bold text-gray-900">Try Our Free Risk Check</h3>
+                  </div>
+                  <p className="text-sm text-gray-600">
+                    Get instant AI-powered insights on your legal readiness—no signup required.
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowRisk(true)}
+                  className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-orange-600 to-red-600 px-6 py-3 font-bold text-white shadow-md hover:from-orange-700 hover:to-red-700 transition-all transform hover:scale-105"
+                >
+                  <AlertTriangle className="h-5 w-5" />
+                  Start Now
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+              </div>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Risk Check CTA Section */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-orange-50 via-yellow-50 to-red-50 py-16">
+        <div className="container mx-auto px-4">
+          <div className="mx-auto max-w-4xl">
+            <div className="rounded-2xl border-2 border-orange-200 bg-white p-8 shadow-xl md:p-12">
+              <div className="text-center">
+                <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-orange-100 to-yellow-100 px-6 py-2 text-sm font-bold text-orange-800">
+                  <AlertTriangle className="h-5 w-5" />
+                  <span>Try it now - No signup required</span>
+                </div>
+                <h2 className="text-3xl font-bold text-gray-900 md:text-4xl">
+                  Check Your Legal Readiness
+                  <span className="block mt-2 text-2xl md:text-3xl text-orange-600">
+                    Free AI-Powered Risk Assessment
+                  </span>
+                </h2>
+                <p className="mx-auto mt-4 max-w-2xl text-lg text-gray-600">
+                  Answer a few questions about your situation and get instant AI-powered insights on your legal readiness, risk factors, and what evidence you should collect.
+                </p>
+                <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
+                  <button
+                    onClick={() => setShowRisk(true)}
+                    className="group w-full flex items-center justify-center gap-3 rounded-xl bg-gradient-to-r from-orange-600 to-red-600 px-8 py-4 text-lg font-bold text-white shadow-lg hover:from-orange-700 hover:to-red-700 transition-all transform hover:scale-105 sm:w-auto"
+                  >
+                    <AlertTriangle className="h-6 w-6" />
+                    Start Free Risk Check
+                    <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                  </button>
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <CheckCircle2 className="h-5 w-5 text-green-600" />
+                    <span>No signup required • Takes 2 minutes • Instant results</span>
+                  </div>
+                </div>
+                <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
+                  {[
+                    { icon: Shield, text: 'AI-Powered Analysis' },
+                    { icon: Scale, text: 'Legal Readiness Score' },
+                    { icon: FileText, text: 'Actionable Recommendations' },
+                  ].map((item, idx) => (
+                    <div key={idx} className="flex flex-col items-center gap-2 rounded-lg bg-gray-50 p-4">
+                      <item.icon className="h-6 w-6 text-orange-600" />
+                      <span className="text-sm font-semibold text-gray-700">{item.text}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Red Flag Radar - Unique Feature Highlight */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50 py-20">
+        <div className="container mx-auto px-4">
+          <div className="mx-auto max-w-6xl">
+            {/* Badge */}
+            <div className="mb-6 flex justify-center">
+              <div className="inline-flex items-center gap-2 rounded-full bg-red-100 px-6 py-3 text-sm font-bold text-red-800 shadow-sm">
+                <Zap className="h-5 w-5" />
+                <span>Most Advanced Feature</span>
+              </div>
+            </div>
+
+            {/* Main Title */}
+            <div className="text-center">
+              <h2 className="text-4xl font-bold text-gray-900 md:text-5xl">
+                Red Flag Radar
+                <span className="block mt-2 bg-gradient-to-r from-red-600 to-orange-600 bg-clip-text text-transparent">
+                  AI-Powered Protection
+                </span>
+              </h2>
+              <p className="mx-auto mt-4 max-w-3xl text-xl text-gray-700">
+                The only platform that uses advanced AI to analyze conversations, detect manipulation patterns, and help you learn to recognize red flags—before it's too late.
+              </p>
+            </div>
+
+            {/* Unique Features Grid */}
+            <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {/* AI-Powered Analysis */}
+              <Card className="relative overflow-hidden border-2 border-red-200 bg-white p-6 shadow-lg">
+                <div className="absolute top-0 right-0 rounded-bl-lg bg-red-100 px-3 py-1 text-xs font-bold text-red-700">
+                  AI-Powered
+                </div>
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-red-500 to-orange-500 text-white shadow-md">
+                  <Brain className="h-6 w-6" />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900">Advanced AI Analysis</h3>
+                <p className="mt-2 text-sm text-gray-600">
+                  Not just keyword matching. Our AI understands context, detects manipulation patterns, and identifies subtle red flags that humans might miss.
+                </p>
+                <ul className="mt-4 space-y-2 text-sm text-gray-700">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="mt-0.5 h-4 w-4 text-green-600 shrink-0" />
+                    <span>Context-aware pattern detection</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="mt-0.5 h-4 w-4 text-green-600 shrink-0" />
+                    <span>Risk scoring (0-100) with breakdown</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="mt-0.5 h-4 w-4 text-green-600 shrink-0" />
+                    <span>Actionable recommendations</span>
+                  </li>
+                </ul>
+              </Card>
+
+              {/* Multi-Platform Support */}
+              <Card className="relative overflow-hidden border-2 border-blue-200 bg-white p-6 shadow-lg">
+                <div className="absolute top-0 right-0 rounded-bl-lg bg-blue-100 px-3 py-1 text-xs font-bold text-blue-700">
+                  Universal
+                </div>
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-indigo-500 text-white shadow-md">
+                  <MessageSquare className="h-6 w-6" />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900">Multi-Platform Support</h3>
+                <p className="mt-2 text-sm text-gray-600">
+                  Works with WhatsApp, SMS, Email, or manual text input. Our universal parser handles any chat format automatically.
+                </p>
+                <ul className="mt-4 space-y-2 text-sm text-gray-700">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="mt-0.5 h-4 w-4 text-green-600 shrink-0" />
+                    <span>WhatsApp export (.txt)</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="mt-0.5 h-4 w-4 text-green-600 shrink-0" />
+                    <span>SMS backups (.csv)</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="mt-0.5 h-4 w-4 text-green-600 shrink-0" />
+                    <span>Email threads (.eml)</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="mt-0.5 h-4 w-4 text-green-600 shrink-0" />
+                    <span>Manual text paste</span>
+                  </li>
+                </ul>
+              </Card>
+
+              {/* AI Comparison */}
+              <Card className="relative overflow-hidden border-2 border-purple-200 bg-white p-6 shadow-lg">
+                <div className="absolute top-0 right-0 rounded-bl-lg bg-purple-100 px-3 py-1 text-xs font-bold text-purple-700">
+                  Exclusive
+                </div>
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-md">
+                  <GitCompare className="h-6 w-6" />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900">AI-Powered Comparison</h3>
+                <p className="mt-2 text-sm text-gray-600">
+                  Compare multiple chat analyses side-by-side. AI detects trends, escalation patterns, and provides comparative insights—unique to Blue Drum AI.
+                </p>
+                <ul className="mt-4 space-y-2 text-sm text-gray-700">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="mt-0.5 h-4 w-4 text-green-600 shrink-0" />
+                    <span>Trend analysis over time</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="mt-0.5 h-4 w-4 text-green-600 shrink-0" />
+                    <span>Escalation detection</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="mt-0.5 h-4 w-4 text-green-600 shrink-0" />
+                    <span>Common pattern identification</span>
+                  </li>
+                </ul>
+              </Card>
+
+              {/* Interactive Learning */}
+              <Card className="relative overflow-hidden border-2 border-green-200 bg-white p-6 shadow-lg">
+                <div className="absolute top-0 right-0 rounded-bl-lg bg-green-100 px-3 py-1 text-xs font-bold text-green-700">
+                  Educational
+                </div>
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 text-white shadow-md">
+                  <BookOpen className="h-6 w-6" />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900">Red Flag Experience</h3>
+                <p className="mt-2 text-sm text-gray-600">
+                  Learn to recognize red flags through AI-powered interactive conversations. Practice identifying manipulation in a safe environment.
+                </p>
+                <ul className="mt-4 space-y-2 text-sm text-gray-700">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="mt-0.5 h-4 w-4 text-green-600 shrink-0" />
+                    <span>AI simulates manipulative behavior</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="mt-0.5 h-4 w-4 text-green-600 shrink-0" />
+                    <span>Real-time red flag detection</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="mt-0.5 h-4 w-4 text-green-600 shrink-0" />
+                    <span>Educational notes and lessons</span>
+                  </li>
+                </ul>
+              </Card>
+
+              {/* Demo Red Flag */}
+              <Card className="relative overflow-hidden border-2 border-pink-200 bg-white p-6 shadow-lg">
+                <div className="absolute top-0 right-0 rounded-bl-lg bg-pink-100 px-3 py-1 text-xs font-bold text-pink-700">
+                  For Women
+                </div>
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-pink-500 to-rose-500 text-white shadow-md">
+                  <Bot className="h-6 w-6" />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900">Demo Red Flag Chat</h3>
+                <p className="mt-2 text-sm text-gray-600">
+                  Chat with an AI that demonstrates red flag behaviors. Experience manipulation patterns firsthand to build recognition skills.
+                </p>
+                <ul className="mt-4 space-y-2 text-sm text-gray-700">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="mt-0.5 h-4 w-4 text-green-600 shrink-0" />
+                    <span>Interactive AI conversations</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="mt-0.5 h-4 w-4 text-green-600 shrink-0" />
+                    <span>Adaptive responses based on your input</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="mt-0.5 h-4 w-4 text-green-600 shrink-0" />
+                    <span>Safe learning environment</span>
+                  </li>
+                </ul>
+              </Card>
+
+              {/* Real-time Detection */}
+              <Card className="relative overflow-hidden border-2 border-orange-200 bg-white p-6 shadow-lg">
+                <div className="absolute top-0 right-0 rounded-bl-lg bg-orange-100 px-3 py-1 text-xs font-bold text-orange-700">
+                  Real-time
+                </div>
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 text-white shadow-md">
+                  <Zap className="h-6 w-6" />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900">Instant Insights</h3>
+                <p className="mt-2 text-sm text-gray-600">
+                  Get immediate analysis with detailed breakdowns. See red flags, patterns, and recommendations as soon as you upload.
+                </p>
+                <ul className="mt-4 space-y-2 text-sm text-gray-700">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="mt-0.5 h-4 w-4 text-green-600 shrink-0" />
+                    <span>Detailed risk breakdown</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="mt-0.5 h-4 w-4 text-green-600 shrink-0" />
+                    <span>Pattern examples with quotes</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="mt-0.5 h-4 w-4 text-green-600 shrink-0" />
+                    <span>PDF export for lawyers</span>
+                  </li>
+                </ul>
+              </Card>
+            </div>
+
+            {/* CTA */}
+            <div className="mt-12 text-center">
+              <p className="text-lg font-semibold text-gray-700 mb-4">
+                Ready to protect yourself with AI-powered analysis?
+              </p>
+              <button
+                onClick={() => setShowForm(true)}
+                className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-red-600 to-orange-600 px-8 py-4 text-lg font-bold text-white shadow-lg hover:from-red-700 hover:to-orange-700 transition-all transform hover:scale-105"
+              >
+                <Sparkles className="h-5 w-5" />
+                Join Waitlist for Early Access
+                <ArrowRight className="h-5 w-5" />
+              </button>
+            </div>
           </div>
         </div>
       </section>
@@ -555,15 +862,24 @@ function LandingPage() {
       {showForm ? <SignupForm onClose={() => setShowForm(false)} /> : null}
       {showRisk ? <RiskCalculator onClose={() => setShowRisk(false)} /> : null}
 
-      {/* Blue Drum bubble */}
+      {/* Blue Drum bubble - Enhanced */}
       <button
         type="button"
         onClick={() => setShowRisk(true)}
-        className="fixed bottom-5 right-5 z-40 flex items-center gap-2 rounded-full bg-white px-3 py-2 shadow-lg ring-1 ring-black/5 hover:shadow-xl sm:px-4 sm:py-3"
+        className="group fixed bottom-5 right-5 z-40 flex items-center gap-3 rounded-full bg-gradient-to-r from-orange-500 to-red-500 px-4 py-3 shadow-2xl ring-4 ring-orange-200/50 hover:shadow-2xl hover:ring-orange-300/70 transition-all transform hover:scale-110 animate-pulse sm:px-6 sm:py-4"
         aria-label="Open safety & documentation check"
       >
-        <img src="/drum.svg" alt="Blue Drum risk check" className="h-10 w-10 sm:h-12 sm:w-12 bd-drum-animate" />
-        <span className="hidden text-sm font-semibold text-gray-900 sm:inline">Risk check</span>
+        <div className="relative">
+          <img src="/drum.svg" alt="Blue Drum risk check" className="h-10 w-10 sm:h-12 sm:w-12 bd-drum-animate filter brightness-0 invert" />
+          <div className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-white text-xs font-bold text-orange-600 shadow-md">
+            !
+          </div>
+        </div>
+        <div className="flex flex-col items-start">
+          <span className="text-sm font-bold text-white sm:text-base">Free Risk Check</span>
+          <span className="text-xs text-white/90">Try it now</span>
+        </div>
+        <ArrowRight className="h-5 w-5 text-white group-hover:translate-x-1 transition-transform" />
       </button>
     </div>
   )
