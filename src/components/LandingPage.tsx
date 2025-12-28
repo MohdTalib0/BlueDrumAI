@@ -200,13 +200,6 @@ function LandingPage() {
             <button onClick={() => scrollTo('how')} className="btn-secondary w-full flex items-center justify-center sm:w-auto">
               See how it works
             </button>
-            <button 
-              onClick={() => setShowRisk(true)} 
-              className="w-full flex items-center justify-center gap-2 rounded-xl border-2 border-orange-300 bg-gradient-to-r from-orange-50 to-yellow-50 px-6 py-3 text-sm font-bold text-orange-700 shadow-md hover:from-orange-100 hover:to-yellow-100 transition-all sm:w-auto"
-            >
-              <AlertTriangle className="h-5 w-5" />
-              Free Risk Check
-            </button>
           </div>
 
           <div className="mx-auto mt-14 grid max-w-5xl grid-cols-1 gap-4 md:grid-cols-3">
@@ -230,29 +223,7 @@ function LandingPage() {
           </div>
 
           {/* Risk Check Quick Access */}
-          <div className="mx-auto mt-12 max-w-2xl">
-            <Card className="border-2 border-orange-200 bg-gradient-to-r from-orange-50 to-yellow-50 p-6 text-center">
-              <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-between">
-                <div className="text-left">
-                  <div className="flex items-center gap-2 mb-2">
-                    <AlertTriangle className="h-5 w-5 text-orange-600" />
-                    <h3 className="text-lg font-bold text-gray-900">Try Our Free Risk Check</h3>
-                  </div>
-                  <p className="text-sm text-gray-600">
-                    Get instant AI-powered insights on your legal readiness—no signup required.
-                  </p>
-                </div>
-                <button
-                  onClick={() => setShowRisk(true)}
-                  className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-orange-600 to-red-600 px-6 py-3 font-bold text-white shadow-md hover:from-orange-700 hover:to-red-700 transition-all transform hover:scale-105"
-                >
-                  <AlertTriangle className="h-5 w-5" />
-                  Start Now
-                  <ArrowRight className="h-4 w-4" />
-                </button>
-              </div>
-            </Card>
-          </div>
+          
         </div>
       </section>
 
