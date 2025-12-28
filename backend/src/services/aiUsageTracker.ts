@@ -7,7 +7,7 @@ import { supabaseAdmin } from '../supabase'
 
 export interface AIUsageData {
   userId: string | null
-  serviceType: 'risk_check' | 'chat_analysis' | 'other'
+  serviceType: 'risk_check' | 'chat_analysis' | 'comparison_analysis' | 'red_flag_chat' | 'other'
   provider: 'anthropic' | 'openai'
   model: string
   inputTokens: number

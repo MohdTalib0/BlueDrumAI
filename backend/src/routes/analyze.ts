@@ -6,7 +6,7 @@ import { uploadToStorage, generateFilePath } from '../services/storage'
 import { logAuditEvent } from '../middleware/auditLogger'
 import { parseWhatsAppChat, extractTextContent } from '../services/ai/chatParser'
 import { parseUniversalChat, PlatformType } from '../services/ai/universalChatParser'
-import { analyzeChatWithAI } from '../services/ai'
+import { analyzeChatWithAI, compareAnalysesWithAI, generateRedFlagChatResponse } from '../services/ai'
 import { generateChatAnalysisPDF } from '../services/chatAnalysisPDF'
 
 const router = express.Router()
@@ -483,6 +483,126 @@ router.delete('/:id', requireAuth, async (req: express.Request, res: express.Res
       message: 'Analysis deleted successfully',
     })
   } catch (err: any) {
+    next(err)
+  }
+})
+
+/**
+ * POST /api/analyze/compare
+ * Compare multiple chat analyses using AI
+ */
+router.post('/compare', requireAuth, async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  try {
+    const userId = getUserId(req)
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' })
+    }
+
+    const { analysisIds } = req.body
+
+    if (!analysisIds || !Array.isArray(analysisIds) || analysisIds.length < 2) {
+      return res.status(400).json({ error: 'At least 2 analysis IDs are required for comparison' })
+    }
+
+    if (analysisIds.length > 5) {
+      return res.status(400).json({ error: 'Maximum 5 analyses can be compared at once' })
+    }
+
+    // Fetch all analyses
+    const { data: analyses, error } = await supabaseAdmin
+      .from('chat_analyses')
+      .select('id, risk_score, red_flags, patterns_detected, analysis_text, recommendations, created_at, platform')
+      .eq('user_id', userId)
+      .in('id', analysisIds)
+
+    if (error) {
+      console.error('[Chat Analysis] Error fetching analyses for comparison:', error)
+      return res.status(500).json({ error: 'Failed to fetch analyses', details: error.message })
+    }
+
+    if (!analyses || analyses.length !== analysisIds.length) {
+      return res.status(404).json({ error: 'One or more analyses not found' })
+    }
+
+    // Prepare data for AI comparison
+    const comparisonData = analyses.map((analysis) => ({
+      id: analysis.id,
+      riskScore: analysis.risk_score,
+      redFlags: analysis.red_flags || [],
+      patternsDetected: analysis.patterns_detected || [],
+      summary: analysis.analysis_text || '',
+      recommendations: analysis.recommendations || [],
+      createdAt: analysis.created_at,
+      platform: analysis.platform,
+    }))
+
+    // Generate AI comparison
+    const { response: comparison, usage } = await compareAnalysesWithAI(
+      { analyses: comparisonData },
+      userId,
+      analysisIds
+    )
+
+    // Log audit event
+    await logAuditEvent(req, 'create', 'comparison_analysis', 'multiple', {
+      after: {
+        analysis_ids: analysisIds,
+        trend: comparison.trend,
+        escalation_detected: comparison.escalationDetected,
+      },
+    }).catch(() => {})
+
+    res.json({
+      success: true,
+      comparison,
+      usage,
+    })
+  } catch (err: any) {
+    console.error('[Chat Analysis] Error comparing analyses:', err)
+    next(err)
+  }
+})
+
+/**
+ * POST /api/analyze/red-flag-chat
+ * Generate AI-powered red flag chat response for educational purposes
+ */
+router.post('/red-flag-chat', requireAuth, async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  try {
+    const userId = getUserId(req)
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' })
+    }
+
+    const { scenarioType, conversationHistory, userMessage } = req.body
+
+    if (!scenarioType || !userMessage) {
+      return res.status(400).json({ error: 'scenarioType and userMessage are required' })
+    }
+
+    if (!['guilt_trip', 'isolation', 'gaslighting', 'financial_control', 'general'].includes(scenarioType)) {
+      return res.status(400).json({ error: 'Invalid scenarioType' })
+    }
+
+    // Generate AI red flag response
+    const { response, usage } = await generateRedFlagChatResponse(
+      {
+        scenarioType,
+        conversationHistory: conversationHistory || [],
+        userMessage,
+      },
+      userId
+    )
+
+    res.json({
+      success: true,
+      response: response.response,
+      redFlagsDetected: response.redFlagsDetected,
+      educationalNote: response.educationalNote,
+      usage,
+    })
+  } catch (err: any) {
+    console.error('[Red Flag Chat] Error generating response:', err)
     next(err)
   }
 })

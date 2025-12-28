@@ -513,7 +513,7 @@ export default function ExpenseTracker() {
         )}
 
         {/* Charts Section */}
-        {showCharts && filteredEntries.length > 0 && (
+        {filteredEntries.length > 0 && (
           <div className="mb-6 space-y-6">
             <button
               onClick={() => setShowCharts(!showCharts)}

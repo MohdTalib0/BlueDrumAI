@@ -42,3 +42,5 @@ Project-AlimonyAI/
 
 See [Setup Guide](./SETUP.md) for complete environment variable configuration.
 
+##aditional feature request
+uniqye red flag in public page, compare your current, you want to be a red flag(its an expierience so u can learn and be wary),quick access(clicable,color full)

@@ -12,9 +12,9 @@ export default function Onboarding() {
   const [syncing, setSyncing] = useState(true)
   const [error, setError] = useState('')
 
-  // Auto-sync user when component mounts
+  // Check if user has already completed onboarding and redirect if so
   useEffect(() => {
-    const syncUser = async () => {
+    const checkOnboardingStatus = async () => {
       if (authLoading) return
       if (!sessionToken || !user) {
         setSyncing(false)
@@ -24,7 +24,23 @@ export default function Onboarding() {
       try {
         const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
 
-        // Sync user from Clerk to Supabase (creates Supabase Auth user too)
+        // Check user's onboarding status
+        const response = await fetch(`${apiBase}/api/auth/me`, {
+          headers: {
+            Authorization: `Bearer ${sessionToken}`,
+          },
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          if (data.ok && data.user?.onboarding_completed) {
+            // User has already completed onboarding, redirect to dashboard
+            navigate('/dashboard')
+            return
+          }
+        }
+
+        // Sync user from Supabase Auth to public.users table
         const syncResp = await fetch(`${apiBase}/api/auth/sync-user`, {
           method: 'POST',
           headers: {
@@ -38,15 +54,15 @@ export default function Onboarding() {
           // Continue anyway - the PATCH endpoint will try to sync if user doesn't exist
         }
       } catch (err) {
-        console.error('Failed to sync user:', err)
+        console.error('Failed to check onboarding status:', err)
         // Continue anyway
       } finally {
         setSyncing(false)
       }
     }
 
-    syncUser()
-  }, [authLoading, sessionToken, user])
+    checkOnboardingStatus()
+  }, [authLoading, sessionToken, user, navigate])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

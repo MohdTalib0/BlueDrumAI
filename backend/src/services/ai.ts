@@ -733,3 +733,581 @@ export async function analyzeChatWithAI(
   }
 }
 
+// Comparison Analysis Types
+export type ComparisonAnalysisInput = {
+  analyses: Array<{
+    id: string
+    riskScore: number
+    redFlags: Array<{ type: string; severity: string; message: string }>
+    patternsDetected: Array<{ pattern: string; description: string }>
+    summary: string
+    recommendations: string[]
+    createdAt: string
+    platform?: string
+  }>
+}
+
+export type ComparisonAnalysisResponse = {
+  trend: 'improving' | 'worsening' | 'stable' | 'mixed'
+  riskTrend: {
+    direction: 'increasing' | 'decreasing' | 'stable'
+    change: number // Percentage change
+    description: string
+  }
+  commonPatterns: Array<{
+    pattern: string
+    frequency: number
+    severity: 'low' | 'medium' | 'high' | 'critical'
+    description: string
+  }>
+  escalationDetected: boolean
+  escalationDetails?: {
+    severity: 'low' | 'medium' | 'high' | 'critical'
+    description: string
+    evidence: string[]
+  }
+  insights: string[]
+  recommendations: string[]
+  summary: string
+}
+
+// Build prompt for comparison analysis
+function buildComparisonPrompt(input: ComparisonAnalysisInput): string {
+  const { analyses } = input
+  
+  // Sort analyses by date
+  const sortedAnalyses = [...analyses].sort(
+    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+  )
+
+  const analysisData = sortedAnalyses.map((analysis, index) => {
+    return `
+Analysis ${index + 1} (${new Date(analysis.createdAt).toLocaleDateString()}):
+- Risk Score: ${analysis.riskScore}/100
+- Platform: ${analysis.platform || 'Unknown'}
+- Red Flags: ${analysis.redFlags.length} (${analysis.redFlags.map((rf) => `${rf.type} (${rf.severity})`).join(', ')})
+- Patterns: ${analysis.patternsDetected.map((p) => p.pattern).join(', ')}
+- Summary: ${analysis.summary.substring(0, 300)}...
+- Key Recommendations: ${analysis.recommendations.slice(0, 3).join('; ')}
+`
+  }).join('\n---\n')
+
+  return `You are an expert communication pattern analyst specializing in identifying trends, escalation patterns, and comparative insights across multiple chat analyses over time.
+
+You are analyzing ${analyses.length} chat analyses from the same user, spanning from ${new Date(sortedAnalyses[0].createdAt).toLocaleDateString()} to ${new Date(sortedAnalyses[sortedAnalyses.length - 1].createdAt).toLocaleDateString()}.
+
+ANALYSES DATA:
+${analysisData}
+
+YOUR TASK:
+Analyze these analyses to identify:
+1. **Risk Trend**: Is the risk score increasing, decreasing, or stable over time?
+2. **Pattern Evolution**: Are the same patterns recurring? Are new patterns emerging?
+3. **Escalation Detection**: Is there evidence of escalation in severity or frequency?
+4. **Common Themes**: What red flags or patterns appear consistently across analyses?
+5. **Comparative Insights**: What can we learn from comparing these analyses?
+
+Response format (JSON only, no markdown):
+{
+  "trend": "<improving|worsening|stable|mixed>",
+  "riskTrend": {
+    "direction": "<increasing|decreasing|stable>",
+    "change": <percentage change as number, e.g., 15 for 15% increase>,
+    "description": "<Detailed description of the risk trend with specific numbers>"
+  },
+  "commonPatterns": [
+    {
+      "pattern": "<Pattern name>",
+      "frequency": <number of times it appears>,
+      "severity": "<low|medium|high|critical>",
+      "description": "<Description of why this pattern is concerning>"
+    }
+  ],
+  "escalationDetected": <true|false>,
+  "escalationDetails": {
+    "severity": "<low|medium|high|critical>",
+    "description": "<Description of escalation evidence>",
+    "evidence": ["<specific evidence 1>", "<specific evidence 2>"]
+  },
+  "insights": [
+    "<Insight 1 about the comparison>",
+    "<Insight 2 about patterns or trends>",
+    "<Insight 3 about escalation or changes>"
+  ],
+  "recommendations": [
+    "<Specific recommendation based on comparison>",
+    "<Action item based on trends>",
+    "<Preventive measure based on patterns>"
+  ],
+  "summary": "<2-3 paragraph comprehensive summary of the comparison, highlighting key trends, patterns, and concerns>"
+}
+
+CRITICAL INSTRUCTIONS:
+- Return ONLY valid JSON, no markdown, no code blocks
+- Be SPECIFIC: Cite actual numbers, dates, and patterns
+- Focus on TRENDS: What's changing over time?
+- Identify ESCALATION: Is the situation getting worse?
+- Provide ACTIONABLE insights and recommendations`
+}
+
+// Compare multiple analyses using AI
+export async function compareAnalysesWithAI(
+  input: ComparisonAnalysisInput,
+  userId?: string | null,
+  resourceIds?: string[]
+): Promise<{ response: ComparisonAnalysisResponse; usage: any }> {
+  const prompt = buildComparisonPrompt(input)
+  const systemPrompt = 
+    'You are an expert communication pattern analyst specializing in identifying trends and escalation patterns across multiple chat analyses. Always respond in valid JSON format only.'
+
+  let result: { response: ComparisonAnalysisResponse; usage: any } | null = null
+  let provider: 'anthropic' | 'openai' = 'anthropic'
+
+  // Try Anthropic Key 1 first
+  if (anthropic1) {
+    try {
+      const model = process.env.ANTHROPIC_MODEL || 'claude-3-5-sonnet-20240620'
+      const startTime = Date.now()
+
+      const message = await anthropic1.messages.create({
+        model,
+        max_tokens: 2000,
+        system: systemPrompt,
+        messages: [
+          {
+            role: 'user',
+            content: prompt,
+          },
+        ],
+      })
+
+      const responseTime = Date.now() - startTime
+      const content = message.content[0]
+
+      if (content.type !== 'text') {
+        throw new Error('Unexpected response type from Claude')
+      }
+
+      const text = content.text.trim()
+      // Remove markdown code blocks if present
+      const jsonText = text.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim()
+      const parsed = JSON.parse(jsonText) as ComparisonAnalysisResponse
+
+      result = {
+        response: parsed,
+        usage: {
+          inputTokens: message.usage.input_tokens,
+          outputTokens: message.usage.output_tokens,
+          model,
+          responseTimeMs: responseTime,
+          requestSizeBytes: JSON.stringify({ prompt, systemPrompt }).length,
+          responseSizeBytes: text.length,
+        },
+      }
+      provider = 'anthropic'
+    } catch (error: any) {
+      console.warn('Anthropic Key 1 failed for comparison, trying Key 2:', error.message)
+    }
+  }
+
+  // Try Anthropic Key 2
+  if (!result && anthropic2) {
+    try {
+      const model = process.env.ANTHROPIC_MODEL || 'claude-3-5-sonnet-20240620'
+      const startTime = Date.now()
+
+      const message = await anthropic2.messages.create({
+        model,
+        max_tokens: 2000,
+        system: systemPrompt,
+        messages: [
+          {
+            role: 'user',
+            content: prompt,
+          },
+        ],
+      })
+
+      const responseTime = Date.now() - startTime
+      const content = message.content[0]
+
+      if (content.type !== 'text') {
+        throw new Error('Unexpected response type from Claude')
+      }
+
+      const text = content.text.trim()
+      const jsonText = text.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim()
+      const parsed = JSON.parse(jsonText) as ComparisonAnalysisResponse
+
+      result = {
+        response: parsed,
+        usage: {
+          inputTokens: message.usage.input_tokens,
+          outputTokens: message.usage.output_tokens,
+          model,
+          responseTimeMs: responseTime,
+          requestSizeBytes: JSON.stringify({ prompt, systemPrompt }).length,
+          responseSizeBytes: text.length,
+        },
+      }
+      provider = 'anthropic'
+    } catch (error: any) {
+      console.warn('Anthropic Key 2 failed for comparison, trying OpenAI fallback:', error.message)
+    }
+  }
+
+  // Fallback to OpenAI
+  if (!result && openai) {
+    try {
+      const model = process.env.OPENAI_MODEL || 'gpt-3.5-turbo'
+      const startTime = Date.now()
+
+      const completion = await openai.chat.completions.create({
+        model,
+        messages: [
+          {
+            role: 'system',
+            content: systemPrompt,
+          },
+          { role: 'user', content: prompt },
+        ],
+        temperature: 0.7,
+        max_tokens: 2000,
+        response_format: { type: 'json_object' },
+      })
+
+      const responseTime = Date.now() - startTime
+      const inputTokens = completion.usage?.prompt_tokens || 0
+      const outputTokens = completion.usage?.completion_tokens || 0
+
+      const content = completion.choices[0]?.message?.content
+      if (!content) {
+        throw new Error('No response from AI')
+      }
+
+      const parsed = JSON.parse(content) as ComparisonAnalysisResponse
+
+      result = {
+        response: parsed,
+        usage: {
+          inputTokens,
+          outputTokens,
+          model,
+          responseTimeMs: responseTime,
+          requestSizeBytes: JSON.stringify({ prompt, systemPrompt }).length,
+          responseSizeBytes: content.length,
+        },
+      }
+      provider = 'openai'
+    } catch (error: any) {
+      console.error('OpenAI fallback also failed for comparison:', error.message)
+      throw new Error('All AI providers failed for comparison. Please check API keys.')
+    }
+  }
+
+  if (!result) {
+    throw new Error('No AI provider configured for comparison')
+  }
+
+  // Log usage if userId provided
+  if (userId && result.usage) {
+    const { logAIUsage } = await import('./aiUsageTracker')
+    await logAIUsage({
+      userId,
+      serviceType: 'comparison_analysis',
+      provider,
+      model: result.usage.model,
+      inputTokens: result.usage.inputTokens,
+      outputTokens: result.usage.outputTokens,
+      totalTokens: result.usage.inputTokens + result.usage.outputTokens,
+      inputCost: 0,
+      outputCost: 0,
+      totalCost: 0,
+      requestSizeBytes: result.usage.requestSizeBytes,
+      responseSizeBytes: result.usage.responseSizeBytes,
+      responseTimeMs: result.usage.responseTimeMs,
+      resourceType: 'comparison',
+      resourceId: resourceIds?.join(',') || undefined,
+    })
+  }
+
+  return {
+    response: result.response,
+    usage: {
+      ...result.usage,
+      provider,
+    },
+  }
+}
+
+// Red Flag Chat Types
+export type RedFlagChatInput = {
+  scenarioType: 'guilt_trip' | 'isolation' | 'gaslighting' | 'financial_control' | 'general'
+  conversationHistory: Array<{
+    role: 'user' | 'assistant'
+    content: string
+  }>
+  userMessage: string
+}
+
+export type RedFlagChatResponse = {
+  response: string
+  redFlagsDetected: Array<{
+    type: string
+    severity: 'low' | 'medium' | 'high'
+    description: string
+  }>
+  educationalNote?: string
+}
+
+// Build prompt for red flag chat
+function buildRedFlagChatPrompt(input: RedFlagChatInput): string {
+  const { scenarioType, conversationHistory, userMessage } = input
+
+  const scenarioDescriptions = {
+    guilt_trip: 'guilt-tripping and emotional manipulation - making the user feel bad for having boundaries or other priorities',
+    isolation: 'attempting to isolate the user from friends and family - undermining relationships and creating dependency',
+    gaslighting: 'gaslighting and blame-shifting - making the user doubt their own memory, feelings, or reality',
+    financial_control: 'financial manipulation and control - trying to control the user\'s spending and financial decisions',
+    general: 'general manipulative behavior - a mix of various red flag patterns',
+  }
+
+  const scenarioDescription = scenarioDescriptions[scenarioType] || scenarioDescriptions.general
+
+  const historyText = conversationHistory.length > 0
+    ? conversationHistory.slice(-6).map((msg, idx) => 
+        `${msg.role === 'user' ? 'User' : 'Red Flag'}: ${msg.content}`
+      ).join('\n')
+    : 'No previous conversation'
+
+  return `You are simulating a "red flag" person in a relationship - someone who exhibits manipulative, controlling, or abusive behavior patterns. This is for EDUCATIONAL purposes only, to help users recognize these patterns in real life.
+
+SCENARIO TYPE: ${scenarioDescription}
+
+CONVERSATION HISTORY:
+${historyText}
+
+USER'S LATEST MESSAGE:
+${userMessage}
+
+YOUR TASK:
+Respond as a manipulative person would, demonstrating ${scenarioDescription}. Your response should:
+1. Be realistic and believable (not overly dramatic)
+2. Show the specific manipulation pattern for this scenario type
+3. Gradually escalate if the user sets boundaries or says "no"
+4. Use emotional manipulation, guilt, or control tactics
+5. Make the user feel responsible for your emotions
+6. Be subtle enough to be educational but clear enough to recognize
+
+IMPORTANT GUIDELINES:
+- Keep responses natural and conversational (1-3 sentences typically)
+- Don't be immediately aggressive - start subtle, escalate if user resists
+- Use "I" statements that make the user feel guilty
+- Question the user's priorities, relationships, or decisions
+- Make the user feel like they're the problem
+- If user sets boundaries, escalate the manipulation
+- Don't break character - stay in the manipulative persona
+
+Response format (JSON only, no markdown):
+{
+  "response": "<Your manipulative response as the red flag person>",
+  "redFlagsDetected": [
+    {
+      "type": "<Type of red flag shown in this response>",
+      "severity": "<low|medium|high>",
+      "description": "<Brief description of what red flag pattern this demonstrates>"
+    }
+  ],
+  "educationalNote": "<Optional: Brief educational note about what pattern this demonstrates, only if it's a clear example>"
+}
+
+CRITICAL: Return ONLY valid JSON, no markdown, no code blocks, no explanations outside JSON.`
+}
+
+// Generate red flag chat response using AI
+export async function generateRedFlagChatResponse(
+  input: RedFlagChatInput,
+  userId?: string | null
+): Promise<{ response: RedFlagChatResponse; usage: any }> {
+  const prompt = buildRedFlagChatPrompt(input)
+  const systemPrompt = 
+    'You are simulating manipulative relationship behavior for educational purposes. Stay in character as a red flag person. Always respond in valid JSON format only.'
+
+  let result: { response: RedFlagChatResponse; usage: any } | null = null
+  let provider: 'anthropic' | 'openai' = 'anthropic'
+
+  // Try Anthropic Key 1 first
+  if (anthropic1) {
+    try {
+      const model = process.env.ANTHROPIC_MODEL || 'claude-3-5-sonnet-20240620'
+      const startTime = Date.now()
+
+      const message = await anthropic1.messages.create({
+        model,
+        max_tokens: 500,
+        system: systemPrompt,
+        messages: [
+          {
+            role: 'user',
+            content: prompt,
+          },
+        ],
+      })
+
+      const responseTime = Date.now() - startTime
+      const content = message.content[0]
+
+      if (content.type !== 'text') {
+        throw new Error('Unexpected response type from Claude')
+      }
+
+      const text = content.text.trim()
+      const jsonText = text.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim()
+      const parsed = JSON.parse(jsonText) as RedFlagChatResponse
+
+      result = {
+        response: parsed,
+        usage: {
+          inputTokens: message.usage.input_tokens,
+          outputTokens: message.usage.output_tokens,
+          model,
+          responseTimeMs: responseTime,
+          requestSizeBytes: JSON.stringify({ prompt, systemPrompt }).length,
+          responseSizeBytes: text.length,
+        },
+      }
+      provider = 'anthropic'
+    } catch (error: any) {
+      console.warn('Anthropic Key 1 failed for red flag chat, trying Key 2:', error.message)
+    }
+  }
+
+  // Try Anthropic Key 2
+  if (!result && anthropic2) {
+    try {
+      const model = process.env.ANTHROPIC_MODEL || 'claude-3-5-sonnet-20240620'
+      const startTime = Date.now()
+
+      const message = await anthropic2.messages.create({
+        model,
+        max_tokens: 500,
+        system: systemPrompt,
+        messages: [
+          {
+            role: 'user',
+            content: prompt,
+          },
+        ],
+      })
+
+      const responseTime = Date.now() - startTime
+      const content = message.content[0]
+
+      if (content.type !== 'text') {
+        throw new Error('Unexpected response type from Claude')
+      }
+
+      const text = content.text.trim()
+      const jsonText = text.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim()
+      const parsed = JSON.parse(jsonText) as RedFlagChatResponse
+
+      result = {
+        response: parsed,
+        usage: {
+          inputTokens: message.usage.input_tokens,
+          outputTokens: message.usage.output_tokens,
+          model,
+          responseTimeMs: responseTime,
+          requestSizeBytes: JSON.stringify({ prompt, systemPrompt }).length,
+          responseSizeBytes: text.length,
+        },
+      }
+      provider = 'anthropic'
+    } catch (error: any) {
+      console.warn('Anthropic Key 2 failed for red flag chat, trying OpenAI fallback:', error.message)
+    }
+  }
+
+  // Fallback to OpenAI
+  if (!result && openai) {
+    try {
+      const model = process.env.OPENAI_MODEL || 'gpt-3.5-turbo'
+      const startTime = Date.now()
+
+      const completion = await openai.chat.completions.create({
+        model,
+        messages: [
+          {
+            role: 'system',
+            content: systemPrompt,
+          },
+          { role: 'user', content: prompt },
+        ],
+        temperature: 0.8, // Slightly higher for more varied responses
+        max_tokens: 500,
+        response_format: { type: 'json_object' },
+      })
+
+      const responseTime = Date.now() - startTime
+      const inputTokens = completion.usage?.prompt_tokens || 0
+      const outputTokens = completion.usage?.completion_tokens || 0
+
+      const content = completion.choices[0]?.message?.content
+      if (!content) {
+        throw new Error('No response from AI')
+      }
+
+      const parsed = JSON.parse(content) as RedFlagChatResponse
+
+      result = {
+        response: parsed,
+        usage: {
+          inputTokens,
+          outputTokens,
+          model,
+          responseTimeMs: responseTime,
+          requestSizeBytes: JSON.stringify({ prompt, systemPrompt }).length,
+          responseSizeBytes: content.length,
+        },
+      }
+      provider = 'openai'
+    } catch (error: any) {
+      console.error('OpenAI fallback also failed for red flag chat:', error.message)
+      throw new Error('All AI providers failed for red flag chat. Please check API keys.')
+    }
+  }
+
+  if (!result) {
+    throw new Error('No AI provider configured for red flag chat')
+  }
+
+  // Log usage if userId provided
+  if (userId && result.usage) {
+    const { logAIUsage } = await import('./aiUsageTracker')
+    await logAIUsage({
+      userId,
+      serviceType: 'red_flag_chat',
+      provider,
+      model: result.usage.model,
+      inputTokens: result.usage.inputTokens,
+      outputTokens: result.usage.outputTokens,
+      totalTokens: result.usage.inputTokens + result.usage.outputTokens,
+      inputCost: 0,
+      outputCost: 0,
+      totalCost: 0,
+      requestSizeBytes: result.usage.requestSizeBytes,
+      responseSizeBytes: result.usage.responseSizeBytes,
+      responseTimeMs: result.usage.responseTimeMs,
+      resourceType: 'red_flag_experience',
+      resourceId: input.scenarioType,
+    })
+  }
+
+  return {
+    response: result.response,
+    usage: {
+      ...result.usage,
+      provider,
+    },
+  }
+}

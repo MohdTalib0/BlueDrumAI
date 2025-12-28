@@ -447,12 +447,20 @@ export default function TimelineView() {
                 </button>
               </div>
 
-              {/* Export Button */}
-              {entries.length > 0 && (
-                <div className="flex items-center">
+              {/* Action Buttons */}
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => navigate('/dashboard/vault/upload')}
+                  className="inline-flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-700 transition-colors"
+                >
+                  <Upload className="h-4 w-4" />
+                  <span className="hidden sm:inline">Upload Evidence</span>
+                  <span className="sm:hidden">Upload</span>
+                </button>
+                {entries.length > 0 && (
                   <ExportButton exportType="vault" variant="outline" />
-                </div>
-              )}
+                )}
+              </div>
             </div>
 
             {/* Bulk Actions */}

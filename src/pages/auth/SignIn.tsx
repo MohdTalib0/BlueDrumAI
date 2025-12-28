@@ -32,7 +32,38 @@ export default function SignInPage() {
         setError(result.error)
       }
     } else {
-      navigate('/onboarding')
+      // Wait a bit for session to be established, then check onboarding status
+      setTimeout(async () => {
+        try {
+          const { supabase } = await import('../../lib/supabase')
+          const { data: { session } } = await supabase.auth.getSession()
+          
+          if (session?.access_token) {
+            const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
+            const response = await fetch(`${apiBase}/api/auth/me`, {
+              headers: {
+                Authorization: `Bearer ${session.access_token}`,
+              },
+            })
+            
+            if (response.ok) {
+              const data = await response.json()
+              if (data.ok && data.user?.onboarding_completed) {
+                navigate('/dashboard')
+              } else {
+                navigate('/onboarding')
+              }
+            } else {
+              navigate('/onboarding')
+            }
+          } else {
+            navigate('/onboarding')
+          }
+        } catch (err) {
+          console.error('Error checking onboarding status:', err)
+          navigate('/onboarding')
+        }
+      }, 100)
     }
     setSubmitting(false)
   }

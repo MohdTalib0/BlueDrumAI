@@ -13,6 +13,7 @@ import {
   AlertCircle,
   Search,
   Filter,
+  GitCompare,
 } from 'lucide-react'
 import { useAuth } from '../../../context/AuthContext'
 import { DashboardLayout } from '../../../layouts/DashboardLayout'
@@ -203,13 +204,24 @@ export default function AnalysisHistory() {
             <ArrowLeft className="h-4 w-4" />
             Back
           </button>
-          <button
-            onClick={() => navigate('/dashboard/red-flag-radar')}
-            className="inline-flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-700 transition-colors"
-          >
-            <Plus className="h-4 w-4" />
-            New Analysis
-          </button>
+          <div className="flex items-center gap-3">
+            {analyses.length > 1 && (
+              <button
+                onClick={() => navigate('/dashboard/red-flag-radar/compare')}
+                className="inline-flex items-center gap-2 rounded-lg border border-blue-300 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 shadow-sm hover:bg-blue-100 transition-colors"
+              >
+                <GitCompare className="h-4 w-4" />
+                Compare
+              </button>
+            )}
+            <button
+              onClick={() => navigate('/dashboard/red-flag-radar')}
+              className="inline-flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-700 transition-colors"
+            >
+              <Plus className="h-4 w-4" />
+              New Analysis
+            </button>
+          </div>
         </div>
 
         {/* Statistics Cards */}

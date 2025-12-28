@@ -333,7 +333,32 @@ export default function Dashboard() {
                 <TrendingUp className="h-5 w-5 text-emerald-600" />
               </div>
               <ResponsiveContainer width="100%" height={200}>
-                <LineChart data={stats.income.monthlyTrend.map((d) => ({ ...d, month: format(parseISO(d.month + '-01'), 'MMM') }))}>
+                <LineChart
+                  data={stats.income.monthlyTrend
+                    .filter((d) => d.month && d.month.trim())
+                    .map((d) => {
+                      try {
+                        // Handle different month formats: "2024-01" or "2024-01-01" (already full date)
+                        let dateStr = d.month.trim()
+                        // If it's just YYYY-MM format (7 chars), append -01
+                        if (dateStr.length === 7 && dateStr.match(/^\d{4}-\d{2}$/)) {
+                          dateStr = `${dateStr}-01`
+                        }
+                        // If it's already YYYY-MM-DD format (10 chars), use as is
+                        const parsedDate = parseISO(dateStr)
+                        if (isNaN(parsedDate.getTime())) {
+                          console.warn('Invalid date:', dateStr, 'from:', d.month)
+                          return { ...d, month: d.month.substring(0, 7) || d.month }
+                        }
+                        return { ...d, month: format(parsedDate, 'MMM') }
+                      } catch (err) {
+                        console.warn('Error parsing date:', d.month, err)
+                        // Try to extract month part if it's a full date
+                        const monthPart = d.month.substring(0, 7)
+                        return { ...d, month: monthPart || d.month }
+                      }
+                    })}
+                >
                   <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                   <XAxis dataKey="month" stroke="#6b7280" fontSize={12} />
                   <YAxis stroke="#6b7280" fontSize={12} />
@@ -575,13 +600,42 @@ export default function Dashboard() {
                         <p className="font-semibold text-gray-900">
                           {activity.action === 'uploaded' && `Uploaded ${activity.type} evidence`}
                           {activity.action === 'analyzed' && `Analyzed chat (Risk: ${activity.riskScore})`}
-                          {activity.action === 'logged' && `Logged income for ${format(parseISO(activity.month + '-01'), 'MMMM yyyy')}`}
+                          {activity.action === 'logged' &&
+                            (() => {
+                              try {
+                                if (!activity.month) return `Logged income`
+                                let dateStr = activity.month.trim()
+                                // If it's just YYYY-MM format (7 chars), append -01
+                                if (dateStr.length === 7 && dateStr.match(/^\d{4}-\d{2}$/)) {
+                                  dateStr = `${dateStr}-01`
+                                }
+                                // If it's already YYYY-MM-DD format (10 chars), use as is
+                                const parsedDate = parseISO(dateStr)
+                                if (isNaN(parsedDate.getTime())) {
+                                  const monthPart = dateStr.substring(0, 7)
+                                  return `Logged income for ${monthPart}`
+                                }
+                                return `Logged income for ${format(parsedDate, 'MMMM yyyy')}`
+                              } catch (err) {
+                                const monthPart = activity.month?.substring(0, 7) || 'unknown'
+                                return `Logged income for ${monthPart}`
+                              }
+                            })()}
                         </p>
                         <p className="mt-1 text-sm text-gray-600">{activity.module}</p>
                       </div>
                       <div className="text-right">
                         <p className="text-xs text-gray-500">
-                          {format(new Date(activity.timestamp), 'MMM d, h:mm a')}
+                          {(() => {
+                            try {
+                              if (!activity.timestamp) return 'Unknown date'
+                              const date = new Date(activity.timestamp)
+                              if (isNaN(date.getTime())) return 'Invalid date'
+                              return format(date, 'MMM d, h:mm a')
+                            } catch (err) {
+                              return 'Invalid date'
+                            }
+                          })()}
                         </p>
                         {activity.riskScore && (
                           <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${getRiskColor(activity.riskScore)}`}>

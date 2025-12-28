@@ -1,13 +1,13 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Upload, FileText, AlertTriangle, Loader2, CheckCircle2, Info, X, MessageSquare, Mail, Smartphone, Type } from 'lucide-react'
+import { Upload, FileText, AlertTriangle, Loader2, CheckCircle2, Info, X, MessageSquare, Mail, Smartphone, Type, Bot, GitCompare, BookOpen } from 'lucide-react'
 import { useAuth } from '../../../context/AuthContext'
 import { DashboardLayout } from '../../../layouts/DashboardLayout'
 
 type PlatformType = 'whatsapp' | 'sms' | 'email' | 'manual' | 'auto'
 
 export default function ChatUpload() {
-  const { sessionToken } = useAuth()
+  const { sessionToken, user } = useAuth()
   const navigate = useNavigate()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [platform, setPlatform] = useState<PlatformType>('auto')
@@ -19,6 +19,31 @@ export default function ChatUpload() {
   const [preview, setPreview] = useState<string>('')
   const [progress, setProgress] = useState(0)
   const [status, setStatus] = useState('')
+  const [userGender, setUserGender] = useState<string | null>(null)
+
+  // Fetch user gender
+  useEffect(() => {
+    const fetchUserGender = async () => {
+      if (!sessionToken || !user?.id) return
+      try {
+        const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
+        const response = await fetch(`${apiBase}/api/auth/me`, {
+          headers: {
+            Authorization: `Bearer ${sessionToken}`,
+          },
+        })
+        if (response.ok) {
+          const data = await response.json()
+          if (data.ok && data.user) {
+            setUserGender(data.user.gender)
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching user gender:', err)
+      }
+    }
+    fetchUserGender()
+  }, [sessionToken, user?.id])
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0]
@@ -196,6 +221,62 @@ export default function ChatUpload() {
             </button>
           </div>
         )}
+
+        {/* Educational Features */}
+        <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {/* Compare Analyses */}
+          <button
+            onClick={() => navigate('/dashboard/red-flag-radar/compare')}
+            className="group rounded-lg border border-blue-200 bg-blue-50/50 p-5 text-left transition-all hover:border-blue-300 hover:bg-blue-100 hover:shadow-md"
+          >
+            <div className="mb-3 flex items-center gap-2">
+              <GitCompare className="h-5 w-5 text-blue-600" />
+              <h3 className="font-semibold text-blue-900">Compare Analyses</h3>
+            </div>
+            <p className="text-sm text-blue-800">
+              Select multiple chat analyses to compare side-by-side. See patterns and changes over time.
+            </p>
+            <div className="mt-3 text-xs font-medium text-blue-700 group-hover:text-blue-900">
+              Compare now →
+            </div>
+          </button>
+
+          {/* Red Flag Experience */}
+          <button
+            onClick={() => navigate('/dashboard/red-flag-radar/experience')}
+            className="group rounded-lg border border-purple-200 bg-purple-50/50 p-5 text-left transition-all hover:border-purple-300 hover:bg-purple-100 hover:shadow-md"
+          >
+            <div className="mb-3 flex items-center gap-2">
+              <BookOpen className="h-5 w-5 text-purple-600" />
+              <h3 className="font-semibold text-purple-900">Red Flag Experience</h3>
+            </div>
+            <p className="text-sm text-purple-800">
+              Interactive scenarios to learn what red flags look like. Experience manipulation patterns safely.
+            </p>
+            <div className="mt-3 text-xs font-medium text-purple-700 group-hover:text-purple-900">
+              Learn now →
+            </div>
+          </button>
+
+          {/* Demo Red Flag - Only for Women */}
+          {userGender === 'female' && (
+            <button
+              onClick={() => navigate('/dashboard/red-flag-radar/demo-red-flag')}
+              className="group rounded-lg border border-red-200 bg-red-50/50 p-5 text-left transition-all hover:border-red-300 hover:bg-red-100 hover:shadow-md"
+            >
+              <div className="mb-3 flex items-center gap-2">
+                <Bot className="h-5 w-5 text-red-600" />
+                <h3 className="font-semibold text-red-900">Demo Red Flag</h3>
+              </div>
+              <p className="text-sm text-red-800">
+                Chat with an AI that demonstrates red flag behaviors. Learn to recognize manipulation in real-time.
+              </p>
+              <div className="mt-3 text-xs font-medium text-red-700 group-hover:text-red-900">
+                Try it now →
+              </div>
+            </button>
+          )}
+        </div>
 
         {/* Platform Selection */}
         <div className="mb-6 rounded-lg border border-blue-200 bg-blue-50/50 p-6 shadow-sm">

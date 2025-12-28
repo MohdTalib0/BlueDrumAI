@@ -12,6 +12,9 @@ import AnnualSummary from './pages/dashboard/income-tracker/AnnualSummary'
 import ChatUpload from './pages/dashboard/red-flag-radar/ChatUpload'
 import AnalysisResults from './pages/dashboard/red-flag-radar/AnalysisResults'
 import AnalysisHistory from './pages/dashboard/red-flag-radar/AnalysisHistory'
+import DemoRedFlag from './pages/dashboard/red-flag-radar/DemoRedFlag'
+import CompareAnalyses from './pages/dashboard/red-flag-radar/CompareAnalyses'
+import RedFlagExperience from './pages/dashboard/red-flag-radar/RedFlagExperience'
 import SignInPage from './pages/auth/SignIn'
 import SignUpPage from './pages/auth/SignUp'
 import ForgotPassword from './pages/auth/ForgotPassword'
@@ -153,6 +156,30 @@ function App() {
         element={
           <ProtectedRoute>
             <AnalysisHistory />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/red-flag-radar/compare"
+        element={
+          <ProtectedRoute>
+            <CompareAnalyses />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/red-flag-radar/demo-red-flag"
+        element={
+          <ProtectedRoute>
+            <DemoRedFlag />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/red-flag-radar/experience"
+        element={
+          <ProtectedRoute>
+            <RedFlagExperience />
           </ProtectedRoute>
         }
       />
