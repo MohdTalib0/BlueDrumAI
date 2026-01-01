@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Download, Loader2 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
+import { getEdgeFunctionUrl, getAuthHeadersWithSession } from '../../lib/api'
 
 interface ExportButtonProps {
   exportType: 'vault' | 'affidavit' | 'analysis'
@@ -23,20 +24,24 @@ export default function ExportButton({ exportType, monthYear, analysisId, classN
     try {
       setExporting(true)
 
-      const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
+      const headers = await getAuthHeadersWithSession()
+      if (sessionToken) {
+        headers['Authorization'] = `Bearer ${sessionToken}`
+      }
+      
       let url = ''
       let body: any = {}
 
       switch (exportType) {
         case 'vault':
-          url = `${apiBase}/api/export/vault`
+          url = `${getEdgeFunctionUrl('export')}/vault`
           break
         case 'affidavit':
           if (!monthYear) {
             alert('Month and year are required')
             return
           }
-          url = `${apiBase}/api/export/affidavit`
+          url = `${getEdgeFunctionUrl('export')}/affidavit`
           body = { month_year: monthYear }
           break
         case 'analysis':
@@ -44,16 +49,16 @@ export default function ExportButton({ exportType, monthYear, analysisId, classN
             alert('Analysis ID is required')
             return
           }
-          url = `${apiBase}/api/export/analysis/${analysisId}`
+          url = `${getEdgeFunctionUrl('export')}/analysis`
+          body = { analysisId }
           break
       }
 
+      headers['Content-Type'] = 'application/json'
+
       const response = await fetch(url, {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${sessionToken}`,
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: Object.keys(body).length > 0 ? JSON.stringify(body) : undefined,
       })
 

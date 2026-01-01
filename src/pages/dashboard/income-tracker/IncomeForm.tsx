@@ -24,6 +24,8 @@ interface IncomeData {
   notes?: string
 }
 
+import { getEdgeFunctionUrl } from '../../../lib/api'
+
 export default function IncomeForm() {
   const { sessionToken } = useAuth()
   const navigate = useNavigate()
@@ -59,8 +61,7 @@ export default function IncomeForm() {
         throw new Error('Not authenticated')
       }
 
-      const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
-      const response = await fetch(`${apiBase}/api/income/history`, {
+      const response = await fetch(`${getEdgeFunctionUrl('income')}/history`, {
         headers: {
           Authorization: `Bearer ${sessionToken}`,
         },
@@ -92,8 +93,7 @@ export default function IncomeForm() {
     try {
       if (!sessionToken) return
 
-      const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
-      const response = await fetch(`${apiBase}/api/income/history`, {
+      const response = await fetch(`${getEdgeFunctionUrl('income')}/history`, {
         headers: {
           Authorization: `Bearer ${sessionToken}`,
         },
@@ -119,8 +119,7 @@ export default function IncomeForm() {
         throw new Error('Not authenticated')
       }
 
-      const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
-      const response = await fetch(`${apiBase}/api/income/log`, {
+      const response = await fetch(`${getEdgeFunctionUrl('income')}/log`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { ArrowLeft, Shield, FileText, Lock, Scale, CheckCircle2, Loader2, MailWarning, MailCheck } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
+import { getEdgeFunctionUrl, getAuthHeadersWithSession } from '../../lib/api'
 
 /**
  * Sign In Page
@@ -39,11 +40,12 @@ export default function SignInPage() {
           const { data: { session } } = await supabase.auth.getSession()
           
           if (session?.access_token) {
-            const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
-            const response = await fetch(`${apiBase}/api/auth/me`, {
-              headers: {
-                Authorization: `Bearer ${session.access_token}`,
-              },
+            const headers = await getAuthHeadersWithSession()
+            if (session.access_token) {
+              headers['Authorization'] = `Bearer ${session.access_token}`
+            }
+            const response = await fetch(`${getEdgeFunctionUrl('auth')}/me`, {
+              headers,
             })
             
             if (response.ok) {

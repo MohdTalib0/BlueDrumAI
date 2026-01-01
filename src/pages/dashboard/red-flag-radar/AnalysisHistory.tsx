@@ -18,6 +18,7 @@ import {
 import { useAuth } from '../../../context/AuthContext'
 import { DashboardLayout } from '../../../layouts/DashboardLayout'
 import { format } from 'date-fns'
+import { getEdgeFunctionUrl, getAuthHeadersWithSession } from '../../../lib/api'
 
 interface ChatAnalysis {
   id: string
@@ -51,11 +52,10 @@ export default function AnalysisHistory() {
         throw new Error('Not authenticated')
       }
 
-      const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
-      const response = await fetch(`${apiBase}/api/analyze/history`, {
-        headers: {
-          Authorization: `Bearer ${sessionToken}`,
-        },
+      const headers = await getAuthHeadersWithSession()
+      if (sessionToken) headers['Authorization'] = `Bearer ${sessionToken}`
+      const response = await fetch(`${getEdgeFunctionUrl('analyze')}/history`, {
+        headers,
       })
 
       if (!response.ok) {
@@ -84,12 +84,11 @@ export default function AnalysisHistory() {
         throw new Error('Not authenticated')
       }
 
-      const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
-      const response = await fetch(`${apiBase}/api/analyze/${id}`, {
+      const headers = await getAuthHeadersWithSession()
+      if (sessionToken) headers['Authorization'] = `Bearer ${sessionToken}`
+      const response = await fetch(`${getEdgeFunctionUrl('analyze')}/${id}`, {
         method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${sessionToken}`,
-        },
+        headers,
       })
 
       if (!response.ok) {

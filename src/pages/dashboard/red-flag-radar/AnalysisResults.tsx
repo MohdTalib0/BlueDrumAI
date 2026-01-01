@@ -19,6 +19,7 @@ import {
 import { useAuth } from '../../../context/AuthContext'
 import { DashboardLayout } from '../../../layouts/DashboardLayout'
 import { format } from 'date-fns'
+import { getEdgeFunctionUrl, getAuthHeadersWithSession } from '../../../lib/api'
 
 interface RedFlag {
   type: string
@@ -70,11 +71,10 @@ export default function AnalysisResults() {
         throw new Error('Not authenticated')
       }
 
-      const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
-      const response = await fetch(`${apiBase}/api/analyze/${id}`, {
-        headers: {
-          Authorization: `Bearer ${sessionToken}`,
-        },
+      const headers = await getAuthHeadersWithSession()
+      if (sessionToken) headers['Authorization'] = `Bearer ${sessionToken}`
+      const response = await fetch(`${getEdgeFunctionUrl('analyze')}/${id}`, {
+        headers,
       })
 
       if (!response.ok) {
@@ -99,11 +99,15 @@ export default function AnalysisResults() {
 
     try {
       setExporting(true)
-      const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
-      const response = await fetch(`${apiBase}/api/analyze/${id}/export`, {
+      const headers = await getAuthHeadersWithSession()
+      if (sessionToken) headers['Authorization'] = `Bearer ${sessionToken}`
+      const response = await fetch(`${getEdgeFunctionUrl('export')}/analysis`, {
+        method: 'POST',
         headers: {
-          Authorization: `Bearer ${sessionToken}`,
+          ...headers,
+          'Content-Type': 'application/json',
         },
+        body: JSON.stringify({ analysisId: id }),
       })
 
       if (!response.ok) {
@@ -137,12 +141,11 @@ export default function AnalysisResults() {
         throw new Error('Not authenticated')
       }
 
-      const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
-      const response = await fetch(`${apiBase}/api/analyze/${id}`, {
+      const headers = await getAuthHeadersWithSession()
+      if (sessionToken) headers['Authorization'] = `Bearer ${sessionToken}`
+      const response = await fetch(`${getEdgeFunctionUrl('analyze')}/${id}`, {
         method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${sessionToken}`,
-        },
+        headers,
       })
 
       if (!response.ok) {

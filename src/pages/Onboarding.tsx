@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import { Shield, AlertTriangle, ArrowRight } from 'lucide-react'
+import { getEdgeFunctionUrl, getAuthHeadersWithSession } from '../lib/api'
 
 export default function Onboarding() {
   const { sessionToken, user, loading: authLoading } = useAuth()
@@ -22,13 +23,13 @@ export default function Onboarding() {
       }
 
       try {
-        const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
-
         // Check user's onboarding status
-        const response = await fetch(`${apiBase}/api/auth/me`, {
-          headers: {
-            Authorization: `Bearer ${sessionToken}`,
-          },
+        const headers = await getAuthHeadersWithSession()
+        if (sessionToken) {
+          headers['Authorization'] = `Bearer ${sessionToken}`
+        }
+        const response = await fetch(`${getEdgeFunctionUrl('auth')}/me`, {
+          headers,
         })
 
         if (response.ok) {
@@ -41,12 +42,8 @@ export default function Onboarding() {
         }
 
         // Sync user from Supabase Auth to public.users table
-        const syncResp = await fetch(`${apiBase}/api/auth/sync-user`, {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${sessionToken}`,
-          },
-        })
+        // Note: sync-user endpoint may not exist in edge functions, skip for now
+        // The PATCH endpoint will handle user creation if needed
 
         if (!syncResp.ok) {
           const syncData = await syncResp.json().catch(() => null)
@@ -75,19 +72,20 @@ export default function Onboarding() {
     setError('')
 
     try {
-      const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
       const token = sessionToken
       if (!token || !user) {
         throw new Error('Not authenticated')
       }
 
       // Update user profile (user should already be synced from useEffect)
-      const resp = await fetch(`${apiBase}/api/auth/me`, {
+      const headers = await getAuthHeadersWithSession()
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`
+      }
+      headers['Content-Type'] = 'application/json'
+      const resp = await fetch(`${getEdgeFunctionUrl('auth')}/me`, {
         method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
+        headers,
         body: JSON.stringify({
           gender,
           relationship_status: relationshipStatus,

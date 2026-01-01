@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Upload, FileText, AlertTriangle, Loader2, CheckCircle2, Info, X, MessageSquare, Mail, Smartphone, Type, Bot, GitCompare, BookOpen } from 'lucide-react'
 import { useAuth } from '../../../context/AuthContext'
 import { DashboardLayout } from '../../../layouts/DashboardLayout'
+import { getEdgeFunctionUrl, getAuthHeadersWithSession } from '../../../lib/api'
 
 type PlatformType = 'whatsapp' | 'sms' | 'email' | 'manual' | 'auto'
 
@@ -26,11 +27,10 @@ export default function ChatUpload() {
     const fetchUserGender = async () => {
       if (!sessionToken || !user?.id) return
       try {
-        const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
-        const response = await fetch(`${apiBase}/api/auth/me`, {
-          headers: {
-            Authorization: `Bearer ${sessionToken}`,
-          },
+        const headers = await getAuthHeadersWithSession()
+        if (sessionToken) headers['Authorization'] = `Bearer ${sessionToken}`
+        const response = await fetch(`${getEdgeFunctionUrl('auth')}/me`, {
+          headers,
         })
         if (response.ok) {
           const data = await response.json()
@@ -105,12 +105,14 @@ export default function ChatUpload() {
         setStatus('Analyzing text...')
         setProgress(30)
 
-        const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
-        const response = await fetch(`${apiBase}/api/analyze/text`, {
+        const headers = await getAuthHeadersWithSession()
+        if (sessionToken) headers['Authorization'] = `Bearer ${sessionToken}`
+
+        const response = await fetch(`${getEdgeFunctionUrl('analyze')}/text`, {
           method: 'POST',
           headers: {
+            ...headers,
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${sessionToken}`,
           },
           body: JSON.stringify({
             text: manualText,
@@ -140,16 +142,15 @@ export default function ChatUpload() {
           })
         }, 500)
 
-        const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
+        const headers = await getAuthHeadersWithSession()
+        if (sessionToken) headers['Authorization'] = `Bearer ${sessionToken}`
         
         setStatus('Uploading file...')
         setProgress(20)
         
-        const response = await fetch(`${apiBase}/api/analyze/chat?platform=${platform === 'auto' ? '' : platform}`, {
+        const response = await fetch(`${getEdgeFunctionUrl('analyze')}/chat?platform=${platform === 'auto' ? '' : platform}`, {                                           
           method: 'POST',
-          headers: {
-            Authorization: `Bearer ${sessionToken}`,
-          },
+          headers,
           body: formData,
         })
 

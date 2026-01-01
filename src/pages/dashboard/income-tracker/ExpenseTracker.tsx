@@ -6,6 +6,8 @@ import { DashboardLayout } from '../../../layouts/DashboardLayout'
 import { format, parseISO, startOfYear, endOfYear, isWithinInterval, subMonths } from 'date-fns'
 import { LineChart as RechartsLineChart, Line, BarChart, Bar, PieChart as RechartsPieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 
+import { getEdgeFunctionUrl } from '../../../lib/api'
+
 interface IncomeEntry {
   id: string
   month_year: string
@@ -34,6 +36,26 @@ type FilterPeriod = 'all' | '3months' | '6months' | '12months' | 'year' | 'custo
 
 const COLORS = ['#3b82f6', '#ef4444', '#f59e0b', '#10b981', '#8b5cf6', '#ec4899']
 
+// Safely parse month_year which can be "YYYY-MM" or "YYYY-MM-DD"
+const parseMonthYear = (monthYear?: string) => {
+  if (!monthYear || typeof monthYear !== 'string') return null
+  let dateStr = monthYear.trim()
+  if (!dateStr) return null
+  if (dateStr.length === 7 && /^\d{4}-\d{2}$/.test(dateStr)) {
+    dateStr = `${dateStr}-01`
+  }
+  const parsed = parseISO(dateStr)
+  if (isNaN(parsed.getTime())) return null
+  return parsed
+}
+
+// Safely parse generic ISO date strings (e.g., created_at / updated_at)
+const parseDateSafe = (value?: string) => {
+  if (!value || typeof value !== 'string') return null
+  const parsed = parseISO(value)
+  return isNaN(parsed.getTime()) ? null : parsed
+}
+
 export default function ExpenseTracker() {
   const { sessionToken } = useAuth()
   const navigate = useNavigate()
@@ -61,8 +83,7 @@ export default function ExpenseTracker() {
         throw new Error('Not authenticated')
       }
 
-      const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
-      const response = await fetch(`${apiBase}/api/income/history`, {
+      const response = await fetch(`${getEdgeFunctionUrl('income')}/history`, {
         headers: {
           Authorization: `Bearer ${sessionToken}`,
         },
@@ -111,8 +132,7 @@ export default function ExpenseTracker() {
         throw new Error('Not authenticated')
       }
 
-      const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
-      const response = await fetch(`${apiBase}/api/income/entry/${id}`, {
+      const response = await fetch(`${getEdgeFunctionUrl('income')}/entry/${id}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${sessionToken}`,
@@ -134,11 +154,11 @@ export default function ExpenseTracker() {
   const handleExportCSV = () => {
     const headers = ['Month', 'Gross Income', 'Total Deductions', 'Total Expenses', 'Disposable Income']
     const rows = filteredEntries.map((entry) => {
-      const monthDate = parseISO(entry.month_year + '-01')
+      const monthDate = parseMonthYear(entry.month_year)
       const totalDeductions = calculateTotalDeductions(entry.deductions)
       const totalExpenses = calculateTotalExpenses(entry.expenses)
       return [
-        format(monthDate, 'MMMM yyyy'),
+        monthDate ? format(monthDate, 'MMMM yyyy') : entry.month_year || 'Unknown',
         entry.gross_income.toString(),
         totalDeductions.toString(),
         totalExpenses.toString(),
@@ -189,8 +209,8 @@ export default function ExpenseTracker() {
           startDate = startOfYear(new Date(selectedYear, 0, 1))
           const endDate = endOfYear(new Date(selectedYear, 0, 1))
           filtered = filtered.filter((entry) => {
-            const entryDate = parseISO(entry.month_year + '-01')
-            return isWithinInterval(entryDate, { start: startDate, end: endDate })
+            const entryDate = parseMonthYear(entry.month_year)
+            return entryDate ? isWithinInterval(entryDate, { start: startDate, end: endDate }) : false
           })
           break
         default:
@@ -199,8 +219,8 @@ export default function ExpenseTracker() {
 
       if (filterPeriod !== 'year') {
         filtered = filtered.filter((entry) => {
-          const entryDate = parseISO(entry.month_year + '-01')
-          return entryDate >= startDate
+          const entryDate = parseMonthYear(entry.month_year)
+          return entryDate ? entryDate >= startDate : false
         })
       }
     }
@@ -209,8 +229,8 @@ export default function ExpenseTracker() {
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase()
       filtered = filtered.filter((entry) => {
-        const monthDate = parseISO(entry.month_year + '-01')
-        const monthName = format(monthDate, 'MMMM yyyy').toLowerCase()
+        const monthDate = parseMonthYear(entry.month_year)
+        const monthName = monthDate ? format(monthDate, 'MMMM yyyy').toLowerCase() : (entry.month_year || '').toLowerCase()
         const notes = (entry.notes || '').toLowerCase()
         return monthName.includes(query) || notes.includes(query)
       })
@@ -225,9 +245,9 @@ export default function ExpenseTracker() {
       .slice()
       .reverse()
       .map((entry) => {
-        const monthDate = parseISO(entry.month_year + '-01')
+        const monthDate = parseMonthYear(entry.month_year)
         return {
-          month: format(monthDate, 'MMM yyyy'),
+          month: monthDate ? format(monthDate, 'MMM yyyy') : entry.month_year || 'Unknown',
           gross: entry.gross_income,
           disposable: entry.disposable_income,
           deductions: calculateTotalDeductions(entry.deductions),
@@ -287,8 +307,10 @@ export default function ExpenseTracker() {
   const availableYears = useMemo(() => {
     const years = new Set<number>()
     entries.forEach((entry) => {
-      const year = parseISO(entry.month_year + '-01').getFullYear()
-      years.add(year)
+      const parsed = parseMonthYear(entry.month_year)
+      if (parsed) {
+        years.add(parsed.getFullYear())
+      }
     })
     return Array.from(years).sort((a, b) => b - a)
   }, [entries])
@@ -663,7 +685,8 @@ export default function ExpenseTracker() {
             {filteredEntries.map((entry) => {
               const totalDeductions = calculateTotalDeductions(entry.deductions)
               const totalExpenses = calculateTotalExpenses(entry.expenses)
-              const monthDate = parseISO(entry.month_year + '-01')
+              const monthDate = parseMonthYear(entry.month_year)
+              const updatedAtDate = parseDateSafe(entry.updated_at)
               const isExpanded = expandedId === entry.id
 
               return (
@@ -677,8 +700,12 @@ export default function ExpenseTracker() {
                             <Calendar className="h-6 w-6" />
                           </div>
                           <div>
-                            <h3 className="text-xl font-bold text-gray-900">{format(monthDate, 'MMMM yyyy')}</h3>
-                            <p className="text-xs text-gray-500">Updated {format(parseISO(entry.updated_at), 'MMM d, yyyy')}</p>
+                            <h3 className="text-xl font-bold text-gray-900">
+                              {monthDate ? format(monthDate, 'MMMM yyyy') : entry.month_year || 'Unknown'}
+                            </h3>
+                            <p className="text-xs text-gray-500">
+                              Updated {updatedAtDate ? format(updatedAtDate, 'MMM d, yyyy') : 'Unknown'}
+                            </p>
                           </div>
                         </div>
 

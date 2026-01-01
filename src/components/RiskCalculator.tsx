@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { AlertTriangle, ArrowRight, CheckCircle2, ChevronRight, Loader2, Scale, Shield, X } from 'lucide-react'
+import { getEdgeFunctionUrl, getAuthHeaders } from '../lib/api'
 
 type Gender = 'male' | 'female' | ''
 
@@ -172,8 +173,6 @@ export default function RiskCalculator({
     setErrorMessage('')
 
     try {
-      const apiBase = apiBaseUrl || (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:3001'
-
       // Combine all manual inputs into one string
       const allManualInputs = [
         ...Object.values(manualInputs).filter((v) => v.trim()),
@@ -182,9 +181,15 @@ export default function RiskCalculator({
         .filter(Boolean)
         .join('\n\n')
 
-      const resp = await fetch(`${apiBase}/api/risk-check`, {
+      const url = getEdgeFunctionUrl('risk-check')
+      const headers = {
+        ...getAuthHeaders(),
+        'Content-Type': 'application/json',
+      }
+
+      const resp = await fetch(url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           email,
           gender,

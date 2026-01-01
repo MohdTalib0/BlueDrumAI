@@ -6,6 +6,8 @@ import { DashboardLayout } from '../../../layouts/DashboardLayout'
 import { format, parseISO, startOfYear, endOfYear, isWithinInterval } from 'date-fns'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
 
+import { getEdgeFunctionUrl } from '../../../lib/api'
+
 interface IncomeEntry {
   id: string
   month_year: string
@@ -30,6 +32,19 @@ interface IncomeEntry {
 
 const COLORS = ['#3b82f6', '#ef4444', '#f59e0b', '#10b981', '#8b5cf6', '#ec4899']
 
+// Safely parse month_year which can be "YYYY-MM" or "YYYY-MM-DD"
+const parseMonthYear = (monthYear?: string) => {
+  if (!monthYear || typeof monthYear !== 'string') return null
+  let dateStr = monthYear.trim()
+  if (!dateStr) return null
+  if (dateStr.length === 7 && /^\d{4}-\d{2}$/.test(dateStr)) {
+    dateStr = `${dateStr}-01`
+  }
+  const parsed = parseISO(dateStr)
+  if (isNaN(parsed.getTime())) return null
+  return parsed
+}
+
 export default function AnnualSummary() {
   const { sessionToken } = useAuth()
   const navigate = useNavigate()
@@ -51,8 +66,7 @@ export default function AnnualSummary() {
         throw new Error('Not authenticated')
       }
 
-      const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
-      const response = await fetch(`${apiBase}/api/income/history`, {
+      const response = await fetch(`${getEdgeFunctionUrl('income')}/history`, {
         headers: {
           Authorization: `Bearer ${sessionToken}`,
         },
@@ -88,8 +102,8 @@ export default function AnnualSummary() {
     const start = startOfYear(new Date(selectedYear, 0, 1))
     const end = endOfYear(new Date(selectedYear, 0, 1))
     return entries.filter((entry) => {
-      const entryDate = parseISO(entry.month_year + '-01')
-      return isWithinInterval(entryDate, { start, end })
+      const entryDate = parseMonthYear(entry.month_year)
+      return entryDate ? isWithinInterval(entryDate, { start, end }) : false
     })
   }, [entries, selectedYear])
 
@@ -130,9 +144,9 @@ export default function AnnualSummary() {
     const monthlyData = yearEntries
       .sort((a, b) => a.month_year.localeCompare(b.month_year))
       .map((entry) => {
-        const monthDate = parseISO(entry.month_year + '-01')
+        const monthDate = parseMonthYear(entry.month_year)
         return {
-          month: format(monthDate, 'MMM'),
+          month: monthDate ? format(monthDate, 'MMM') : entry.month_year || 'Unknown',
           gross: entry.gross_income,
           disposable: entry.disposable_income,
           deductions: calculateTotalDeductions(entry.deductions),
@@ -162,11 +176,18 @@ export default function AnnualSummary() {
   const availableYears = useMemo(() => {
     const years = new Set<number>()
     entries.forEach((entry) => {
-      const year = parseISO(entry.month_year + '-01').getFullYear()
-      years.add(year)
+      const parsed = parseMonthYear(entry.month_year)
+      if (parsed) years.add(parsed.getFullYear())
     })
     return Array.from(years).sort((a, b) => b - a)
   }, [entries])
+
+  // Ensure selectedYear is valid once data loads
+  useEffect(() => {
+    if (availableYears.length > 0 && !availableYears.includes(selectedYear)) {
+      setSelectedYear(availableYears[0])
+    }
+  }, [availableYears, selectedYear])
 
   const handleExportPDF = async () => {
     // This would call a backend endpoint to generate PDF

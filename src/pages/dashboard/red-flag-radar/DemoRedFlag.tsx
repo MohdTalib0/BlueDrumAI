@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, Send, Bot, User, AlertTriangle, Loader2, Info } from 'lucide-react'
 import { useAuth } from '../../../context/AuthContext'
 import { DashboardLayout } from '../../../layouts/DashboardLayout'
+import { getEdgeFunctionUrl, getAuthHeadersWithSession } from '../../../lib/api'
 
 interface Message {
   id: string
@@ -111,6 +112,33 @@ export default function DemoRedFlag() {
 
     setMessages((prev) => [...prev, assistantMessage])
     setSending(false)
+
+    // Fire-and-forget logging of the demo interaction
+    try {
+      if (sessionToken && user?.id) {
+        const headers = await getAuthHeadersWithSession()
+        if (sessionToken) headers['Authorization'] = `Bearer ${sessionToken}`
+        await fetch(`${getEdgeFunctionUrl('analyze')}/demo-red-flag`, {
+          method: 'POST',
+          headers: {
+            ...headers,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            prompt: input.trim(),
+            ai_response: response,
+            red_flags: null,
+            metadata: {
+              user_id: user.id,
+              timestamp: new Date().toISOString(),
+            },
+          }),
+        })
+      }
+    } catch (err) {
+      // Ignore logging errors
+      console.warn('Failed to log demo red flag interaction', err)
+    }
   }
 
   const handleKeyPress = (e: React.KeyboardEvent) => {

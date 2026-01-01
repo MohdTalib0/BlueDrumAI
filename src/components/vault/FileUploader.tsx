@@ -14,6 +14,7 @@ import {
   FileCheck,
   Plus,
 } from 'lucide-react'
+import { getEdgeFunctionUrl, getAuthHeadersWithSession } from '../../lib/api'
 
 interface FileUploaderProps {
   onUploadSuccess?: () => void
@@ -199,8 +200,6 @@ export default function FileUploader({ onUploadSuccess, module = 'male', multipl
         throw new Error('Not authenticated. Please sign in again.')
       }
 
-      const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
-
       const formData = new FormData()
       formData.append('file', file)
       formData.append('type', type)
@@ -220,11 +219,12 @@ export default function FileUploader({ onUploadSuccess, module = 'male', multipl
         )
       }, 200)
 
-      const response = await fetch(`${apiBase}/api/vault/upload`, {
+      const headers = await getAuthHeadersWithSession()
+      if (token) headers['Authorization'] = `Bearer ${token}`
+
+      const response = await fetch(`${getEdgeFunctionUrl('vault')}/upload`, {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers,
         body: formData,
       })
 

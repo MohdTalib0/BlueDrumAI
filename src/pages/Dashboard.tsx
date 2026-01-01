@@ -20,6 +20,7 @@ import {
   Zap,
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
+import { getEdgeFunctionUrl, getAuthHeadersWithSession } from '../lib/api'
 import { DashboardLayout } from '../layouts/DashboardLayout'
 import { format, parseISO } from 'date-fns'
 import { LineChart, Line, BarChart, Bar, PieChart as RechartsPieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
@@ -79,11 +80,12 @@ export default function Dashboard() {
       if (loading || !user?.id || !sessionToken) return
 
       try {
-        const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
-        const response = await fetch(`${apiBase}/api/auth/me`, {
-          headers: {
-            Authorization: `Bearer ${sessionToken}`,
-          },
+        const headers = await getAuthHeadersWithSession()
+        if (sessionToken) {
+          headers['Authorization'] = `Bearer ${sessionToken}`
+        }
+        const response = await fetch(`${getEdgeFunctionUrl('auth')}/me`, {
+          headers,
         })
 
         if (response.ok) {
@@ -125,11 +127,12 @@ export default function Dashboard() {
         setLoadingStats(true)
         setError('')
 
-        const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
-        const response = await fetch(`${apiBase}/api/dashboard/stats`, {
-          headers: {
-            Authorization: `Bearer ${sessionToken}`,
-          },
+        const headers = await getAuthHeadersWithSession()
+        if (sessionToken) {
+          headers['Authorization'] = `Bearer ${sessionToken}`
+        }
+        const response = await fetch(`${getEdgeFunctionUrl('dashboard')}/stats`, {
+          headers,
         })
 
         if (!response.ok) {
@@ -212,10 +215,42 @@ export default function Dashboard() {
         </div>
       )}
 
+      {/* Quick Insights at a glance */}
+      {stats && !loadingStats && (
+        <div className="mb-8 rounded-lg border border-blue-200 bg-blue-50 p-6 shadow-sm">
+          <h3 className="mb-3 flex items-center gap-2 text-base font-semibold text-blue-900">
+            <Zap className="h-5 w-5" />
+            At a glance
+          </h3>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 text-sm text-blue-900">
+            <div className="rounded-lg bg-white/70 p-3">
+              <p className="font-semibold">Evidence</p>
+              <p className="text-blue-700">{stats.vault.total || 0} files</p>
+            </div>
+            <div className="rounded-lg bg-white/70 p-3">
+              <p className="font-semibold">Chat Analyses</p>
+              <p className="text-blue-700">
+                {stats.chatAnalysis.total || 0} total, avg risk {stats.chatAnalysis.avgRiskScore || 0}
+              </p>
+            </div>
+            <div className="rounded-lg bg-white/70 p-3">
+              <p className="font-semibold">Income</p>
+              <p className="text-blue-700">
+                {stats.income.totalEntries || 0} entries, avg disposable ₹{(stats.income.avgDisposable || 0).toLocaleString('en-IN')}
+              </p>
+            </div>
+            <div className="rounded-lg bg-white/70 p-3">
+              <p className="font-semibold">Readiness</p>
+              <p className="text-blue-700">{stats.readinessScore || 0} / 100</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Main Stats Grid */}
       <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {/* Vault Entries */}
-        <div className="group rounded-lg border border-gray-200/20 bg-white/50 p-6 shadow-sm transition-all hover:bg-white/70 hover:shadow-md">
+        <div className="group rounded-lg border border-gray-200/40 bg-indigo-50 p-6 shadow-sm transition-all hover:shadow-md">
           <div className="flex items-center justify-between">
             <div className="flex-1">
               <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Vault Entries</p>
@@ -236,7 +271,7 @@ export default function Dashboard() {
         </div>
 
         {/* Average Risk Score */}
-        <div className="group rounded-lg border border-gray-200/20 bg-white/50 p-6 shadow-sm transition-all hover:bg-white/70 hover:shadow-md">
+        <div className="group rounded-lg border border-gray-200/40 bg-rose-50 p-6 shadow-sm transition-all hover:shadow-md">
           <div className="flex items-center justify-between">
             <div className="flex-1">
               <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Avg Risk Score</p>
@@ -263,7 +298,7 @@ export default function Dashboard() {
         </div>
 
         {/* Chat Analyses */}
-        <div className="group rounded-lg border border-gray-200/20 bg-white/50 p-6 shadow-sm transition-all hover:bg-white/70 hover:shadow-md">
+        <div className="group rounded-lg border border-gray-200/40 bg-amber-50 p-6 shadow-sm transition-all hover:shadow-md">
           <div className="flex items-center justify-between">
             <div className="flex-1">
               <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Chat Analyses</p>
@@ -286,7 +321,7 @@ export default function Dashboard() {
         </div>
 
         {/* Readiness Score */}
-        <div className="group rounded-lg border border-gray-200/20 bg-white/50 p-6 shadow-sm transition-all hover:bg-white/70 hover:shadow-md">
+        <div className="group rounded-lg border border-gray-200/40 bg-emerald-50 p-6 shadow-sm transition-all hover:shadow-md">
           <div className="flex items-center justify-between">
             <div className="flex-1">
               <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Readiness Score</p>
@@ -470,13 +505,13 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* Quick Actions */}
-      <div className="mb-8">
+        {/* Quick Actions */}
+        <div className="mb-8">
         <h2 className="mb-4 text-lg font-semibold text-gray-900">Quick Actions</h2>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <button
             onClick={() => navigate('/dashboard/vault/upload')}
-            className="group rounded-lg border border-gray-200/20 bg-white/50 p-5 text-left shadow-sm transition-all hover:bg-white/70 hover:shadow-md"
+              className="group rounded-lg border border-gray-200/40 bg-sky-50 p-5 text-left shadow-sm transition-all hover:shadow-md"
           >
             <div className="flex items-center gap-3">
               <div className="rounded-lg bg-primary-50 p-2 text-primary-700 transition-transform group-hover:scale-110">
@@ -492,7 +527,7 @@ export default function Dashboard() {
 
           <button
             onClick={() => navigate('/dashboard/red-flag-radar')}
-            className="group rounded-lg border border-gray-200/20 bg-white/50 p-5 text-left shadow-sm transition-all hover:bg-white/70 hover:shadow-md"
+              className="group rounded-lg border border-gray-200/40 bg-rose-50 p-5 text-left shadow-sm transition-all hover:shadow-md"
           >
             <div className="flex items-center gap-3">
               <div className="rounded-lg bg-red-50 p-2 text-red-700 transition-transform group-hover:scale-110">
@@ -508,7 +543,7 @@ export default function Dashboard() {
 
           <button
             onClick={() => navigate('/dashboard/income-tracker')}
-            className="group rounded-lg border border-gray-200/20 bg-white/50 p-5 text-left shadow-sm transition-all hover:bg-white/70 hover:shadow-md"
+              className="group rounded-lg border border-gray-200/40 bg-amber-50 p-5 text-left shadow-sm transition-all hover:shadow-md"
           >
             <div className="flex items-center gap-3">
               <div className="rounded-lg bg-emerald-50 p-2 text-emerald-700 transition-transform group-hover:scale-110">
@@ -524,7 +559,7 @@ export default function Dashboard() {
 
           <button
             onClick={() => navigate('/dashboard/vault/timeline')}
-            className="group rounded-lg border border-gray-200/20 bg-white/50 p-5 text-left shadow-sm transition-all hover:bg-white/70 hover:shadow-md"
+              className="group rounded-lg border border-gray-200/40 bg-indigo-50 p-5 text-left shadow-sm transition-all hover:shadow-md"
           >
             <div className="flex items-center gap-3">
               <div className="rounded-lg bg-blue-50 p-2 text-blue-700 transition-transform group-hover:scale-110">
@@ -540,7 +575,7 @@ export default function Dashboard() {
 
           <button
             onClick={() => navigate('/dashboard/red-flag-radar/history')}
-            className="group rounded-lg border border-gray-200/20 bg-white/50 p-5 text-left shadow-sm transition-all hover:bg-white/70 hover:shadow-md"
+              className="group rounded-lg border border-gray-200/40 bg-purple-50 p-5 text-left shadow-sm transition-all hover:shadow-md"
           >
             <div className="flex items-center gap-3">
               <div className="rounded-lg bg-purple-50 p-2 text-purple-700 transition-transform group-hover:scale-110">
@@ -556,7 +591,7 @@ export default function Dashboard() {
 
           <button
             onClick={() => navigate('/dashboard/income-tracker/history')}
-            className="group rounded-lg border border-gray-200/20 bg-white/50 p-5 text-left shadow-sm transition-all hover:bg-white/70 hover:shadow-md"
+              className="group rounded-lg border border-gray-200/40 bg-lime-50 p-5 text-left shadow-sm transition-all hover:shadow-md"
           >
             <div className="flex items-center gap-3">
               <div className="rounded-lg bg-amber-50 p-2 text-amber-700 transition-transform group-hover:scale-110">
@@ -579,7 +614,7 @@ export default function Dashboard() {
         </div>
 
         {loadingStats ? (
-          <div className="rounded-lg border border-gray-200/20 bg-white/50 p-12 text-center shadow-sm">
+          <div className="rounded-lg border border-gray-200/40 bg-slate-50 p-12 text-center shadow-sm">
             <Loader2 className="mx-auto mb-4 h-8 w-8 animate-spin text-primary-600" />
             <p className="text-gray-600">Loading activity...</p>
           </div>
@@ -650,7 +685,7 @@ export default function Dashboard() {
             ))}
           </div>
         ) : (
-          <div className="rounded-lg border border-gray-200/20 bg-white/50 p-12 text-center shadow-sm">
+          <div className="rounded-lg border border-gray-200/40 bg-slate-50 p-12 text-center shadow-sm">
             <Activity className="mx-auto mb-4 h-12 w-12 text-gray-400" />
             <h3 className="mb-2 text-lg font-semibold text-gray-900">No activity yet</h3>
             <p className="mb-6 text-gray-600">Start by uploading evidence, analyzing chats, or tracking your income.</p>
@@ -674,7 +709,7 @@ export default function Dashboard() {
 
       {/* Key Insights */}
       {stats && !loadingStats && (stats.vault.total > 0 || stats.chatAnalysis.total > 0 || stats.income.totalEntries > 0) && (
-        <div className="mt-8 rounded-lg border border-blue-200 bg-blue-50/50 p-6 shadow-sm">
+        <div className="mt-8 rounded-lg border border-blue-200 bg-blue-50 p-6 shadow-sm">
           <h3 className="mb-4 flex items-center gap-2 text-base font-semibold text-blue-900">
             <Zap className="h-5 w-5" />
             Key Insights

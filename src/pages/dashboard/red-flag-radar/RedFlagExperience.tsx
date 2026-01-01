@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, AlertTriangle, CheckCircle2, XCircle, Info, Send, Bot, User, Loader2, Sparkles } from 'lucide-react'
 import { useAuth } from '../../../context/AuthContext'
 import { DashboardLayout } from '../../../layouts/DashboardLayout'
+import { getEdgeFunctionUrl, getAuthHeadersWithSession } from '../../../lib/api'
 
 interface Message {
   id: string
@@ -126,12 +127,14 @@ export default function RedFlagExperience() {
         throw new Error('Not authenticated')
       }
 
-      const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
-      const response = await fetch(`${apiBase}/api/analyze/red-flag-chat`, {
+      const headers = await getAuthHeadersWithSession()
+      if (sessionToken) headers['Authorization'] = `Bearer ${sessionToken}`
+
+      const response = await fetch(`${getEdgeFunctionUrl('analyze')}/red-flag-chat`, {    
         method: 'POST',
         headers: {
+          ...headers,
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${sessionToken}`,
         },
         body: JSON.stringify({
           scenarioType: selectedScenario.type,
@@ -149,14 +152,34 @@ export default function RedFlagExperience() {
       }
 
       const data = await response.json()
+      // Normalize AI response payload
+      const rawResponse = data?.response
+      const responseText =
+        typeof rawResponse === 'string'
+          ? rawResponse
+          : typeof rawResponse?.response === 'string'
+            ? rawResponse.response
+            : JSON.stringify(rawResponse ?? data)
+      const redFlagsDetected =
+        Array.isArray(data?.redFlagsDetected)
+          ? data.redFlagsDetected
+          : Array.isArray(rawResponse?.redFlagsDetected)
+            ? rawResponse.redFlagsDetected
+            : undefined
+      const educationalNote =
+        typeof data?.educationalNote === 'string'
+          ? data.educationalNote
+          : typeof rawResponse?.educationalNote === 'string'
+            ? rawResponse.educationalNote
+            : undefined
 
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: data.response,
+        content: responseText,
         timestamp: new Date(),
-        redFlagsDetected: data.redFlagsDetected,
-        educationalNote: data.educationalNote,
+        redFlagsDetected,
+        educationalNote,
       }
 
       setMessages((prev) => [...prev, assistantMessage])

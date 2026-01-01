@@ -3,7 +3,9 @@ import { useNavigate } from 'react-router-dom'
 import { FileText, Download, ArrowLeft, Loader2, AlertCircle, CheckCircle2, Calendar } from 'lucide-react'
 import { useAuth } from '../../../context/AuthContext'
 import { DashboardLayout } from '../../../layouts/DashboardLayout'
-import { format } from 'date-fns'
+import { format, parseISO } from 'date-fns'
+
+import { getEdgeFunctionUrl } from '../../../lib/api'
 
 interface IncomeEntry {
   id: string
@@ -25,6 +27,19 @@ interface IncomeEntry {
   }
   disposable_income: number
   notes?: string
+}
+
+// Safely parse month_year which can be "YYYY-MM" or "YYYY-MM-DD"
+const parseMonthYear = (monthYear?: string) => {
+  if (!monthYear || typeof monthYear !== 'string') return null
+  let dateStr = monthYear.trim()
+  if (!dateStr) return null
+  if (dateStr.length === 7 && /^\d{4}-\d{2}$/.test(dateStr)) {
+    dateStr = `${dateStr}-01`
+  }
+  const parsed = parseISO(dateStr)
+  if (isNaN(parsed.getTime())) return null
+  return parsed
 }
 
 export default function AffidavitGenerator() {
@@ -50,8 +65,7 @@ export default function AffidavitGenerator() {
         throw new Error('Not authenticated')
       }
 
-      const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
-      const response = await fetch(`${apiBase}/api/income/history`, {
+      const response = await fetch(`${getEdgeFunctionUrl('income')}/history`, {
         headers: {
           Authorization: `Bearer ${sessionToken}`,
         },
@@ -89,8 +103,7 @@ export default function AffidavitGenerator() {
         throw new Error('Not authenticated')
       }
 
-      const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
-      const response = await fetch(`${apiBase}/api/income/generate-affidavit`, {
+      const response = await fetch(`${getEdgeFunctionUrl('income')}/generate-affidavit`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -205,10 +218,10 @@ export default function AffidavitGenerator() {
               className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none"
             >
               {entries.map((entry) => {
-                const monthDate = new Date(entry.month_year + '-01')
+                const monthDate = parseMonthYear(entry.month_year)
                 return (
                   <option key={entry.id} value={entry.month_year}>
-                    {format(monthDate, 'MMMM yyyy')} - Disposable: ₹{entry.disposable_income.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    {monthDate ? format(monthDate, 'MMMM yyyy') : entry.month_year || 'Unknown'} - Disposable: ₹{entry.disposable_income.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </option>
                 )
               })}
@@ -226,7 +239,12 @@ export default function AffidavitGenerator() {
             <div className="space-y-3 text-sm">
               <div className="flex justify-between border-b border-gray-200 pb-2">
                 <span className="font-medium text-gray-600">Month:</span>
-                <span className="font-semibold text-gray-900">{format(new Date(selectedEntry.month_year + '-01'), 'MMMM yyyy')}</span>
+                <span className="font-semibold text-gray-900">
+                  {(() => {
+                    const monthDate = parseMonthYear(selectedEntry.month_year)
+                    return monthDate ? format(monthDate, 'MMMM yyyy') : selectedEntry.month_year || 'Unknown'
+                  })()}
+                </span>
               </div>
               <div className="flex justify-between border-b border-gray-200 pb-2">
                 <span className="font-medium text-gray-600">Gross Income:</span>

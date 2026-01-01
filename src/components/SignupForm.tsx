@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { X, CheckCircle2, Loader2, Sparkles } from 'lucide-react'
+import { getEdgeFunctionUrl, getAuthHeaders } from '../lib/api'
 
 interface SignupFormProps {
   onClose: () => void
@@ -38,11 +39,15 @@ function SignupForm({ onClose }: SignupFormProps) {
     setErrorMessage('')
 
     try {
-      const apiBase = (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:3001'
+      const url = getEdgeFunctionUrl('waitlist')
+      const headers = {
+        ...getAuthHeaders(),
+        'Content-Type': 'application/json',
+      }
 
-      const resp = await fetch(`${apiBase}/api/waitlist`, {
+      const resp = await fetch(url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           email,
           interest: gender,

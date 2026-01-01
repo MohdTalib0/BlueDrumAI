@@ -31,6 +31,7 @@ import { format, formatDistanceToNow } from 'date-fns'
 import DocumentViewer from '../../../components/vault/DocumentViewer'
 import { DashboardLayout } from '../../../layouts/DashboardLayout'
 import ExportButton from '../../../components/export/ExportButton'
+import { getEdgeFunctionUrl, getAuthHeadersWithSession } from '../../../lib/api'
 
 interface VaultEntry {
   id: string
@@ -80,12 +81,13 @@ export default function TimelineView() {
         throw new Error('Not authenticated')
       }
 
-      const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
+      const headers = await getAuthHeadersWithSession()
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`
+      }
 
-      const response = await fetch(`${apiBase}/api/vault/entries`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      const response = await fetch(`${getEdgeFunctionUrl('vault')}/entries`, {
+        headers,
       })
 
       if (!response.ok) {
@@ -124,13 +126,14 @@ export default function TimelineView() {
         throw new Error('Not authenticated')
       }
 
-      const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
+      const headers = await getAuthHeadersWithSession()
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`
+      }
 
-      const response = await fetch(`${apiBase}/api/vault/entry/${id}`, {
+      const response = await fetch(`${getEdgeFunctionUrl('vault')}/entry/${id}`, {
         method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers,
       })
 
       if (!response.ok) {
@@ -170,12 +173,14 @@ export default function TimelineView() {
         const token = sessionToken
         if (!token) continue
 
-        const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
-        const response = await fetch(`${apiBase}/api/vault/entry/${id}`, {
+        const { getEdgeFunctionUrl, getAuthHeadersWithSession } = await import('../../../lib/api.ts')
+        const headers = await getAuthHeadersWithSession()
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`
+        }
+        const response = await fetch(`${getEdgeFunctionUrl('vault')}/entry/${id}`, {
           method: 'DELETE',
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers,
         })
 
         if (response.ok) {
