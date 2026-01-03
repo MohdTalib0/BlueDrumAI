@@ -98,7 +98,7 @@ function LandingPage() {
       },
       {
         title: 'Fair outcomes focus',
-        desc: 'The goal is truth and documentation—so disputes can be resolved fairly.',
+        desc: 'The goal is truth and documentation, so disputes can be resolved fairly.',
         icon: Shield,
       },
     ],
@@ -117,7 +117,7 @@ function LandingPage() {
       },
       {
         q: 'Who is this for?',
-        a: 'Anyone who wants to document facts in a relationship—men and women—so disputes can be handled fairly.',
+        a: 'Anyone who wants to document facts in a relationship (men and women), so disputes can be handled fairly.',
       },
       {
         q: 'When do we launch?',
@@ -300,7 +300,7 @@ function LandingPage() {
             Privacy-first • No spam • Built for men & women
           </div>
           <div className="mt-1 text-center text-sm text-gray-600">
-            Private beta invites roll out weekly — waitlist gets first access.
+            Private beta invites roll out weekly; waitlist gets first access.
           </div>
 
           <div className="mx-auto mt-4 max-w-3xl">
@@ -392,7 +392,7 @@ function LandingPage() {
                 </span>
               </h2>
               <p className="mx-auto mt-4 max-w-3xl text-xl text-gray-700">
-                The only platform that uses advanced AI to analyze conversations, detect manipulation patterns, and help you learn to recognize red flags—before it's too late.
+                The only platform that uses advanced AI to analyze conversations, detect manipulation patterns, and help you learn to recognize red flags before it's too late.
               </p>
             </div>
 
@@ -468,7 +468,7 @@ function LandingPage() {
                 </div>
                 <h3 className="text-lg font-bold text-gray-900">AI-Powered Comparison</h3>
                 <p className="mt-2 text-sm text-gray-600">
-                  Compare multiple chat analyses side-by-side. AI detects trends, escalation patterns, and provides comparative insights—unique to Blue Drum AI.
+                  Compare multiple chat analyses side-by-side. AI detects trends, escalation patterns, and provides comparative insights unique to Blue Drum AI.
                 </p>
                 <ul className="mt-4 space-y-2 text-sm text-gray-700">
                   <li className="flex items-start gap-2">
@@ -644,6 +644,46 @@ function LandingPage() {
         </div>
       </section>
 
+      {/* About us / Founder note */}
+      <section id="about" className="bg-white py-16">
+        <div className="container mx-auto px-4">
+          <SectionTitle title="Founders Note: Blue Drum AI" subtitle="Why we’re building this, and what we stand for." />
+          <div className="mx-auto mt-10 max-w-4xl">
+            <Card className="relative overflow-hidden p-8 text-left leading-relaxed">
+              <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary-500 via-blue-500 to-indigo-500" />
+              <div className="space-y-4">
+                <p className="text-lg font-semibold text-gray-900">Some words begin to carry fear. Some everyday objects become heavy with memory.</p>
+                <p className="text-gray-700">Meaning doesn’t have to stay frozen in one moment.</p>
+                <p className="text-gray-700">
+                  We started Blue Drum AI with a simple, serious intention: help people document their truth, protect their rights, and stay prepared quietly, responsibly, and within the law.
+                </p>
+                <p className="text-gray-700">
+                  This isn’t about sensationalism. It’s about clarity over chaos, facts over assumptions, and preparedness over panic.
+                </p>
+                <p className="text-gray-700">
+                  Blue Drum AI helps Indian men and women organize evidence, build timelines, surface early risk signals, and generate lawyer-ready case files so if things escalate, the truth is already documented.
+                </p>
+                <p className="text-gray-700">
+                  Our focus is fairness. Our responsibility is privacy. Our goal is to move disputes toward resolution, not harm.
+                </p>
+                <p className="text-gray-800 font-semibold">We believe preparedness is protection.</p>
+                <p className="text-gray-700">Private beta opening soon.</p>
+                <p className="text-gray-700">Thank you for judging us by what we build, by purpose, not fear.</p>
+              </div>
+              <div className="mt-8 flex items-center gap-3 text-sm text-gray-600">
+                <div className="h-10 w-10 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-bold">
+                  BD
+                </div>
+                <div>
+                  <div className="font-semibold text-gray-900">Team Blue Drum AI</div>
+                  <div className="text-xs text-gray-500">Building with care and privacy-first</div>
+                </div>
+              </div>
+            </Card>
+          </div>
+        </div>
+      </section>
+
       {/* How it works */}
       <section id="how" className="bg-white py-16">
         <div className="container mx-auto px-4">
@@ -683,7 +723,7 @@ function LandingPage() {
           <div className="text-sm font-semibold text-primary-700">Private beta</div>
           <div className="text-3xl font-bold text-gray-900">Join the waitlist to get in first</div>
           <div className="text-sm text-gray-700">
-            Private beta invites roll out weekly — waitlist gets priority access.
+            Private beta invites roll out weekly; waitlist gets priority access.
           </div>
           <div className="flex flex-col gap-3 sm:flex-row">
             <button onClick={() => setShowForm(true)} className="btn-primary flex items-center justify-center gap-2">
@@ -702,7 +742,7 @@ function LandingPage() {
 
       {/* Modules */}
       <section className="container mx-auto px-4 py-16">
-        <SectionTitle title="Two modules, one mission" subtitle="Truth and evidence—so outcomes are fair." />
+        <SectionTitle title="Two modules, one mission" subtitle="Truth and evidence, so outcomes are fair." />
 
         <div className="mx-auto mt-12 grid max-w-6xl grid-cols-1 gap-6 md:grid-cols-2">
           <Card className="p-8">
@@ -871,7 +911,7 @@ function LandingPage() {
 
             <Card className="p-8 ring-1 ring-primary-200">
               <div className="inline-flex items-center rounded-full bg-primary-100 px-3 py-1 text-xs font-semibold text-primary-700">
-                Coming soon — Beta is free
+                Coming soon: Beta is free
               </div>
               <div className="mt-3 text-sm font-semibold text-gray-500">Premium (planned)</div>
               <div className="mt-2 text-4xl font-bold text-gray-900">₹199</div>
