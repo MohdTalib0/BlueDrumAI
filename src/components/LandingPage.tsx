@@ -1,4 +1,4 @@
-import { useMemo, useState, type ComponentType, type ReactNode } from 'react'
+import { useMemo, useState, type ComponentType, type ReactNode, type FormEvent } from 'react'
 import {
   AlertTriangle,
   ArrowRight,
@@ -17,7 +17,6 @@ import {
   Brain,
 } from 'lucide-react'
 import SignupForm from './SignupForm'
-import RiskCalculator from './RiskCalculator'
 
 type Feature = {
   title: string
@@ -64,8 +63,11 @@ function Card({
 
 function LandingPage() {
   const [showForm, setShowForm] = useState(false)
-  const [showRisk, setShowRisk] = useState(false)
   const [openFaq, setOpenFaq] = useState<number | null>(0)
+  const [inlineEmail, setInlineEmail] = useState('')
+  const [inlineInterest, setInlineInterest] = useState<'male' | 'female' | 'both' | ''>('')
+  const [inlineStatus, setInlineStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
+  const [inlineError, setInlineError] = useState('')
 
   const features: Feature[] = useMemo(
     () => [
@@ -111,7 +113,7 @@ function LandingPage() {
       },
       {
         q: 'Is my data private?',
-        a: 'We build for privacy-first storage and encrypted uploads. You control what you store and what you export.',
+        a: 'For waitlist, we only collect your email. In product, we build for privacy-first storage and encrypted uploads. You control what you store and what you export.',
       },
       {
         q: 'Who is this for?',
@@ -121,12 +123,61 @@ function LandingPage() {
         q: 'When do we launch?',
         a: 'We’ll invite waitlist users in batches for private beta. Join the waitlist to get notified.',
       },
+      {
+        q: 'When do I hear back after joining?',
+        a: 'Private beta invites roll out weekly. We’ll email you when your slot is ready.',
+      },
     ],
     [],
   )
 
   const scrollTo = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
+  }
+
+  const submitInlineWaitlist = async (e: FormEvent) => {
+    e.preventDefault()
+    if (!inlineEmail) {
+      setInlineError('Please enter your email')
+      return
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(inlineEmail)) {
+      setInlineError('Please enter a valid email')
+      return
+    }
+    setInlineStatus('loading')
+    setInlineError('')
+    try {
+      const apiBase = (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:3001'
+      const supabaseAnonKey = (import.meta as any).env?.VITE_SUPABASE_ANON_KEY
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+      if (supabaseAnonKey) {
+        headers['Authorization'] = `Bearer ${supabaseAnonKey}`
+        headers['apikey'] = supabaseAnonKey
+      }
+      const resp = await fetch(`${apiBase}/waitlist`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          email: inlineEmail,
+          interest: inlineInterest || 'both',
+          source: 'landing_hero_inline',
+        }),
+      })
+      if (!resp.ok) {
+        const data = await resp.json().catch(() => null)
+        setInlineStatus('error')
+        setInlineError(data?.error || 'Could not save signup. Please try again.')
+        return
+      }
+      setInlineStatus('success')
+      setInlineEmail('')
+    } catch (error) {
+      console.error('Inline waitlist error:', error)
+      setInlineStatus('error')
+      setInlineError('Something went wrong. Please try again.')
+    }
   }
 
   return (
@@ -202,7 +253,77 @@ function LandingPage() {
             </button>
           </div>
 
-          <div className="mx-auto mt-14 grid max-w-5xl grid-cols-1 gap-4 md:grid-cols-3">
+          <div className="mx-auto mt-8 w-full max-w-4xl">
+            <form
+              onSubmit={submitInlineWaitlist}
+              className="flex flex-col gap-3 rounded-2xl bg-white/80 p-4 shadow-lg ring-1 ring-gray-200 backdrop-blur md:flex-row md:items-center md:gap-3 md:p-5"
+            >
+              <div className="flex-1">
+                <label className="block text-sm font-semibold text-gray-700">Get early access</label>
+                <p className="text-xs text-gray-500">Private beta invites roll out weekly.</p>
+              </div>
+              <div className="flex flex-1 flex-col gap-2 md:flex-row md:items-center">
+                <input
+                  type="email"
+                  value={inlineEmail}
+                  onChange={(e) => setInlineEmail(e.target.value)}
+                  className="input-field flex-[1.5]"
+                  placeholder="you@example.com"
+                  required
+                  disabled={inlineStatus === 'loading'}
+                />
+                <select
+                  value={inlineInterest}
+                  onChange={(e) => setInlineInterest(e.target.value as 'male' | 'female' | 'both' | '')}
+                  className="input-field flex-[0.8] md:max-w-[200px]"
+                  disabled={inlineStatus === 'loading'}
+                >
+                  <option value="" disabled>
+                    Gender
+                  </option>
+                  <option value="both">Both</option>
+                  <option value="male">Men</option>
+                  <option value="female">Women</option>
+                </select>
+                <button type="submit" className="btn-primary w-full md:w-auto" disabled={inlineStatus === 'loading'}>
+                  {inlineStatus === 'loading' ? 'Joining...' : 'Join waitlist'}
+                </button>
+              </div>
+            </form>
+            {inlineStatus === 'success' ? (
+              <div className="mt-2 text-sm font-semibold text-green-700">You’re on the list. We’ll email you soon.</div>
+            ) : null}
+            {inlineError ? <div className="mt-2 text-sm font-semibold text-red-600">{inlineError}</div> : null}
+          </div>
+
+          <div className="mt-4 text-center text-sm font-semibold text-gray-700">
+            Privacy-first • No spam • Built for men & women
+          </div>
+          <div className="mt-1 text-center text-sm text-gray-600">
+            Private beta invites roll out weekly — waitlist gets first access.
+          </div>
+
+          <div className="mx-auto mt-4 max-w-3xl">
+            <Card className="bg-white/80 p-4 text-left shadow-sm ring-1 ring-gray-100">
+              <div className="text-sm font-bold text-gray-900">Safety & privacy</div>
+              <p className="mt-1 text-sm text-gray-700">
+                Your email is for the waitlist only. No files are stored until you sign in. You control exports. Not legal advice.
+              </p>
+            </Card>
+          </div>
+
+          <div className="mx-auto mt-10 grid max-w-4xl grid-cols-1 gap-4 md:grid-cols-3">
+            {['Early access invite', 'Lawyer-ready PDF demo', 'Beta is free during rollout'].map((item) => (
+              <Card key={item} className="p-4 text-left">
+                <div className="flex items-center gap-2 text-sm font-semibold text-gray-800">
+                  <CheckCircle2 className="h-4 w-4 text-green-600" />
+                  {item}
+                </div>
+              </Card>
+            ))}
+          </div>
+
+          <div className="mx-auto mt-12 grid max-w-5xl grid-cols-1 gap-4 md:grid-cols-3">
             {[
               { label: 'Built for clarity', value: 'Evidence timeline', icon: FileText },
               { label: 'Built for privacy', value: 'Encrypted design', icon: Lock },
@@ -222,57 +343,29 @@ function LandingPage() {
             ))}
           </div>
 
-          {/* Risk Check Quick Access */}
-          
         </div>
       </section>
 
-      {/* Risk Check CTA Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-orange-50 via-yellow-50 to-red-50 py-16">
+      {/* Who it's for */}
+      <section className="bg-white py-10">
         <div className="container mx-auto px-4">
-          <div className="mx-auto max-w-4xl">
-            <div className="rounded-2xl border-2 border-orange-200 bg-white p-8 shadow-xl md:p-12">
-              <div className="text-center">
-                <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-orange-100 to-yellow-100 px-6 py-2 text-sm font-bold text-orange-800">
-                  <AlertTriangle className="h-5 w-5" />
-                  <span>Try it now - No signup required</span>
-                </div>
-                <h2 className="text-3xl font-bold text-gray-900 md:text-4xl">
-                  Check Your Legal Readiness
-                  <span className="block mt-2 text-2xl md:text-3xl text-orange-600">
-                    Free AI-Powered Risk Assessment
-                  </span>
-                </h2>
-                <p className="mx-auto mt-4 max-w-2xl text-lg text-gray-600">
-                  Answer a few questions about your situation and get instant AI-powered insights on your legal readiness, risk factors, and what evidence you should collect.
-                </p>
-                <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
-                  <button
-                    onClick={() => setShowRisk(true)}
-                    className="group w-full flex items-center justify-center gap-3 rounded-xl bg-gradient-to-r from-orange-600 to-red-600 px-8 py-4 text-lg font-bold text-white shadow-lg hover:from-orange-700 hover:to-red-700 transition-all transform hover:scale-105 sm:w-auto"
-                  >
-                    <AlertTriangle className="h-6 w-6" />
-                    Start Free Risk Check
-                    <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                  </button>
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <CheckCircle2 className="h-5 w-5 text-green-600" />
-                    <span>No signup required • Takes 2 minutes • Instant results</span>
-                  </div>
-                </div>
-                <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
-                  {[
-                    { icon: Shield, text: 'AI-Powered Analysis' },
-                    { icon: Scale, text: 'Legal Readiness Score' },
-                    { icon: FileText, text: 'Actionable Recommendations' },
-                  ].map((item, idx) => (
-                    <div key={idx} className="flex flex-col items-center gap-2 rounded-lg bg-gray-50 p-4">
-                      <item.icon className="h-6 w-6 text-orange-600" />
-                      <span className="text-sm font-semibold text-gray-700">{item.text}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
+          <div className="mx-auto max-w-4xl rounded-2xl bg-white/80 p-6 shadow-sm ring-1 ring-gray-100">
+            <div className="text-center text-sm font-semibold text-primary-700">Who it’s for</div>
+            <div className="mt-2 text-center text-2xl font-bold text-gray-900">Built for real disputes</div>
+            <div className="mt-6 grid grid-cols-1 gap-3 md:grid-cols-3">
+              {[
+                { title: 'Dating / live-in', desc: 'Document chats, screenshots, and patterns early.' },
+                { title: 'Alimony / maintenance', desc: 'Track income/expenses and export clean affidavits.' },
+                { title: 'Dowry / DV evidence', desc: 'Log incidents, receipts, and timelines with control.' },
+              ].map((item) => (
+                <Card key={item.title} className="p-4">
+                  <div className="text-base font-bold text-gray-900">{item.title}</div>
+                  <div className="mt-2 text-sm text-gray-600">{item.desc}</div>
+                </Card>
+              ))}
+            </div>
+            <div className="mt-4 text-center text-sm font-semibold text-gray-700">
+              Built with lawyers for readable case files • Encrypted storage + RLS on Supabase
             </div>
           </div>
         </div>
@@ -488,7 +581,7 @@ function LandingPage() {
                 className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-red-600 to-orange-600 px-8 py-4 text-lg font-bold text-white shadow-lg hover:from-red-700 hover:to-orange-700 transition-all transform hover:scale-105"
               >
                 <Sparkles className="h-5 w-5" />
-                Join Waitlist for Early Access
+                Join waitlist
                 <ArrowRight className="h-5 w-5" />
               </button>
             </div>
@@ -518,6 +611,36 @@ function LandingPage() {
               </div>
             </Card>
           ))}
+        </div>
+      </section>
+
+      {/* Instant previews */}
+      <section className="bg-white py-16">
+        <div className="container mx-auto px-4">
+          <SectionTitle title="See what you get" subtitle="Clean timeline, organized evidence, and lawyer-ready exports." />
+          <div className="mx-auto mt-10 grid max-w-5xl grid-cols-1 gap-6 md:grid-cols-3">
+            {[
+              { title: 'Evidence timeline', desc: 'Date-ordered files with notes and labels.', src: '/vault-timeline.png', alt: 'Evidence timeline preview' },
+              { title: 'Signals summary', desc: 'Highlights patterns and suggested actions.', src: '/chat-analyzer.png', alt: 'Chat analysis risk signals preview' },
+              { title: 'Dashboard & exports', desc: 'Quick stats plus lawyer-ready outputs.', src: '/dashboard.png', alt: 'Dashboard and export preview' },
+            ].map((p, idx) => (
+              <Card key={p.title} className="overflow-hidden">
+                <div className="relative aspect-[4/3] overflow-hidden rounded-b-none bg-gradient-to-br from-gray-100 via-gray-50 to-white ring-1 ring-gray-200/60">
+                  <img
+                    src={p.src}
+                    alt={p.alt}
+                    className="h-full w-full object-contain"
+                    loading="lazy"
+                  />
+                </div>
+                <div className="p-4">
+                  <div className="text-base font-bold text-gray-900">{p.title}</div>
+                  <div className="mt-2 text-sm text-gray-600">{p.desc}</div>
+                  <div className="mt-3 text-xs font-semibold text-gray-500">Preview {idx + 1}</div>
+                </div>
+              </Card>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -552,6 +675,29 @@ function LandingPage() {
             ))}
           </div>
         </div>
+      </section>
+
+      {/* Mid-page CTA */}
+      <section className="container mx-auto px-4 py-12">
+        <Card className="flex flex-col items-center gap-3 bg-gradient-to-r from-primary-50 to-blue-50 p-8 text-center shadow-sm ring-1 ring-primary-100 md:p-10">
+          <div className="text-sm font-semibold text-primary-700">Private beta</div>
+          <div className="text-3xl font-bold text-gray-900">Join the waitlist to get in first</div>
+          <div className="text-sm text-gray-700">
+            Private beta invites roll out weekly — waitlist gets priority access.
+          </div>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <button onClick={() => setShowForm(true)} className="btn-primary flex items-center justify-center gap-2">
+              Join waitlist
+              <ArrowRight className="h-4 w-4" />
+            </button>
+            <button onClick={() => scrollTo('features')} className="btn-secondary flex items-center justify-center">
+              See features
+            </button>
+          </div>
+          <div className="text-xs font-semibold text-gray-600">
+            Email-only signup. No files stored until you sign in. Not legal advice.
+          </div>
+        </Card>
       </section>
 
       {/* Modules */}
@@ -725,7 +871,7 @@ function LandingPage() {
 
             <Card className="p-8 ring-1 ring-primary-200">
               <div className="inline-flex items-center rounded-full bg-primary-100 px-3 py-1 text-xs font-semibold text-primary-700">
-                Recommended
+                Coming soon — Beta is free
               </div>
               <div className="mt-3 text-sm font-semibold text-gray-500">Premium (planned)</div>
               <div className="mt-2 text-4xl font-bold text-gray-900">₹199</div>
@@ -740,7 +886,7 @@ function LandingPage() {
               </ul>
               <div className="mt-8">
                 <button onClick={() => setShowForm(true)} className="btn-primary w-full flex items-center justify-center">
-                  Get early access
+                  Join waitlist
                 </button>
               </div>
             </Card>
@@ -831,27 +977,6 @@ function LandingPage() {
       </footer>
 
       {showForm ? <SignupForm onClose={() => setShowForm(false)} /> : null}
-      {showRisk ? <RiskCalculator onClose={() => setShowRisk(false)} /> : null}
-
-      {/* Blue Drum bubble - Enhanced */}
-      <button
-        type="button"
-        onClick={() => setShowRisk(true)}
-        className="group fixed bottom-5 right-5 z-40 flex items-center gap-3 rounded-full bg-gradient-to-r from-orange-500 to-red-500 px-4 py-3 shadow-2xl ring-4 ring-orange-200/50 hover:shadow-2xl hover:ring-orange-300/70 transition-all transform hover:scale-110 animate-pulse sm:px-6 sm:py-4"
-        aria-label="Open safety & documentation check"
-      >
-        <div className="relative">
-          <img src="/drum.svg" alt="Blue Drum risk check" className="h-10 w-10 sm:h-12 sm:w-12 bd-drum-animate filter brightness-0 invert" />
-          <div className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-white text-xs font-bold text-orange-600 shadow-md">
-            !
-          </div>
-        </div>
-        <div className="flex flex-col items-start">
-          <span className="text-sm font-bold text-white sm:text-base">Free Risk Check</span>
-          <span className="text-xs text-white/90">Try it now</span>
-        </div>
-        <ArrowRight className="h-5 w-5 text-white group-hover:translate-x-1 transition-transform" />
-      </button>
     </div>
   )
 }
