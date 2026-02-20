@@ -192,23 +192,23 @@ export default function LandingPage() {
               </span>
             </h1>
 
-            <p className="fade-in-up visible mx-auto mt-6 max-w-2xl text-base leading-relaxed text-gray-500 sm:text-lg md:text-xl">
+            <p className="fade-in-up visible mx-auto mt-6 max-w-2xl px-4 sm:px-0 text-base leading-relaxed text-gray-500 sm:text-lg md:text-xl">
               Blue Drum AI encrypts your evidence, analyzes your chats with AI, and
               generates lawyer-ready case files — so you walk into court prepared.
               <span className="font-medium text-gray-700"> Built for Indian law.</span>
             </p>
 
-            <div className="fade-in-up visible mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <div className="fade-in-up visible mt-10 sm:mt-9 flex flex-col items-center justify-center gap-3 px-4 sm:px-0 sm:flex-row">
               <Link
                 to="/sign-up"
-                className="group relative inline-flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-xl bg-primary-600 px-8 py-4 text-base font-bold text-white shadow-xl shadow-primary-600/25 transition-all duration-300 hover:bg-primary-700 hover:shadow-2xl sm:w-auto"
+                className="group relative inline-flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-xl bg-primary-600 px-6 py-3 text-sm font-bold text-white shadow-xl shadow-primary-600/25 transition-all duration-300 hover:bg-primary-700 hover:shadow-2xl sm:w-auto sm:px-8 sm:py-4 sm:text-base"
               >
                 Get Started Free
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Link>
               <button
                 onClick={() => scrollTo('how-it-works')}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-8 py-4 text-base font-semibold text-gray-700 shadow-sm transition-all hover:border-gray-300 hover:shadow-md sm:w-auto"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-6 py-3 text-sm font-semibold text-gray-700 shadow-sm transition-all hover:border-gray-300 hover:shadow-md sm:w-auto sm:px-8 sm:py-4 sm:text-base"
               >
                 See How It Works
               </button>
