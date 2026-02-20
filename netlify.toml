@@ -4,6 +4,10 @@
 
 [build.environment]
   NODE_VERSION = "20"
+  # Supabase public keys are intentionally bundled into frontend (anon key + URL are public by design)
+  SECRETS_SCAN_OMIT_KEYS = "VITE_SUPABASE_URL,VITE_SUPABASE_ANON_KEY,VITE_API_BASE_URL"
+  # Also exclude docs folder which may contain example values
+  SECRETS_SCAN_OMIT_PATHS = "docs/"
 
 # SPA fallback — send all routes to index.html
 [[redirects]]
