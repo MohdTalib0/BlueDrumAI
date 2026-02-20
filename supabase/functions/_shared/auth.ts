@@ -1,4 +1,6 @@
-// Authentication helper for Edge Functions — local JWT verification (no network round-trip)
+// Authentication helper for Edge Functions
+// Fast path: local HMAC-SHA256 JWT verification (~0 ms)
+// Fallback:  Supabase Auth API /auth/v1/user   (~80 ms)
 import { decode as base64UrlDecode } from 'https://deno.land/std@0.168.0/encoding/base64url.ts'
 
 export interface AuthUser {
@@ -6,14 +8,15 @@ export interface AuthUser {
   email?: string | null
 }
 
-const encoder = new TextEncoder()
+// ── Local JWT verification (fast path) ──────────────────────────────
 
+const encoder = new TextEncoder()
 let _cryptoKey: CryptoKey | null = null
 
 async function getSigningKey(): Promise<CryptoKey> {
   if (_cryptoKey) return _cryptoKey
   const secret = Deno.env.get('JWT_SECRET') || Deno.env.get('SUPABASE_JWT_SECRET')
-  if (!secret) throw new Error('JWT_SECRET not set')
+  if (!secret) throw new Error('JWT_SECRET / SUPABASE_JWT_SECRET not set')
   _cryptoKey = await crypto.subtle.importKey(
     'raw',
     encoder.encode(secret),
@@ -41,8 +44,35 @@ async function verifyJwt(token: string): Promise<Record<string, unknown> | null>
   }
 }
 
+// ── Network fallback via Supabase Auth API ──────────────────────────
+
+async function verifyViaSupabaseAuth(token: string): Promise<AuthUser | null> {
+  try {
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')
+    const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+    if (!supabaseUrl || !serviceKey) return null
+
+    const resp = await fetch(`${supabaseUrl}/auth/v1/user`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        apikey: serviceKey,
+      },
+    })
+    if (!resp.ok) return null
+
+    const data = await resp.json()
+    if (!data?.id) return null
+    return { id: data.id, email: data.email ?? null }
+  } catch {
+    return null
+  }
+}
+
+// ── Public API ──────────────────────────────────────────────────────
+
 /**
- * Verify Supabase JWT from Authorization header (local, ~0ms)
+ * Verify Supabase JWT from Authorization header.
+ * Tries local HMAC check first; falls back to Supabase Auth API if that fails.
  */
 export async function verifyAuth(req: Request): Promise<{ user: AuthUser | null; error: string | null }> {
   try {
@@ -53,18 +83,25 @@ export async function verifyAuth(req: Request): Promise<{ user: AuthUser | null;
       return { user: null, error: 'Missing authorization token' }
     }
 
+    // Fast path — local JWT verification
     const payload = await verifyJwt(token)
-    if (!payload || !payload.sub) {
-      return { user: null, error: 'Invalid token' }
+    if (payload?.sub) {
+      return {
+        user: {
+          id: payload.sub as string,
+          email: (payload.email as string) ?? null,
+        },
+        error: null,
+      }
     }
 
-    return {
-      user: {
-        id: payload.sub as string,
-        email: (payload.email as string) ?? null,
-      },
-      error: null,
+    // Fallback — ask Supabase Auth service
+    const user = await verifyViaSupabaseAuth(token)
+    if (user) {
+      return { user, error: null }
     }
+
+    return { user: null, error: 'Invalid token' }
   } catch (err) {
     console.error('Auth verification error:', err)
     return { user: null, error: 'Authentication failed' }

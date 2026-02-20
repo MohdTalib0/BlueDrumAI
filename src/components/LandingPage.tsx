@@ -106,18 +106,19 @@ export default function LandingPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-white text-gray-900 antialiased">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-yellow-50/30 to-white text-gray-900 antialiased font-sans">
 
       {/* ─────────────────────────────── NAV ─────────────────────────────── */}
-      <header className="sticky top-0 z-50 border-b border-gray-100/80 bg-white/80 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-3">
+      <header className="sticky inset-x-0 top-0 z-50 border-b border-blue-100/50 bg-gradient-to-br from-blue-50/40 via-yellow-50/20 to-white/40 backdrop-blur-xl">
+        <div className="flex w-full items-center justify-between px-5 py-2.5 sm:px-6 sm:py-3 lg:px-8">
           <Link to="/" className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-primary-600 to-blue-700 shadow-lg shadow-primary-600/20">
-              <Shield className="h-[18px] w-[18px] text-white" />
+            <div className="flex h-8 w-8 sm:h-10 sm:w-10 shrink-0 items-center justify-center">
+              <img src="/logo.svg" alt="Blue Drum AI" className="h-8 w-8 sm:h-10 sm:w-10" />
             </div>
-            <span className="text-lg font-bold tracking-tight">
-              Blue Drum <span className="text-primary-600">AI</span>
-            </span>
+            <div className="leading-tight">
+              <div className="text-sm sm:text-base font-bold text-gray-900">Blue Drum AI</div>
+              <div className="hidden sm:block text-xs text-gray-500">Evidence-based legal vigilance</div>
+            </div>
           </Link>
 
           <nav className="hidden items-center gap-1 lg:flex">
@@ -159,7 +160,7 @@ export default function LandingPage() {
         </div>
 
         {mobileMenuOpen && (
-          <div className="border-t border-gray-100 bg-white px-5 pb-4 pt-2 lg:hidden">
+          <div className="border-t border-blue-100/50 bg-white/80 backdrop-blur-sm px-5 pb-4 pt-2 lg:hidden">
             {navLinks.map((l) => (
               <button key={l.id} onClick={() => scrollTo(l.id)} className="block w-full rounded-lg px-3 py-2.5 text-left text-sm font-medium text-gray-600 hover:bg-gray-50">
                 {l.label}
@@ -178,9 +179,9 @@ export default function LandingPage() {
 
         <div className="mx-auto max-w-7xl px-5 pb-16 pt-16 sm:pb-24 sm:pt-24 md:pb-28 md:pt-28">
           <div className="mx-auto max-w-4xl text-center">
-            <div className="fade-in-up visible mb-6 inline-flex items-center gap-2.5 rounded-full border border-green-200/80 bg-green-50/80 px-4 py-2 text-xs font-semibold text-green-700 shadow-sm">
-              <span className="live-dot relative flex h-2 w-2 rounded-full bg-green-500" />
-              Now Live — Free to Use
+            <div className="fade-in-up visible mb-6 inline-flex items-center gap-2.5 rounded-full border border-primary-200/80 bg-primary-50/80 px-4 py-2 text-xs font-semibold text-primary-700 shadow-sm">
+              <Shield className="h-3.5 w-3.5" />
+              AI-Powered Legal Protection for India
             </div>
 
             <h1 className="fade-in-up visible text-[2.25rem] font-extrabold leading-[1.12] tracking-tight sm:text-5xl md:text-6xl lg:text-[4.25rem]">
@@ -312,7 +313,7 @@ export default function LandingPage() {
       </section>
 
       {/* ──────────────────────── FEATURES ────────────────────────────────── */}
-      <section id="features" className="border-t border-gray-100 bg-gray-50/40 py-20 sm:py-24">
+      <section id="features" className="border-t border-blue-100/40 py-20 sm:py-24">
         <div className="mx-auto max-w-7xl px-5">
           <div className="mx-auto max-w-2xl text-center">
             <SectionLabel>Platform Features</SectionLabel>
@@ -326,7 +327,7 @@ export default function LandingPage() {
 
           <div className="stagger-children mx-auto mt-14 grid max-w-6xl grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {features.map((f) => (
-              <div key={f.title} className="fade-in-up group relative overflow-hidden rounded-2xl border border-gray-100 bg-white p-7 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-gray-200 hover:shadow-lg">
+              <div key={f.title} className="fade-in-up group relative overflow-hidden rounded-2xl border border-blue-100/60 bg-white/70 backdrop-blur-sm p-7 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-blue-200/80 hover:shadow-lg hover:bg-white/90">
                 <div className={`mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${f.accent} shadow-md`}>
                   <f.icon className="h-6 w-6 text-white" />
                 </div>
@@ -380,7 +381,7 @@ export default function LandingPage() {
       </section>
 
       {/* ──────────────────────── MODULES ─────────────────────────────────── */}
-      <section className="border-t border-gray-100 bg-gray-50/40 py-20 sm:py-24">
+      <section className="border-t border-blue-100/40 py-20 sm:py-24">
         <div className="mx-auto max-w-7xl px-5">
           <div className="mx-auto max-w-2xl text-center">
             <SectionLabel>Modules</SectionLabel>
@@ -394,13 +395,13 @@ export default function LandingPage() {
 
           <div className="fade-in-up mx-auto mt-14 grid max-w-5xl grid-cols-1 gap-6 md:grid-cols-2">
             {/* Men */}
-            <div className="rounded-2xl border border-gray-200 bg-white p-8 shadow-sm transition-all hover:shadow-md">
+            <div className="rounded-2xl border border-blue-200/60 bg-gradient-to-br from-blue-50/80 via-white/60 to-cyan-50/30 p-8 shadow-sm transition-all hover:shadow-lg hover:border-blue-200">
               <div className="mb-5 flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-cyan-600 shadow-md">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-cyan-600 shadow-md shadow-blue-200/50">
                   <Shield className="h-6 w-6 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold">For Men</h3>
+                  <h3 className="text-xl font-bold text-gray-900">For Men</h3>
                   <p className="text-xs text-gray-400">Alimony clarity & false case protection</p>
                 </div>
               </div>
@@ -412,13 +413,13 @@ export default function LandingPage() {
             </div>
 
             {/* Women */}
-            <div className="rounded-2xl border border-gray-200 bg-white p-8 shadow-sm transition-all hover:shadow-md">
+            <div className="rounded-2xl border border-purple-200/60 bg-gradient-to-br from-purple-50/80 via-white/60 to-pink-50/30 p-8 shadow-sm transition-all hover:shadow-lg hover:border-purple-200">
               <div className="mb-5 flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 shadow-md">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 shadow-md shadow-purple-200/50">
                   <Users className="h-6 w-6 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold">For Women</h3>
+                  <h3 className="text-xl font-bold text-gray-900">For Women</h3>
                   <p className="text-xs text-gray-400">DV documentation & maintenance rights</p>
                 </div>
               </div>
@@ -475,14 +476,14 @@ export default function LandingPage() {
 
           <div className="fade-in-up mx-auto mt-14 grid max-w-4xl grid-cols-1 gap-6 md:grid-cols-2">
             {/* Free */}
-            <div className="rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
+            <div className="rounded-2xl border border-blue-100/60 bg-white/70 backdrop-blur-sm p-8 shadow-sm transition-all hover:shadow-lg hover:border-blue-200/80">
               <div className="text-sm font-semibold text-gray-500">Free</div>
               <div className="mt-3 flex items-baseline gap-1">
                 <span className="text-5xl font-extrabold tracking-tight text-gray-900">&#8377;0</span>
                 <span className="text-sm text-gray-400">/ forever</span>
               </div>
               <p className="mt-3 text-sm text-gray-500">Everything you need to get started.</p>
-              <hr className="my-6 border-gray-100" />
+              <hr className="my-6 border-blue-100/50" />
               <ul className="space-y-3">
                 {['Encrypted vault — 50 files, 100 MB', '5 AI analyses / month', '3 PDF exports / month', '3 Breakup Generator uses / month', 'Red Flag Experience — 3 sessions / month'].map((x) => (
                   <li key={x} className="flex items-center gap-2.5 text-sm text-gray-600"><CheckCircle2 className="h-4 w-4 shrink-0 text-primary-500" />{x}</li>
@@ -494,15 +495,15 @@ export default function LandingPage() {
             </div>
 
             {/* Premium */}
-            <div className="relative rounded-2xl border-2 border-primary-500 bg-white p-8 shadow-lg shadow-primary-500/10">
+            <div className="relative rounded-2xl border-2 border-primary-400/70 bg-gradient-to-br from-primary-50/60 via-white/80 to-blue-50/50 p-8 shadow-lg shadow-primary-200/30 transition-all hover:shadow-xl">
               <Badge className="absolute -top-3 left-6 border border-primary-200 bg-primary-600 text-white shadow-md">Recommended</Badge>
-              <div className="text-sm font-semibold text-gray-500">Premium</div>
+              <div className="text-sm font-semibold text-primary-600">Premium</div>
               <div className="mt-3 flex items-baseline gap-1">
                 <span className="text-5xl font-extrabold tracking-tight text-gray-900">&#8377;199</span>
                 <span className="text-sm text-gray-400">/ month</span>
               </div>
               <p className="mt-3 text-sm text-gray-500">Unlimited everything. Priority support.</p>
-              <hr className="my-6 border-gray-100" />
+              <hr className="my-6 border-primary-100/50" />
               <ul className="space-y-3">
                 {['Everything in Free', 'Unlimited vault storage — 5 GB', 'Unlimited AI analyses', 'Unlimited PDF exports', 'Unlimited Breakup Generator', 'Unlimited Red Flag sessions', 'Priority support'].map((x) => (
                   <li key={x} className="flex items-center gap-2.5 text-sm text-gray-600"><CheckCircle2 className="h-4 w-4 shrink-0 text-primary-500" />{x}</li>
@@ -520,14 +521,14 @@ export default function LandingPage() {
       </section>
 
       {/* ──────────────────────── FAQ ─────────────────────────────────────── */}
-      <section id="faq" className="border-t border-gray-100 bg-gray-50/40 py-20 sm:py-24">
+      <section id="faq" className="border-t border-blue-100/40 py-20 sm:py-24">
         <div className="mx-auto max-w-7xl px-5">
           <div className="mx-auto max-w-2xl text-center">
             <SectionLabel>FAQ</SectionLabel>
             <h2 className="fade-in-up text-3xl font-bold tracking-tight sm:text-4xl">Common questions, clear answers</h2>
           </div>
 
-          <div className="fade-in-up mx-auto mt-14 max-w-2xl divide-y divide-gray-200 rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+          <div className="fade-in-up mx-auto mt-14 max-w-2xl divide-y divide-blue-100/50 rounded-2xl border border-blue-100/60 bg-white/70 backdrop-blur-sm shadow-sm overflow-hidden">
             {faqs.map((f, idx) => {
               const isOpen = openFaq === idx
               return (
@@ -551,24 +552,24 @@ export default function LandingPage() {
       {/* ──────────────────────── FINAL CTA ──────────────────────────────── */}
       <section className="py-20 sm:py-24">
         <div className="mx-auto max-w-7xl px-5">
-          <div className="fade-in-up relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary-600 via-blue-600 to-indigo-700 px-8 py-20 text-center text-white shadow-2xl shadow-primary-900/25 md:px-16">
-            <div className="pointer-events-none absolute -left-24 -top-24 h-80 w-80 rounded-full bg-white/10 blur-3xl" />
-            <div className="pointer-events-none absolute -bottom-24 -right-24 h-80 w-80 rounded-full bg-white/10 blur-3xl" />
+          <div className="fade-in-up relative overflow-hidden rounded-3xl border border-blue-200/60 bg-gradient-to-br from-blue-100/80 via-blue-50/60 to-yellow-50/40 px-8 py-20 text-center shadow-lg shadow-blue-100/40 md:px-16">
+            <div className="pointer-events-none absolute -left-24 -top-24 h-80 w-80 rounded-full bg-blue-200/20 blur-3xl" />
+            <div className="pointer-events-none absolute -bottom-24 -right-24 h-80 w-80 rounded-full bg-yellow-100/30 blur-3xl" />
 
-            <h2 className="relative text-3xl font-extrabold tracking-tight sm:text-4xl md:text-5xl">
+            <h2 className="relative text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl md:text-5xl">
               Don&apos;t wait until it&apos;s too late.
               <br className="hidden sm:block" />
-              <span className="mt-2 block text-white/80 sm:mt-3">Start documenting today.</span>
+              <span className="mt-2 block text-primary-600 sm:mt-3">Start documenting today.</span>
             </h2>
-            <p className="relative mx-auto mt-5 max-w-xl text-base text-white/60 sm:text-lg">
+            <p className="relative mx-auto mt-5 max-w-xl text-base text-gray-500 sm:text-lg">
               Sign up in under 2 minutes. Upload your first evidence.
               Generate your first case file. Free forever on the core plan.
             </p>
             <div className="relative mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
-              <Link to="/sign-up" className="group inline-flex w-full items-center justify-center gap-2.5 rounded-xl bg-white px-8 py-4 text-base font-bold text-primary-700 shadow-xl transition-all duration-300 hover:shadow-2xl sm:w-auto">
+              <Link to="/sign-up" className="group inline-flex w-full items-center justify-center gap-2.5 rounded-xl bg-primary-600 px-8 py-4 text-base font-bold text-white shadow-lg shadow-primary-600/20 transition-all duration-300 hover:bg-primary-700 hover:shadow-xl sm:w-auto">
                 Create Free Account <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Link>
-              <Link to="/sign-in" className="inline-flex w-full items-center justify-center rounded-xl border border-white/20 px-8 py-4 text-base font-semibold text-white transition-all hover:bg-white/10 sm:w-auto">
+              <Link to="/sign-in" className="inline-flex w-full items-center justify-center rounded-xl border border-gray-200 px-8 py-4 text-base font-semibold text-gray-600 transition-all hover:border-gray-300 hover:bg-white/60 sm:w-auto">
                 Sign In
               </Link>
             </div>
