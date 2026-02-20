@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { FileText, Download, ArrowLeft, Loader2, AlertCircle, CheckCircle2, Calendar } from 'lucide-react'
+import { FileText, Download, Loader2, AlertCircle, CheckCircle2, Calendar } from 'lucide-react'
 import { useAuth } from '../../../context/AuthContext'
 import { DashboardLayout } from '../../../layouts/DashboardLayout'
 import { format, parseISO } from 'date-fns'
@@ -140,7 +140,7 @@ export default function AffidavitGenerator() {
 
   if (loading) {
     return (
-      <DashboardLayout title="Generate Affidavit" subtitle="Create a legally compliant income affidavit">
+      <DashboardLayout title="Generate Affidavit" subtitle="Create a legally compliant income affidavit" backHref="/dashboard/income-tracker/history">
         <div className="flex min-h-[400px] items-center justify-center">
           <div className="text-center">
             <Loader2 className="mb-4 inline-block h-8 w-8 animate-spin text-primary-600" />
@@ -152,7 +152,7 @@ export default function AffidavitGenerator() {
   }
 
   return (
-    <DashboardLayout title="Generate Affidavit" subtitle="Create a legally compliant income affidavit (Rajnesh v. Neha compliant)">
+    <DashboardLayout title="Generate Affidavit" subtitle="Create a legally compliant income affidavit (Rajnesh v. Neha compliant)" backHref="/dashboard/income-tracker/history">
       <div className="w-full max-w-4xl mx-auto">
         {/* Success Message */}
         {success && (
@@ -182,17 +182,6 @@ export default function AffidavitGenerator() {
             <span>{error}</span>
           </div>
         )}
-
-        {/* Header Actions */}
-        <div className="mb-6 flex items-center justify-between">
-          <button
-            onClick={() => navigate('/dashboard/income-tracker/history')}
-            className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to History
-          </button>
-        </div>
 
         {/* Month Selection */}
         <div className="mb-6 rounded-lg border border-gray-200/20 bg-white/50 hover:bg-white/70 transition-colors p-6 shadow-sm">

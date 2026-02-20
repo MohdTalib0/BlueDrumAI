@@ -19,7 +19,9 @@ import {
 import { useAuth } from '../../../context/AuthContext'
 import { DashboardLayout } from '../../../layouts/DashboardLayout'
 import { format } from 'date-fns'
+import toast from 'react-hot-toast'
 import { getEdgeFunctionUrl, getAuthHeadersWithSession } from '../../../lib/api'
+import ConfirmModal from '../../../components/ui/ConfirmModal'
 
 interface RedFlag {
   type: string
@@ -55,6 +57,7 @@ export default function AnalysisResults() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [deleting, setDeleting] = useState(false)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [exporting, setExporting] = useState(false)
 
   useEffect(() => {
@@ -93,7 +96,7 @@ export default function AnalysisResults() {
 
   const handleExportPDF = async () => {
     if (!sessionToken || !id) {
-      alert('Not authenticated')
+      toast.error('Not authenticated')
       return
     }
 
@@ -124,17 +127,14 @@ export default function AnalysisResults() {
       window.URL.revokeObjectURL(url)
       document.body.removeChild(a)
     } catch (err: any) {
-      alert(err.message || 'Failed to export PDF')
+      toast.error(err.message || 'Failed to export PDF')
     } finally {
       setExporting(false)
     }
   }
 
   const handleDelete = async () => {
-    if (!confirm('Are you sure you want to delete this analysis? This action cannot be undone.')) {
-      return
-    }
-
+    setShowDeleteConfirm(false)
     try {
       setDeleting(true)
       if (!sessionToken || !id) {
@@ -154,7 +154,7 @@ export default function AnalysisResults() {
 
       navigate('/dashboard/red-flag-radar/history')
     } catch (err: any) {
-      alert(err.message || 'Failed to delete analysis')
+      toast.error(err.message || 'Failed to delete analysis')
     } finally {
       setDeleting(false)
     }
@@ -235,17 +235,10 @@ export default function AnalysisResults() {
   }
 
   return (
-    <DashboardLayout title="Analysis Results" subtitle={`Risk Assessment - ${getRiskLabel(analysis.risk_score)}`}>
+    <DashboardLayout title="Analysis Results" subtitle={`Risk Assessment - ${getRiskLabel(analysis.risk_score)}`} backHref="/dashboard/red-flag-radar/history">
       <div className="w-full max-w-6xl mx-auto">
         {/* Header Actions */}
-        <div className="mb-6 flex items-center justify-between no-print">
-          <button
-            onClick={() => navigate('/dashboard/red-flag-radar/history')}
-            className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to History
-          </button>
+        <div className="mb-6 flex flex-wrap items-center justify-end gap-3 no-print">
           <div className="flex flex-wrap items-center gap-3">
             <button
               onClick={handleExportPDF}
@@ -283,7 +276,7 @@ export default function AnalysisResults() {
               </a>
             )}
             <button
-              onClick={handleDelete}
+              onClick={() => setShowDeleteConfirm(true)}
               disabled={deleting}
               className="inline-flex items-center gap-2 rounded-lg border border-red-300 bg-white px-4 py-2 text-sm font-semibold text-red-700 shadow-sm hover:bg-red-50 disabled:opacity-50 transition-colors"
             >
@@ -502,6 +495,13 @@ export default function AnalysisResults() {
           </div>
         )}
       </div>
+      <ConfirmModal
+        open={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={handleDelete}
+        title="Delete this analysis?"
+        message="This analysis will be permanently removed. This action cannot be undone."
+      />
     </DashboardLayout>
   )
 }

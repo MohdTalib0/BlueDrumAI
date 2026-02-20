@@ -2,14 +2,11 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createSupabaseClient } from '../_shared/supabase.ts'
 import { getUserId } from '../_shared/auth.ts'
 import { generateAffidavitPDF } from '../_shared/pdfGenerators.ts'
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'GET, POST, PATCH, DELETE, OPTIONS',
-}
+import { getCorsHeaders } from '../_shared/cors.ts'
+import { checkUsageLimit, incrementUsageSimple, limitReachedResponse } from '../_shared/subscription.ts'
 
 serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req)
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
@@ -31,16 +28,34 @@ serve(async (req) => {
       const body = await req.json()
       const { month_year, gross_income, deductions, expenses } = body
 
+      // Input validation
+      if (!month_year || typeof month_year !== 'string' || !/^\d{4}-\d{2}$/.test(month_year)) {
+        return new Response(
+          JSON.stringify({ ok: false, error: 'month_year must be a string matching YYYY-MM pattern' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+
+      if (typeof gross_income !== 'number' || gross_income < 0) {
+        return new Response(
+          JSON.stringify({ ok: false, error: 'gross_income must be a number >= 0' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+
+      // DB column is DATE — convert YYYY-MM to YYYY-MM-01 (first of month)
+      const month_year_date = `${month_year}-01`
+
       const { data, error } = await supabase
         .from('income_tracker')
         .insert({
           user_id: userId,
-          month_year,
+          month_year: month_year_date,
           gross_income,
           deductions: deductions || {},
           expenses: expenses || {},
         })
-        .select()
+        .select('id, month_year, created_at')
         .single()
 
       if (error) {
@@ -60,7 +75,7 @@ serve(async (req) => {
     if (url.pathname.endsWith('/history') && req.method === 'GET') {
       const { data, error } = await supabase
         .from('income_tracker')
-        .select('*')
+        .select('id, user_id, month_year, gross_income, deductions, expenses, disposable_income, notes, created_at')
         .eq('user_id', userId)
         .order('month_year', { ascending: false })
 
@@ -87,7 +102,7 @@ serve(async (req) => {
         .update(body)
         .eq('id', entryId)
         .eq('user_id', userId)
-        .select()
+        .select('id, month_year, created_at')
         .single()
 
       if (error) {
@@ -138,7 +153,7 @@ serve(async (req) => {
 
       const { data: entry } = await supabase
         .from('income_tracker')
-        .select('*')
+        .select('id, user_id, month_year, gross_income, deductions, expenses, disposable_income, notes, created_at')
         .eq('user_id', userId)
         .eq('month_year', monthYear)
         .single()
@@ -174,6 +189,9 @@ serve(async (req) => {
 
     // POST /generate-affidavit - Generate PDF affidavit
     if (url.pathname.endsWith('/generate-affidavit') && req.method === 'POST') {
+      const pdfLimit = await checkUsageLimit(userId, 'pdf_exports')
+      if (!pdfLimit.allowed) return limitReachedResponse('pdf_exports', pdfLimit, corsHeaders)
+
       const body = await req.json()
       const { month_year } = body
 
@@ -184,11 +202,16 @@ serve(async (req) => {
         )
       }
 
+      // DB column is DATE — normalise YYYY-MM to YYYY-MM-01 for the lookup
+      const month_year_date = /^\d{4}-\d{2}$/.test(month_year)
+        ? `${month_year}-01`
+        : month_year
+
       const { data: entry, error: entryError } = await supabase
         .from('income_tracker')
-        .select('*')
+        .select('id, user_id, month_year, gross_income, deductions, expenses, disposable_income, notes, created_at')
         .eq('user_id', userId)
-        .eq('month_year', month_year)
+        .eq('month_year', month_year_date)
         .single()
 
       if (entryError || !entry) {
@@ -213,10 +236,10 @@ serve(async (req) => {
       const totalExpenses = Object.values(expenses).reduce((sum: number, v: any) => sum + parseFloat(v || 0), 0)
       const disposableIncome = gross - totalDeductions - totalExpenses
 
-      // Generate PDF
+      // Generate PDF — pass YYYY-MM slice so pdfGenerators.ts can safely append '-01'
       const pdfBytes = await generateAffidavitPDF({
         userEmail: userData?.email || 'user@example.com',
-        monthYear: entry.month_year,
+        monthYear: String(entry.month_year).slice(0, 7),
         grossIncome: gross,
         deductions: deductions as any,
         expenses: expenses as any,
@@ -224,7 +247,8 @@ serve(async (req) => {
         notes: entry.notes || undefined,
       })
 
-      // Return PDF
+      await incrementUsageSimple(userId, 'pdf_exports').catch(() => {})
+
       return new Response(pdfBytes, {
         headers: {
           ...corsHeaders,

@@ -5,7 +5,7 @@ import { Shield, AlertTriangle, ArrowRight } from 'lucide-react'
 import { getEdgeFunctionUrl, getAuthHeadersWithSession } from '../lib/api'
 
 export default function Onboarding() {
-  const { sessionToken, user, loading: authLoading } = useAuth()
+  const { sessionToken, user, loading: authLoading, refreshProfile } = useAuth()
   const navigate = useNavigate()
   const [gender, setGender] = useState<'male' | 'female' | 'both' | ''>('')
   const [relationshipStatus, setRelationshipStatus] = useState<string>('')
@@ -41,15 +41,6 @@ export default function Onboarding() {
           }
         }
 
-        // Sync user from Supabase Auth to public.users table
-        // Note: sync-user endpoint may not exist in edge functions, skip for now
-        // The PATCH endpoint will handle user creation if needed
-
-        if (!syncResp.ok) {
-          const syncData = await syncResp.json().catch(() => null)
-          console.warn('User sync warning:', syncData?.error || 'Failed to sync user')
-          // Continue anyway - the PATCH endpoint will try to sync if user doesn't exist
-        }
       } catch (err) {
         console.error('Failed to check onboarding status:', err)
         // Continue anyway
@@ -98,6 +89,7 @@ export default function Onboarding() {
         throw new Error(data?.error || 'Failed to save profile')
       }
 
+      await refreshProfile()
       navigate('/dashboard')
     } catch (err: any) {
       setError(err.message || 'Something went wrong')

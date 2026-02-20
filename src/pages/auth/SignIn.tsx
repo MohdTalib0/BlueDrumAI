@@ -4,10 +4,6 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { getEdgeFunctionUrl, getAuthHeadersWithSession } from '../../lib/api'
 
-/**
- * Sign In Page
- * Split-screen design: Sign in form on left, platform info on right
- */
 export default function SignInPage() {
   const { signIn, resendEmailVerification, loading } = useAuth()
   const navigate = useNavigate()
@@ -33,36 +29,24 @@ export default function SignInPage() {
         setError(result.error)
       }
     } else {
-      // Wait a bit for session to be established, then check onboarding status
       setTimeout(async () => {
         try {
           const { supabase } = await import('../../lib/supabase')
           const { data: { session } } = await supabase.auth.getSession()
-          
           if (session?.access_token) {
             const headers = await getAuthHeadersWithSession()
-            if (session.access_token) {
-              headers['Authorization'] = `Bearer ${session.access_token}`
-            }
-            const response = await fetch(`${getEdgeFunctionUrl('auth')}/me`, {
-              headers,
-            })
-            
+            headers['Authorization'] = `Bearer ${session.access_token}`
+            const response = await fetch(`${getEdgeFunctionUrl('auth')}/me`, { headers })
             if (response.ok) {
               const data = await response.json()
-              if (data.ok && data.user?.onboarding_completed) {
-                navigate('/dashboard')
-              } else {
-                navigate('/onboarding')
-              }
+              navigate(data.ok && data.user?.onboarding_completed ? '/dashboard' : '/onboarding')
             } else {
               navigate('/onboarding')
             }
           } else {
             navigate('/onboarding')
           }
-        } catch (err) {
-          console.error('Error checking onboarding status:', err)
+        } catch {
           navigate('/onboarding')
         }
       }, 100)
@@ -73,58 +57,61 @@ export default function SignInPage() {
   const handleResend = async () => {
     setError(null)
     setInfo(null)
-    setVerifyPrompt(true)
     const res = await resendEmailVerification(email.trim())
-    if (res.error) {
-      setError(res.error)
-    } else {
-      setInfo('Verification email resent. Please check your inbox.')
-    }
+    if (res.error) setError(res.error)
+    else setInfo('Verification email resent. Please check your inbox.')
   }
 
   return (
-    <div className="flex min-h-screen">
-      {/* Mobile Header - Blue Drum AI Branding */}
-      <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-primary-600 to-blue-700 px-4 py-4 sm:hidden">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
-            <Shield className="h-5 w-5 text-white" />
-          </div>
-          <div>
-            <div className="text-lg font-bold text-white">Blue Drum AI</div>
-            <div className="text-xs text-primary-100">Evidence-based legal protection</div>
+    <div className="flex min-h-screen flex-col sm:flex-row">
+
+      {/* ── Left column ────────────────────────────────────────────────────── */}
+      <div className="flex flex-col sm:w-1/2">
+
+        {/* Mobile brand bar — in document flow, no absolute overlap */}
+        <div className="bg-gradient-to-r from-primary-600 to-blue-700 px-5 py-4 sm:hidden">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/20">
+              <Shield className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <p className="text-base font-bold text-white leading-tight">Blue Drum AI</p>
+              <p className="text-xs text-primary-100">Evidence-based legal protection</p>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Left Side - Sign In Form */}
-      <div className="flex w-full flex-col justify-center bg-white px-4 py-12 pt-20 sm:w-1/2 sm:pt-12 lg:px-12">
-        <div className="mx-auto w-full max-w-md">
-          {/* Back to home link */}
-          <Link
-            to="/"
-            className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-gray-900"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to home
-          </Link>
+        {/* Form area */}
+        <div className="flex flex-1 flex-col justify-center px-5 py-8 sm:px-10 lg:px-14 bg-white">
+          <div className="mx-auto w-full max-w-md">
 
-          {/* Sign In Form */}
-          <div className="mb-6 min-h-[400px]">
+            <Link
+              to="/"
+              className="mb-6 inline-flex items-center gap-1.5 text-sm font-semibold text-gray-500 hover:text-gray-900 transition-colors"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to home
+            </Link>
+
+            <h1 className="text-2xl font-bold text-gray-900 -tracking-[.04em] mb-1">Welcome back</h1>
+            <p className="text-sm text-gray-500 mb-7">Sign in to your Blue Drum AI account</p>
+
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700">Email</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
                 <input
                   type="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={e => setEmail(e.target.value)}
                   required
-                  className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500"
+                  autoComplete="email"
+                  className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-100 focus:outline-none transition-colors"
                   placeholder="you@example.com"
                 />
               </div>
+
               <div>
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between mb-1">
                   <label className="block text-sm font-medium text-gray-700">Password</label>
                   <Link to="/forgot-password" className="text-xs font-semibold text-primary-600 hover:text-primary-700">
                     Forgot password?
@@ -133,14 +120,16 @@ export default function SignInPage() {
                 <input
                   type="password"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={e => setPassword(e.target.value)}
                   required
-                  className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500"
+                  autoComplete="current-password"
+                  className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-100 focus:outline-none transition-colors"
                   placeholder="••••••••"
                 />
               </div>
+
               {error && (
-                <div className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                <div className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 px-3 py-3 text-sm text-red-700">
                   <MailWarning className="mt-0.5 h-4 w-4 shrink-0" />
                   <div className="flex-1 space-y-1">
                     <div>{error}</div>
@@ -156,25 +145,24 @@ export default function SignInPage() {
                   </div>
                 </div>
               )}
+
               {info && (
-                <div className="flex items-start gap-2 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-blue-800">
+                <div className="flex items-start gap-2 rounded-xl border border-blue-200 bg-blue-50 px-3 py-3 text-sm text-blue-800">
                   <MailCheck className="mt-0.5 h-4 w-4 shrink-0" />
                   <span>{info}</span>
                 </div>
               )}
+
               <button
                 type="submit"
                 disabled={submitting || loading}
-                className="flex w-full items-center justify-center rounded-xl bg-primary-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+                className="flex w-full items-center justify-center rounded-xl bg-primary-600 px-6 py-3.5 text-sm font-semibold text-white shadow-sm hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-60 transition-colors"
               >
                 {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Sign in'}
               </button>
             </form>
-          </div>
 
-          {/* Sign Up Link */}
-          <div className="text-center text-sm text-gray-600">
-            <p>
+            <p className="mt-6 text-center text-sm text-gray-500">
               Don't have an account?{' '}
               <Link to="/sign-up" className="font-semibold text-primary-600 hover:text-primary-700">
                 Sign up
@@ -184,21 +172,19 @@ export default function SignInPage() {
         </div>
       </div>
 
-      {/* Right Side - Platform Information (Hidden on factor-two for better UX) */}
-      <div className="hidden bg-gradient-to-br from-primary-600 via-primary-700 to-blue-700 p-8 sm:flex sm:w-1/2 sm:flex-col sm:justify-center lg:p-12">
+      {/* ── Right column — desktop only ──────────────────────────────────── */}
+      <div className="hidden sm:flex sm:w-1/2 sm:flex-col sm:justify-center bg-gradient-to-br from-primary-600 via-primary-700 to-blue-700 p-8 lg:p-12">
         <div className="mx-auto max-w-md text-white">
-          {/* Logo/Brand */}
           <div className="mb-8 flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20">
               <Shield className="h-6 w-6 text-white" />
             </div>
             <div>
-              <div className="text-2xl font-bold">Blue Drum AI</div>
-              <div className="text-sm text-primary-100">Evidence-based legal protection</div>
+              <p className="text-2xl font-bold">Blue Drum AI</p>
+              <p className="text-sm text-primary-100">Evidence-based legal protection</p>
             </div>
           </div>
 
-          {/* Main Heading */}
           <h2 className="mb-4 text-3xl font-bold leading-tight lg:text-4xl">
             Document your truth. Protect your rights.
           </h2>
@@ -206,53 +192,32 @@ export default function SignInPage() {
             Secure evidence organization for Indian men and women navigating relationship disputes.
           </p>
 
-          {/* Features List */}
           <div className="space-y-4">
             {[
-              {
-                icon: FileText,
-                title: 'Evidence Vault',
-                desc: 'Store documents, photos, and files with timestamps',
-              },
-              {
-                icon: Lock,
-                title: 'Privacy-First',
-                desc: 'Encrypted storage with strict access control',
-              },
-              {
-                icon: Scale,
-                title: 'Lawyer-Ready',
-                desc: 'Export organized PDF case files instantly',
-              },
-            ].map((feature, idx) => (
-              <div key={idx} className="flex items-start gap-3">
-                <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white/20 backdrop-blur-sm">
-                  <feature.icon className="h-5 w-5 text-white" />
+              { icon: FileText, title: 'Evidence Vault',  desc: 'Store documents, photos, and files with timestamps' },
+              { icon: Lock,     title: 'Privacy-First',   desc: 'Encrypted storage with strict access control' },
+              { icon: Scale,    title: 'Lawyer-Ready',    desc: 'Export organized PDF case files instantly' },
+            ].map(({ icon: Icon, title, desc }) => (
+              <div key={title} className="flex items-start gap-3">
+                <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white/20">
+                  <Icon className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <div className="font-semibold text-white">{feature.title}</div>
-                  <div className="mt-1 text-sm text-primary-100">{feature.desc}</div>
+                  <p className="font-semibold text-white">{title}</p>
+                  <p className="mt-0.5 text-sm text-primary-100">{desc}</p>
                 </div>
               </div>
             ))}
           </div>
 
-          {/* Trust Indicators */}
-          <div className="mt-8 rounded-xl border border-white/20 bg-white/10 p-4 backdrop-blur-sm">
-            <div className="mb-2 text-sm font-semibold text-white">Trusted by users across India</div>
-            <div className="flex flex-wrap gap-2 text-xs text-primary-100">
-              <span className="flex items-center gap-1">
-                <CheckCircle2 className="h-3 w-3" />
-                Secure
-              </span>
-              <span className="flex items-center gap-1">
-                <CheckCircle2 className="h-3 w-3" />
-                Private
-              </span>
-              <span className="flex items-center gap-1">
-                <CheckCircle2 className="h-3 w-3" />
-                Legal-compliant
-              </span>
+          <div className="mt-8 rounded-xl border border-white/20 bg-white/10 p-4">
+            <p className="mb-2 text-sm font-semibold text-white">Trusted by users across India</p>
+            <div className="flex flex-wrap gap-3 text-xs text-primary-100">
+              {['Secure', 'Private', 'Legal-compliant'].map(t => (
+                <span key={t} className="flex items-center gap-1">
+                  <CheckCircle2 className="h-3 w-3" />{t}
+                </span>
+              ))}
             </div>
           </div>
         </div>
@@ -260,4 +225,3 @@ export default function SignInPage() {
     </div>
   )
 }
-

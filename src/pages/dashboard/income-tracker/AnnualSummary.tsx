@@ -1,11 +1,12 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Calendar, ArrowLeft, Download, TrendingUp, Loader2, AlertCircle } from 'lucide-react'
+import { Calendar, Download, TrendingUp, Loader2, AlertCircle } from 'lucide-react'
 import { useAuth } from '../../../context/AuthContext'
 import { DashboardLayout } from '../../../layouts/DashboardLayout'
 import { format, parseISO, startOfYear, endOfYear, isWithinInterval } from 'date-fns'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
 
+import toast from 'react-hot-toast'
 import { getEdgeFunctionUrl } from '../../../lib/api'
 
 interface IncomeEntry {
@@ -55,10 +56,14 @@ export default function AnnualSummary() {
   const [generatingPDF, setGeneratingPDF] = useState(false)
 
   useEffect(() => {
-    loadHistory()
+    const controller = new AbortController()
+    loadHistory(controller.signal)
+    return () => {
+      controller.abort()
+    }
   }, [])
 
-  const loadHistory = async () => {
+  const loadHistory = async (signal?: AbortSignal) => {
     try {
       setLoading(true)
       setError('')
@@ -70,6 +75,7 @@ export default function AnnualSummary() {
         headers: {
           Authorization: `Bearer ${sessionToken}`,
         },
+        signal,
       })
 
       if (!response.ok) {
@@ -79,6 +85,7 @@ export default function AnnualSummary() {
       const data = await response.json()
       setEntries(data.entries || [])
     } catch (err: any) {
+      if (err.name === 'AbortError') return
       setError(err.message || 'Failed to load income history')
     } finally {
       setLoading(false)
@@ -194,14 +201,14 @@ export default function AnnualSummary() {
     // For now, we'll show a message
     setGeneratingPDF(true)
     setTimeout(() => {
-      alert('Annual PDF export feature coming soon!')
+      toast('Annual PDF export coming soon!', { icon: '🚧' })
       setGeneratingPDF(false)
     }, 1000)
   }
 
   if (loading) {
     return (
-      <DashboardLayout title="Annual Summary" subtitle="View your yearly income and expense summary">
+      <DashboardLayout title="Annual Summary" subtitle="View your yearly income and expense summary" backHref="/dashboard/income-tracker/history">
         <div className="flex min-h-[400px] items-center justify-center">
           <div className="text-center">
             <Loader2 className="mb-4 inline-block h-8 w-8 animate-spin text-primary-600" />
@@ -213,17 +220,10 @@ export default function AnnualSummary() {
   }
 
   return (
-    <DashboardLayout title="Annual Summary" subtitle={`Financial overview for ${selectedYear}`}>
+    <DashboardLayout title="Annual Summary" subtitle={`Financial overview for ${selectedYear}`} backHref="/dashboard/income-tracker/history">
       <div className="w-full max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-          <button
-            onClick={() => navigate('/dashboard/income-tracker/history')}
-            className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to History
-          </button>
+        <div className="mb-6 flex flex-wrap items-center justify-end gap-4">
           <div className="flex items-center gap-3">
             <select
               value={selectedYear}
@@ -268,7 +268,7 @@ export default function AnnualSummary() {
 
         {/* No Data */}
         {!summary && (
-          <div className="rounded-lg border border-gray-200/20 bg-white/50 p-12 text-center shadow-sm">
+          <div className="rounded-lg border border-gray-200/20 bg-white/50 p-6 sm:p-12 text-center shadow-sm">
             <Calendar className="mx-auto mb-4 h-16 w-16 text-gray-400" />
             <h3 className="mb-2 text-lg font-semibold text-gray-900">No data for {selectedYear}</h3>
             <p className="mb-6 text-gray-600">Start tracking your income to see annual summaries.</p>
@@ -284,59 +284,63 @@ export default function AnnualSummary() {
         {/* Summary Cards */}
         {summary && (
           <>
-            <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <div className="rounded-lg border border-blue-200 bg-blue-50/50 p-6 shadow-sm">
+            <div className="mb-6 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+              <div className="rounded-lg border border-blue-200 bg-blue-50/50 p-3 sm:p-6 shadow-sm">
                 <p className="text-xs font-semibold uppercase tracking-wide text-blue-600">Total Gross Income</p>
-                <p className="mt-2 text-3xl font-bold text-blue-700">{formatCurrency(summary.totalGross)}</p>
+                <p className="mt-2 text-xl sm:text-3xl font-bold text-blue-700">{formatCurrency(summary.totalGross)}</p>
                 <p className="mt-1 text-xs text-blue-600">Avg: {formatCurrency(summary.avgGross)}/month</p>
               </div>
-              <div className="rounded-lg border border-red-200 bg-red-50/50 p-6 shadow-sm">
+              <div className="rounded-lg border border-red-200 bg-red-50/50 p-3 sm:p-6 shadow-sm">
                 <p className="text-xs font-semibold uppercase tracking-wide text-red-600">Total Deductions</p>
-                <p className="mt-2 text-3xl font-bold text-red-700">{formatCurrency(summary.totalDeductions)}</p>
+                <p className="mt-2 text-xl sm:text-3xl font-bold text-red-700">{formatCurrency(summary.totalDeductions)}</p>
                 <p className="mt-1 text-xs text-red-600">
                   {((summary.totalDeductions / summary.totalGross) * 100).toFixed(1)}% of gross
                 </p>
               </div>
-              <div className="rounded-lg border border-orange-200 bg-orange-50/50 p-6 shadow-sm">
+              <div className="rounded-lg border border-orange-200 bg-orange-50/50 p-3 sm:p-6 shadow-sm">
                 <p className="text-xs font-semibold uppercase tracking-wide text-orange-600">Total Expenses</p>
-                <p className="mt-2 text-3xl font-bold text-orange-700">{formatCurrency(summary.totalExpenses)}</p>
+                <p className="mt-2 text-xl sm:text-3xl font-bold text-orange-700">{formatCurrency(summary.totalExpenses)}</p>
                 <p className="mt-1 text-xs text-orange-600">
                   {((summary.totalExpenses / summary.totalGross) * 100).toFixed(1)}% of gross
                 </p>
               </div>
-              <div className="rounded-lg border border-primary-200 bg-primary-50/50 p-6 shadow-sm">
+              <div className="rounded-lg border border-primary-200 bg-primary-50/50 p-3 sm:p-6 shadow-sm">
                 <p className="text-xs font-semibold uppercase tracking-wide text-primary-600">Total Disposable</p>
-                <p className="mt-2 text-3xl font-bold text-primary-700">{formatCurrency(summary.totalDisposable)}</p>
+                <p className="mt-2 text-xl sm:text-3xl font-bold text-primary-700">{formatCurrency(summary.totalDisposable)}</p>
                 <p className="mt-1 text-xs text-primary-600">Avg: {formatCurrency(summary.avgDisposable)}/month</p>
               </div>
             </div>
 
             {/* Monthly Trend Chart */}
             {summary.monthlyData.length > 0 && (
-              <div className="mb-6 rounded-lg border border-gray-200/20 bg-white/50 p-6 shadow-sm">
+              <div className="mb-6 rounded-lg border border-gray-200/20 bg-white/50 p-4 sm:p-6 shadow-sm">
                 <h3 className="mb-4 text-base font-semibold text-gray-900">Monthly Trend - {selectedYear}</h3>
-                <ResponsiveContainer width="100%" height={350}>
-                  <BarChart data={summary.monthlyData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                    <XAxis dataKey="month" stroke="#6b7280" fontSize={12} />
-                    <YAxis stroke="#6b7280" fontSize={12} tickFormatter={(value) => `₹${(value / 1000).toFixed(0)}k`} />
-                    <Tooltip
-                      formatter={(value: number | undefined) => value !== undefined ? formatCurrency(value) : ''}
-                      contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px' }}
-                    />
-                    <Legend />
-                    <Bar dataKey="gross" fill="#3b82f6" name="Gross Income" />
-                    <Bar dataKey="deductions" fill="#ef4444" name="Deductions" />
-                    <Bar dataKey="expenses" fill="#f59e0b" name="Expenses" />
-                    <Bar dataKey="disposable" fill="#10b981" name="Disposable" />
-                  </BarChart>
-                </ResponsiveContainer>
+                <div className="overflow-x-auto">
+                  <div className="min-w-[320px]" style={{ height: 280 }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={summary.monthlyData}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                        <XAxis dataKey="month" stroke="#6b7280" fontSize={12} />
+                        <YAxis stroke="#6b7280" fontSize={12} tickFormatter={(value) => `₹${(value / 1000).toFixed(0)}k`} />
+                        <Tooltip
+                          formatter={(value: number | undefined) => value !== undefined ? formatCurrency(value) : ''}
+                          contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px' }}
+                        />
+                        <Legend />
+                        <Bar dataKey="gross" fill="#3b82f6" name="Gross Income" />
+                        <Bar dataKey="deductions" fill="#ef4444" name="Deductions" />
+                        <Bar dataKey="expenses" fill="#f59e0b" name="Expenses" />
+                        <Bar dataKey="disposable" fill="#10b981" name="Disposable" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
               </div>
             )}
 
             {/* Expense Categories */}
             {summary.expenseCategories.length > 0 && (
-              <div className="mb-6 rounded-lg border border-gray-200/20 bg-white/50 p-6 shadow-sm">
+              <div className="mb-6 rounded-lg border border-gray-200/20 bg-white/50 p-4 sm:p-6 shadow-sm">
                 <h3 className="mb-4 text-base font-semibold text-gray-900">Expense Categories Breakdown</h3>
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                   <div className="space-y-3">
@@ -383,15 +387,15 @@ export default function AnnualSummary() {
 
             {/* Deduction Categories */}
             {summary.deductionCategories.length > 0 && (
-              <div className="mb-6 rounded-lg border border-gray-200/20 bg-white/50 p-6 shadow-sm">
+              <div className="mb-6 rounded-lg border border-gray-200/20 bg-white/50 p-4 sm:p-6 shadow-sm">
                 <h3 className="mb-4 text-base font-semibold text-gray-900">Deduction Categories Breakdown</h3>
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
                   {summary.deductionCategories.map((item) => {
                     const percentage = ((item.value / summary.totalDeductions) * 100).toFixed(1)
                     return (
-                      <div key={item.name} className="rounded-lg border border-red-100 bg-red-50/30 p-4">
+                      <div key={item.name} className="rounded-lg border border-red-100 bg-red-50/30 p-3 sm:p-4">
                         <p className="text-xs font-semibold text-red-600">{item.name}</p>
-                        <p className="mt-1 text-xl font-bold text-red-700">{formatCurrency(item.value)}</p>
+                        <p className="mt-1 text-lg sm:text-xl font-bold text-red-700">{formatCurrency(item.value)}</p>
                         <p className="mt-1 text-xs text-red-600">{percentage}%</p>
                       </div>
                     )
@@ -401,7 +405,7 @@ export default function AnnualSummary() {
             )}
 
             {/* Key Insights */}
-            <div className="rounded-lg border border-blue-200 bg-blue-50/50 p-6 shadow-sm">
+            <div className="rounded-lg border border-blue-200 bg-blue-50/50 p-4 sm:p-6 shadow-sm">
               <h3 className="mb-4 flex items-center gap-2 text-base font-semibold text-blue-900">
                 <TrendingUp className="h-5 w-5" />
                 Key Insights for {selectedYear}

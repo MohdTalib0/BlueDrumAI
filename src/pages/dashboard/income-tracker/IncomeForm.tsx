@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { TrendingUp, Save, Calendar, DollarSign, FileText, Loader2, AlertCircle, CheckCircle2, Copy, Sparkles, Info } from 'lucide-react'
 import { useAuth } from '../../../context/AuthContext'
@@ -43,18 +43,29 @@ export default function IncomeForm() {
     expenses: {},
     notes: '',
   })
+  const navigateTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const isEditMode = !!id
 
   useEffect(() => {
+    return () => {
+      if (navigateTimerRef.current) clearTimeout(navigateTimerRef.current)
+    }
+  }, [])
+
+  useEffect(() => {
+    const controller = new AbortController()
     if (isEditMode) {
-      loadEntry()
+      loadEntry(controller.signal)
     } else {
-      loadPreviousMonths()
+      loadPreviousMonths(controller.signal)
+    }
+    return () => {
+      controller.abort()
     }
   }, [id])
 
-  const loadEntry = async () => {
+  const loadEntry = async (signal?: AbortSignal) => {
     try {
       setLoading(true)
       if (!sessionToken) {
@@ -65,6 +76,7 @@ export default function IncomeForm() {
         headers: {
           Authorization: `Bearer ${sessionToken}`,
         },
+        signal,
       })
 
       if (!response.ok) {
@@ -83,13 +95,14 @@ export default function IncomeForm() {
         })
       }
     } catch (err: any) {
+      if (err.name === 'AbortError') return
       setError(err.message || 'Failed to load entry')
     } finally {
       setLoading(false)
     }
   }
 
-  const loadPreviousMonths = async () => {
+  const loadPreviousMonths = async (signal?: AbortSignal) => {
     try {
       if (!sessionToken) return
 
@@ -97,13 +110,15 @@ export default function IncomeForm() {
         headers: {
           Authorization: `Bearer ${sessionToken}`,
         },
+        signal,
       })
 
       if (response.ok) {
         const data = await response.json()
         setPreviousMonths(data.entries || [])
       }
-    } catch (err) {
+    } catch (err: any) {
+      if (err.name === 'AbortError') return
       // Silent fail for previous months
     }
   }
@@ -134,7 +149,7 @@ export default function IncomeForm() {
       }
 
       setSuccess(true)
-      setTimeout(() => {
+      navigateTimerRef.current = setTimeout(() => {
         navigate('/dashboard/income-tracker/history')
       }, 1500)
     } catch (err: any) {
@@ -200,7 +215,7 @@ export default function IncomeForm() {
 
   if (loading && isEditMode) {
     return (
-      <DashboardLayout title="Edit Income Entry" subtitle="Update your income and expense data">
+      <DashboardLayout title="Edit Income Entry" subtitle="Update your income and expense data" backHref="/dashboard/income-tracker/history">
         <div className="flex min-h-[400px] items-center justify-center">
           <div className="text-center">
             <Loader2 className="mb-4 inline-block h-8 w-8 animate-spin text-primary-600" />
@@ -212,7 +227,7 @@ export default function IncomeForm() {
   }
 
   return (
-    <DashboardLayout title={isEditMode ? 'Edit Income Entry' : 'Income Tracker'} subtitle={isEditMode ? 'Update your income and expense data' : 'Log your monthly income and expenses'}>
+    <DashboardLayout title={isEditMode ? 'Edit Income Entry' : 'Income Tracker'} subtitle={isEditMode ? 'Update your income and expense data' : 'Log your monthly income and expenses'} backHref="/dashboard/income-tracker/history">
       <div className="w-full max-w-5xl mx-auto">
         {/* Success Message */}
         {success && (
@@ -234,28 +249,28 @@ export default function IncomeForm() {
         )}
 
         {/* Quick Stats Bar */}
-        <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-4">
-          <div className="rounded-lg border border-gray-200/20 bg-white/50 p-4 shadow-sm">
+        <div className="mb-6 grid grid-cols-2 gap-3 sm:gap-4 sm:grid-cols-4">
+          <div className="rounded-lg border border-gray-200/20 bg-white/50 p-3 sm:p-4 shadow-sm">
             <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Gross Income</p>
-            <p className="mt-1 text-xl font-bold text-gray-900">{formatCurrency(formData.gross_income || 0)}</p>
+            <p className="mt-1 text-lg sm:text-xl font-bold text-gray-900">{formatCurrency(formData.gross_income || 0)}</p>
           </div>
-          <div className="rounded-lg border border-red-200/20 bg-red-50/50 p-4 shadow-sm">
+          <div className="rounded-lg border border-red-200/20 bg-red-50/50 p-3 sm:p-4 shadow-sm">
             <p className="text-xs font-semibold uppercase tracking-wide text-red-600">Deductions</p>
-            <p className="mt-1 text-xl font-bold text-red-700">-{formatCurrency(totalDeductions)}</p>
+            <p className="mt-1 text-lg sm:text-xl font-bold text-red-700">-{formatCurrency(totalDeductions)}</p>
           </div>
-          <div className="rounded-lg border border-orange-200/20 bg-orange-50/50 p-4 shadow-sm">
+          <div className="rounded-lg border border-orange-200/20 bg-orange-50/50 p-3 sm:p-4 shadow-sm">
             <p className="text-xs font-semibold uppercase tracking-wide text-orange-600">Expenses</p>
-            <p className="mt-1 text-xl font-bold text-orange-700">-{formatCurrency(totalExpenses)}</p>
+            <p className="mt-1 text-lg sm:text-xl font-bold text-orange-700">-{formatCurrency(totalExpenses)}</p>
           </div>
-          <div className="rounded-lg border border-primary-200 bg-primary-50/50 p-4 shadow-sm">
+          <div className="rounded-lg border border-primary-200 bg-primary-50/50 p-3 sm:p-4 shadow-sm">
             <p className="text-xs font-semibold uppercase tracking-wide text-primary-600">Disposable</p>
-            <p className="mt-1 text-xl font-bold text-primary-700">{formatCurrency(disposableIncome)}</p>
+            <p className="mt-1 text-lg sm:text-xl font-bold text-primary-700">{formatCurrency(disposableIncome)}</p>
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Month Selection & Copy */}
-          <div className="rounded-lg border border-gray-200/20 bg-white/50 hover:bg-white/70 transition-colors p-6 shadow-sm">
+          <div className="rounded-lg border border-gray-200/20 bg-white/50 hover:bg-white/70 transition-colors p-4 sm:p-6 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
                 <Calendar className="h-4 w-4" />
@@ -266,7 +281,7 @@ export default function IncomeForm() {
                   <button
                     type="button"
                     onClick={() => setShowCopyMenu(!showCopyMenu)}
-                    className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+                    className="inline-flex min-h-[36px] items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
                   >
                     <Copy className="h-3.5 w-3.5" />
                     Copy from Previous
@@ -278,7 +293,8 @@ export default function IncomeForm() {
                         <div className="p-2">
                           <p className="px-2 py-1 text-xs font-semibold text-gray-500">Select Month:</p>
                           {previousMonths.slice(0, 6).map((entry) => {
-                            const monthDate = new Date(entry.month_year + '-01')
+                            const [year, month] = entry.month_year.split('-').map(Number)
+                            const monthDate = new Date(year, month - 1, 1)
                             return (
                               <button
                                 key={entry.month_year}
@@ -309,7 +325,7 @@ export default function IncomeForm() {
           </div>
 
           {/* Gross Income */}
-          <div className="rounded-lg border border-gray-200/20 bg-white/50 hover:bg-white/70 transition-colors p-6 shadow-sm">
+          <div className="rounded-lg border border-gray-200/20 bg-white/50 hover:bg-white/70 transition-colors p-4 sm:p-6 shadow-sm">
             <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-gray-700">
               <DollarSign className="h-4 w-4" />
               Gross Income (₹)
@@ -328,7 +344,7 @@ export default function IncomeForm() {
           </div>
 
           {/* Deductions */}
-          <div className="rounded-lg border border-gray-200/20 bg-white/50 hover:bg-white/70 transition-colors p-6 shadow-sm">
+          <div className="rounded-lg border border-gray-200/20 bg-white/50 hover:bg-white/70 transition-colors p-4 sm:p-6 shadow-sm">
             <div className="mb-4 flex items-center justify-between">
               <h3 className="flex items-center gap-2 text-base font-semibold text-gray-900">
                 <FileText className="h-4 w-4" />
@@ -391,7 +407,7 @@ export default function IncomeForm() {
           </div>
 
           {/* Expenses */}
-          <div className="rounded-lg border border-gray-200/20 bg-white/50 hover:bg-white/70 transition-colors p-6 shadow-sm">
+          <div className="rounded-lg border border-gray-200/20 bg-white/50 hover:bg-white/70 transition-colors p-4 sm:p-6 shadow-sm">
             <div className="mb-4 flex items-center justify-between">
               <h3 className="flex items-center gap-2 text-base font-semibold text-gray-900">
                 <TrendingUp className="h-4 w-4" />
@@ -478,14 +494,14 @@ export default function IncomeForm() {
           </div>
 
           {/* Disposable Income Calculation */}
-          <div className="rounded-lg border-2 border-primary-200 bg-gradient-to-br from-primary-50/80 to-primary-100/40 p-6 shadow-sm">
+          <div className="rounded-lg border-2 border-primary-200 bg-gradient-to-br from-primary-50/80 to-primary-100/40 p-4 sm:p-6 shadow-sm">
             <div className="flex items-center justify-between">
               <div>
                 <div className="flex items-center gap-2 mb-2">
                   <Sparkles className="h-5 w-5 text-primary-600" />
                   <p className="text-sm font-semibold text-gray-700">Disposable Income</p>
                 </div>
-                <p className="text-3xl font-bold text-primary-700">{formatCurrency(disposableIncome)}</p>
+                <p className="text-2xl sm:text-3xl font-bold text-primary-700">{formatCurrency(disposableIncome)}</p>
                 <p className="mt-2 text-xs text-gray-600">Gross Income - Deductions - Expenses</p>
               </div>
               <div className="hidden sm:block">
@@ -501,7 +517,7 @@ export default function IncomeForm() {
           </div>
 
           {/* Notes */}
-          <div className="rounded-lg border border-gray-200/20 bg-white/50 hover:bg-white/70 transition-colors p-6 shadow-sm">
+          <div className="rounded-lg border border-gray-200/20 bg-white/50 hover:bg-white/70 transition-colors p-4 sm:p-6 shadow-sm">
             <label className="mb-2 block text-sm font-semibold text-gray-700">Additional Notes (Optional)</label>
             <textarea
               value={formData.notes || ''}
@@ -513,11 +529,11 @@ export default function IncomeForm() {
           </div>
 
           {/* Submit Button */}
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
             <button
               type="submit"
               disabled={loading}
-              className="inline-flex items-center gap-2 rounded-lg bg-primary-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 transition-all"
+              className="inline-flex min-h-[44px] w-full sm:w-auto items-center justify-center gap-2 rounded-lg bg-primary-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 transition-all"
             >
               {loading ? (
                 <>
@@ -534,7 +550,7 @@ export default function IncomeForm() {
             <button
               type="button"
               onClick={() => navigate('/dashboard/income-tracker/history')}
-              className="rounded-lg border border-gray-300 px-6 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+              className="min-h-[44px] w-full sm:w-auto rounded-lg border border-gray-300 px-6 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
             >
               View History
             </button>

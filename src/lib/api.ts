@@ -8,19 +8,16 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
  */
 export function getEdgeFunctionUrl(functionName: string): string {
   if (!supabaseUrl) {
-    console.warn('VITE_SUPABASE_URL is not set. Falling back to localhost.')
-    return `http://localhost:3001/api/${functionName}`
+    throw new Error('VITE_SUPABASE_URL is not configured. Check your environment variables.')
   }
-  
-  // Supabase Edge Functions are at: https://{project-ref}.supabase.co/functions/v1/{function-name}
   return `${supabaseUrl}/functions/v1/${functionName}`
 }
 
 /**
  * Get headers for authenticated requests
  */
-export function getAuthHeaders(): HeadersInit {
-  const headers: HeadersInit = {
+export function getAuthHeaders(): Record<string, string> {
+  const headers: Record<string, string> = {
     'Content-Type': 'application/json',
   }
 
@@ -38,7 +35,7 @@ import { supabase } from './supabase'
 /**
  * Get headers for authenticated requests with user's session token
  */
-export async function getAuthHeadersWithSession(): Promise<HeadersInit> {
+export async function getAuthHeadersWithSession(): Promise<Record<string, string>> {
   const headers = getAuthHeaders()
 
   // Try to get the user's session token from Supabase

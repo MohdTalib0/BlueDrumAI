@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   AlertTriangle,
-  ArrowLeft,
   Plus,
   FileText,
   Trash2,
@@ -14,19 +13,52 @@ import {
   Search,
   Filter,
   GitCompare,
+  TrendingUp,
+  TrendingDown,
+  Minus,
 } from 'lucide-react'
 import { useAuth } from '../../../context/AuthContext'
 import { DashboardLayout } from '../../../layouts/DashboardLayout'
 import { format } from 'date-fns'
+import toast from 'react-hot-toast'
 import { getEdgeFunctionUrl, getAuthHeadersWithSession } from '../../../lib/api'
+import ConfirmModal from '../../../components/ui/ConfirmModal'
+import { AreaChart, Area, ResponsiveContainer } from 'recharts'
 
 interface ChatAnalysis {
   id: string
   risk_score: number
   red_flags: any[]
   keywords_detected: string[]
-  analysis_text: string
+  analysis_text: string | null
   created_at: string
+}
+
+interface TrendDataPoint {
+  id: string
+  date: string
+  riskScore: number
+  redFlagCount: number
+  criticalCount: number
+  highCount: number
+  patternCount: number
+  platform: string
+}
+
+interface TrendSummary {
+  totalAnalyses: number
+  avgRiskScore: number
+  maxRiskScore: number
+  minRiskScore: number
+  latestRiskScore: number
+  riskChange: number
+  overallTrend: 'improving' | 'worsening' | 'stable' | 'mixed'
+  topPatterns: { pattern: string; count: number; percentage: number }[]
+}
+
+interface TrendsData {
+  dataPoints: TrendDataPoint[]
+  summary: TrendSummary | null
 }
 
 export default function AnalysisHistory() {
@@ -37,11 +69,14 @@ export default function AnalysisHistory() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [riskFilter, setRiskFilter] = useState<'all' | 'critical' | 'high' | 'moderate' | 'low'>('all')
+  const [trends, setTrends] = useState<TrendsData | null>(null)
 
   useEffect(() => {
     loadHistory()
+    loadTrends()
   }, [])
 
   const loadHistory = async () => {
@@ -73,11 +108,23 @@ export default function AnalysisHistory() {
     }
   }
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this analysis? This action cannot be undone.')) {
-      return
+  const loadTrends = async () => {
+    try {
+      if (!sessionToken) return
+      const headers = await getAuthHeadersWithSession()
+      if (sessionToken) headers['Authorization'] = `Bearer ${sessionToken}`
+      const response = await fetch(`${getEdgeFunctionUrl('analyze')}/trends`, { headers })
+      if (response.ok) {
+        const data = await response.json()
+        setTrends(data.trends)
+      }
+    } catch {
+      // Trends are non-critical; silently fail
     }
+  }
 
+  const handleDelete = async (id: string) => {
+    setDeleteConfirmId(null)
     try {
       setDeletingId(id)
       if (!sessionToken) {
@@ -98,8 +145,9 @@ export default function AnalysisHistory() {
       const updated = analyses.filter((a) => a.id !== id)
       setAnalyses(updated)
       applyFilters(updated, searchQuery, riskFilter)
+      loadTrends()
     } catch (err: any) {
-      alert(err.message || 'Failed to delete analysis')
+      toast.error(err.message || 'Failed to delete analysis')
     } finally {
       setDeletingId(null)
     }
@@ -136,7 +184,7 @@ export default function AnalysisHistory() {
       const lowerQuery = query.toLowerCase()
       filtered = filtered.filter(
         (analysis) =>
-          analysis.analysis_text.toLowerCase().includes(lowerQuery) ||
+          (analysis.analysis_text || '').toLowerCase().includes(lowerQuery) ||
           (analysis.keywords_detected || []).some((k) => k.toLowerCase().includes(lowerQuery)) ||
           (analysis.red_flags || []).some((f: any) => f.type?.toLowerCase().includes(lowerQuery))
       )
@@ -192,17 +240,10 @@ export default function AnalysisHistory() {
   }
 
   return (
-    <DashboardLayout title="Analysis History" subtitle={`${analyses.length} ${analyses.length === 1 ? 'analysis' : 'analyses'}`}>
+    <DashboardLayout title="Analysis History" subtitle={`${analyses.length} ${analyses.length === 1 ? 'analysis' : 'analyses'}`} backHref="/dashboard/red-flag-radar">
       <div className="w-full">
         {/* Header Actions */}
-        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <button
-            onClick={() => navigate('/dashboard/red-flag-radar')}
-            className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back
-          </button>
+        <div className="mb-6 flex flex-wrap items-center justify-end gap-3">
           <div className="flex items-center gap-3">
             {analyses.length > 1 && (
               <button
@@ -223,29 +264,122 @@ export default function AnalysisHistory() {
           </div>
         </div>
 
-        {/* Statistics Cards */}
+        {/* Stats + Risk Insight Row */}
         {analyses.length > 0 && (
-          <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-5">
-            <div className="rounded-lg border border-gray-200/20 bg-white/50 p-4 shadow-sm">
-              <p className="text-xs text-gray-600">Total</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
+          <div className="mb-6 flex flex-col gap-4 lg:flex-row">
+            {/* Left: Stat Cards ~75% */}
+            <div className="grid grid-cols-3 gap-3 lg:w-3/5">
+              <div className="rounded-lg border border-gray-200/20 bg-white/50 p-3 shadow-sm">
+                <p className="text-[10px] sm:text-xs text-gray-500">Total</p>
+                <p className="text-lg sm:text-2xl font-bold text-gray-900">{stats.total}</p>
+              </div>
+              <div className="rounded-lg border border-red-200 bg-red-50/50 p-3 shadow-sm">
+                <p className="text-[10px] sm:text-xs text-red-600">Critical</p>
+                <p className="text-lg sm:text-2xl font-bold text-red-700">{stats.critical}</p>
+              </div>
+              <div className="rounded-lg border border-orange-200 bg-orange-50/50 p-3 shadow-sm">
+                <p className="text-[10px] sm:text-xs text-orange-600">High</p>
+                <p className="text-lg sm:text-2xl font-bold text-orange-700">{stats.high}</p>
+              </div>
+              <div className="rounded-lg border border-yellow-200 bg-yellow-50/50 p-3 shadow-sm">
+                <p className="text-[10px] sm:text-xs text-yellow-600">Moderate</p>
+                <p className="text-lg sm:text-2xl font-bold text-yellow-700">{stats.moderate}</p>
+              </div>
+              <div className="rounded-lg border border-green-200 bg-green-50/50 p-3 shadow-sm">
+                <p className="text-[10px] sm:text-xs text-green-600">Low</p>
+                <p className="text-lg sm:text-2xl font-bold text-green-700">{stats.low}</p>
+              </div>
+              <div className="rounded-lg border border-blue-200 bg-blue-50/50 p-3 shadow-sm">
+                <p className="text-[10px] sm:text-xs text-blue-600">Avg Risk</p>
+                <p className="text-lg sm:text-2xl font-bold text-blue-700">{stats.avgRisk}<span className="text-xs font-normal text-gray-400">/100</span></p>
+              </div>
             </div>
-            <div className="rounded-lg border border-red-200 bg-red-50/50 p-4 shadow-sm">
-              <p className="text-xs text-red-600">Critical</p>
-              <p className="text-2xl font-bold text-red-700">{stats.critical}</p>
-            </div>
-            <div className="rounded-lg border border-orange-200 bg-orange-50/50 p-4 shadow-sm">
-              <p className="text-xs text-orange-600">High</p>
-              <p className="text-2xl font-bold text-orange-700">{stats.high}</p>
-            </div>
-            <div className="rounded-lg border border-yellow-200 bg-yellow-50/50 p-4 shadow-sm">
-              <p className="text-xs text-yellow-600">Moderate</p>
-              <p className="text-2xl font-bold text-yellow-700">{stats.moderate}</p>
-            </div>
-            <div className="rounded-lg border border-green-200 bg-green-50/50 p-4 shadow-sm">
-              <p className="text-xs text-green-600">Avg Risk</p>
-              <p className="text-2xl font-bold text-green-700">{stats.avgRisk}</p>
-            </div>
+
+            {/* Right: Risk Insight ~25% */}
+            {trends && trends.dataPoints.length >= 1 && trends.summary ? (
+              <div className="rounded-lg border border-gray-200/20 bg-white/50 p-3 sm:p-4 shadow-sm lg:w-2/5">
+                <div className="mb-2 flex items-center justify-between">
+                  <h3 className="flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-gray-900">
+                    <TrendingUp className="h-3.5 w-3.5 text-red-500" />
+                    Risk Insight
+                  </h3>
+                  {trends.summary.overallTrend === 'improving' && (
+                    <span className="flex items-center gap-1 rounded-full bg-green-50 px-2 py-0.5 text-[10px] font-semibold text-green-700">
+                      <TrendingDown className="h-2.5 w-2.5" /> Improving
+                    </span>
+                  )}
+                  {trends.summary.overallTrend === 'worsening' && (
+                    <span className="flex items-center gap-1 rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-semibold text-red-700">
+                      <TrendingUp className="h-2.5 w-2.5" /> Worsening
+                    </span>
+                  )}
+                  {trends.summary.overallTrend === 'stable' && (
+                    <span className="flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-semibold text-blue-700">
+                      <Minus className="h-2.5 w-2.5" /> Stable
+                    </span>
+                  )}
+                </div>
+
+                {/* Mini chart when 2+ data points */}
+                {trends.dataPoints.length >= 2 && (
+                  <div className="mb-2" style={{ height: 64 }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart
+                        data={trends.dataPoints.map((d) => ({ s: d.riskScore }))}
+                        margin={{ top: 4, right: 4, left: 4, bottom: 4 }}
+                      >
+                        <defs>
+                          <linearGradient id="riskGradientMini" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#ef4444" stopOpacity={0.25} />
+                            <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
+                          </linearGradient>
+                        </defs>
+                        <Area type="monotone" dataKey="s" stroke="#ef4444" strokeWidth={2} fill="url(#riskGradientMini)" dot={false} />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
+                )}
+
+                {/* Key numbers */}
+                <div className="grid grid-cols-2 gap-1.5 text-center">
+                  <div className="rounded bg-gray-50 px-2 py-1.5">
+                    <p className="text-[9px] text-gray-400">Latest</p>
+                    <p className="text-sm font-bold text-gray-900">{trends.summary.latestRiskScore}</p>
+                  </div>
+                  <div className="rounded bg-gray-50 px-2 py-1.5">
+                    <p className="text-[9px] text-gray-400">Average</p>
+                    <p className="text-sm font-bold text-gray-900">{trends.summary.avgRiskScore}</p>
+                  </div>
+                  <div className="rounded bg-gray-50 px-2 py-1.5">
+                    <p className="text-[9px] text-gray-400">Highest</p>
+                    <p className="text-sm font-bold text-red-600">{trends.summary.maxRiskScore}</p>
+                  </div>
+                  <div className="rounded bg-gray-50 px-2 py-1.5">
+                    <p className="text-[9px] text-gray-400">Change</p>
+                    <p className={`text-sm font-bold ${trends.summary.riskChange > 0 ? 'text-red-600' : trends.summary.riskChange < 0 ? 'text-green-600' : 'text-gray-500'}`}>
+                      {trends.summary.riskChange > 0 ? '+' : ''}{trends.summary.riskChange}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Top patterns */}
+                {trends.summary.topPatterns.length > 0 && (
+                  <div className="mt-2 border-t border-gray-100 pt-2">
+                    <div className="flex flex-wrap gap-1">
+                      {trends.summary.topPatterns.slice(0, 3).map((p) => (
+                        <span key={p.pattern} className="rounded-full bg-purple-50 px-2 py-0.5 text-[9px] font-medium text-purple-700 truncate max-w-full">
+                          {p.pattern}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="rounded-lg border border-gray-200/20 bg-white/50 p-3 sm:p-4 shadow-sm lg:w-2/5 flex items-center justify-center">
+                <p className="text-xs text-gray-400 text-center">Risk insights appear after your first analysis</p>
+              </div>
+            )}
           </div>
         )}
 
@@ -348,7 +482,7 @@ export default function AnalysisHistory() {
                       </div>
 
                       {/* Summary */}
-                      <p className="mb-4 line-clamp-2 text-sm text-gray-700">{analysis.analysis_text}</p>
+                      <p className="mb-4 line-clamp-2 text-sm text-gray-700">{analysis.analysis_text || 'No summary available'}</p>
 
                       {/* Stats */}
                       <div className="flex flex-wrap items-center gap-4 text-xs text-gray-600">
@@ -381,7 +515,7 @@ export default function AnalysisHistory() {
                         <Eye className="h-4 w-4" />
                       </button>
                       <button
-                        onClick={() => handleDelete(analysis.id)}
+                        onClick={() => setDeleteConfirmId(analysis.id)}
                         disabled={deletingId === analysis.id}
                         className="rounded-lg border border-red-300 bg-white p-2 text-red-600 hover:bg-red-50 disabled:opacity-50 transition-colors"
                         title="Delete"
@@ -396,6 +530,13 @@ export default function AnalysisHistory() {
           </div>
         )}
       </div>
+      <ConfirmModal
+        open={!!deleteConfirmId}
+        onClose={() => setDeleteConfirmId(null)}
+        onConfirm={() => deleteConfirmId && handleDelete(deleteConfirmId)}
+        title="Delete this analysis?"
+        message="This analysis will be permanently removed. This action cannot be undone."
+      />
     </DashboardLayout>
   )
 }

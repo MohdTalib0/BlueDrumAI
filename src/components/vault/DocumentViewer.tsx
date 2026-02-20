@@ -69,18 +69,18 @@ export default function DocumentViewer({ fileUrl, mimeType, fileName }: Document
           <img
             src={fileUrl}
             alt={fileName || 'Preview'}
-            className="max-h-[70vh] max-w-full rounded-lg object-contain shadow-lg"
+            className="max-h-[50vh] sm:max-h-[70vh] max-w-full rounded-lg object-contain shadow-lg"
             onLoad={() => setLoading(false)}
             onError={() => {
               setError('Failed to load image')
               setLoading(false)
             }}
           />
-          <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg">
+          <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 group-active:opacity-100 sm:group-hover:opacity-100 transition-opacity rounded-lg">
             <button
               onClick={() => setIsFullscreen(true)}
-              className="rounded-lg bg-white/90 p-2 text-gray-700 hover:bg-white transition-colors"
-              title="Fullscreen (F11)"
+              className="rounded-lg bg-white/90 p-3 sm:p-2 text-gray-700 hover:bg-white transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center touch-manipulation"
+              title="Fullscreen"
             >
               <Maximize2 className="h-5 w-5" />
             </button>
@@ -90,18 +90,19 @@ export default function DocumentViewer({ fileUrl, mimeType, fileName }: Document
         {/* Fullscreen Image Modal */}
         {isFullscreen && (
           <div
-            className="fixed inset-0 z-[60] flex items-center justify-center bg-black/95 p-4"
+            className="fixed inset-0 z-[70] flex items-center justify-center bg-black/95 p-2 sm:p-4 pt-14 sm:pt-4"
             onClick={() => setIsFullscreen(false)}
           >
             <div className="relative max-h-full max-w-full" onClick={(e) => e.stopPropagation()}>
               <img
                 src={fileUrl}
                 alt={fileName || 'Preview'}
-                className="max-h-[95vh] max-w-full rounded-lg object-contain"
+                className="max-h-[85vh] sm:max-h-[95vh] max-w-full rounded-lg object-contain"
               />
               <button
                 onClick={() => setIsFullscreen(false)}
-                className="absolute right-4 top-4 rounded-lg bg-white/90 p-2 text-gray-700 hover:bg-white transition-colors"
+                className="absolute right-2 top-2 sm:right-4 sm:top-4 rounded-lg bg-white/90 p-2.5 sm:p-2 text-gray-700 hover:bg-white transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center touch-manipulation"
+                aria-label="Close fullscreen"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -122,7 +123,7 @@ export default function DocumentViewer({ fileUrl, mimeType, fileName }: Document
   if (isPDF) {
     return (
       <div className="flex flex-col">
-        <div className="relative flex h-[70vh] items-center justify-center overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
+        <div className="relative flex h-[50vh] sm:h-[70vh] items-center justify-center overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
           <iframe
             src={`${fileUrl}#toolbar=1&navpanes=1&scrollbar=1`}
             className="h-full w-full rounded-lg"
@@ -148,14 +149,15 @@ export default function DocumentViewer({ fileUrl, mimeType, fileName }: Document
             </div>
           )}
         </div>
-        <div className="mt-2 flex items-center justify-between text-xs text-gray-500">
-          <span>Tip: Use browser controls to zoom, navigate pages, and search within the PDF</span>
+        <div className="mt-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs text-gray-500">
+          <span className="hidden sm:inline">Tip: Use browser controls to zoom, navigate pages, and search within the PDF</span>
+          <span className="sm:hidden">Swipe to scroll. Pinch to zoom.</span>
           <a
             href={fileUrl}
             target="_blank"
             rel="noopener noreferrer"
             download={fileName}
-            className="inline-flex items-center gap-1 text-primary-600 hover:text-primary-700 font-medium"
+            className="inline-flex items-center justify-center gap-1.5 text-primary-600 hover:text-primary-700 font-medium min-h-[44px] touch-manipulation"
           >
             <Download className="h-3.5 w-3.5" />
             Open in new tab

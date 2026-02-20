@@ -1,16 +1,11 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
-  ArrowLeft,
   AlertTriangle,
-  X,
   FileText,
-  Calendar,
   Loader2,
   CheckCircle2,
-  XCircle,
   AlertCircle,
-  Trash2,
   Eye,
   TrendingUp,
   TrendingDown,
@@ -183,6 +178,7 @@ export default function CompareAnalyses() {
     <DashboardLayout
       title="Compare Analyses"
       subtitle="Select up to 5 chat analyses to compare side-by-side"
+      backHref="/dashboard/red-flag-radar"
     >
       <div className="w-full">
         {/* Selection Summary */}
@@ -212,7 +208,7 @@ export default function CompareAnalyses() {
         ) : error ? (
           <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-800">{error}</div>
         ) : analyses.length === 0 ? (
-          <div className="rounded-lg border border-gray-200 bg-white p-12 text-center">
+          <div className="rounded-lg border border-gray-200 bg-white p-6 sm:p-12 text-center">
             <FileText className="mx-auto h-12 w-12 text-gray-400" />
             <h3 className="mt-4 text-lg font-semibold text-gray-900">No analyses yet</h3>
             <p className="mt-2 text-gray-600">Upload and analyze chats to compare them here.</p>
@@ -240,7 +236,7 @@ export default function CompareAnalyses() {
                     onClick={() => toggleSelection(analysis.id)}
                   >
                     <div className="flex items-start justify-between">
-                      <div className="flex items-start gap-4 flex-1">
+                      <div className="flex items-start gap-2 sm:gap-4 flex-1">
                         <div className={`mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded border-2 ${
                           isSelected
                             ? 'border-primary-600 bg-primary-600'
@@ -259,7 +255,7 @@ export default function CompareAnalyses() {
                               </span>
                             )}
                           </div>
-                          <div className="mt-2 flex items-center gap-4">
+                          <div className="mt-2 flex flex-wrap items-center gap-2 sm:gap-4">
                             <div className={`rounded-lg border px-3 py-1 ${getRiskColor(analysis.risk_score)}`}>
                               <span className="text-xs font-semibold">
                                 Risk: {analysis.risk_score}/100 ({getRiskLabel(analysis.risk_score)})
@@ -295,7 +291,7 @@ export default function CompareAnalyses() {
             {selectedAnalyses.length > 0 && (
               <div className="mt-8 space-y-6">
                 {/* Side-by-Side Comparison */}
-                <div className="rounded-lg border border-gray-200 bg-white p-6">
+                <div className="rounded-lg border border-gray-200 bg-white p-4 sm:p-6">
                   <div className="mb-4 flex items-center justify-between">
                     <h3 className="text-lg font-semibold text-gray-900">Side-by-Side Comparison</h3>
                     <button
@@ -307,9 +303,9 @@ export default function CompareAnalyses() {
                   </div>
 
                   <div className="overflow-x-auto">
-                    <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${selectedAnalyses.length}, minmax(300px, 1fr))` }}>
+                    <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${selectedAnalyses.length}, minmax(220px, 1fr))` }}>
                       {selectedAnalyses.map((analysis) => (
-                        <div key={analysis.id} className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+                        <div key={analysis.id} className="rounded-lg border border-gray-200 bg-gray-50 p-4 sm:p-6">
                           <div className="mb-3">
                             <p className="text-xs font-medium text-gray-500">
                               {format(new Date(analysis.created_at), 'MMM d, yyyy')}
@@ -348,7 +344,7 @@ export default function CompareAnalyses() {
 
                 {/* AI-Powered Comparison Button */}
                 {selectedAnalyses.length >= 2 && !comparisonInsights && (
-                  <div className="rounded-lg border border-blue-200 bg-blue-50 p-6 text-center">
+                  <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 sm:p-6 text-center">
                     <Sparkles className="mx-auto mb-3 h-8 w-8 text-blue-600" />
                     <h3 className="mb-2 text-lg font-semibold text-blue-900">Get AI-Powered Insights</h3>
                     <p className="mb-4 text-sm text-blue-800">
@@ -378,7 +374,7 @@ export default function CompareAnalyses() {
                 {comparisonInsights && (
                   <div className="space-y-6">
                     {/* Summary */}
-                    <div className="rounded-lg border border-gray-200 bg-white p-6">
+                    <div className="rounded-lg border border-gray-200 bg-white p-4 sm:p-6">
                       <div className="mb-4 flex items-center gap-2">
                         <Sparkles className="h-5 w-5 text-primary-600" />
                         <h3 className="text-lg font-semibold text-gray-900">AI Analysis Summary</h3>
@@ -387,7 +383,7 @@ export default function CompareAnalyses() {
                     </div>
 
                     {/* Risk Trend */}
-                    <div className="rounded-lg border border-gray-200 bg-white p-6">
+                    <div className="rounded-lg border border-gray-200 bg-white p-4 sm:p-6">
                       <h3 className="mb-4 text-lg font-semibold text-gray-900">Risk Trend</h3>
                       <div className="flex items-center gap-4">
                         <div className={`flex h-16 w-16 items-center justify-center rounded-lg ${
@@ -423,7 +419,7 @@ export default function CompareAnalyses() {
 
                     {/* Escalation Alert */}
                     {comparisonInsights.escalationDetected && comparisonInsights.escalationDetails && (
-                      <div className={`rounded-lg border p-6 ${
+                      <div className={`rounded-lg border p-4 sm:p-6 ${
                         comparisonInsights.escalationDetails.severity === 'critical' ? 'border-red-300 bg-red-50' :
                         comparisonInsights.escalationDetails.severity === 'high' ? 'border-orange-300 bg-orange-50' :
                         comparisonInsights.escalationDetails.severity === 'medium' ? 'border-yellow-300 bg-yellow-50' :
@@ -454,7 +450,7 @@ export default function CompareAnalyses() {
 
                     {/* Common Patterns */}
                     {comparisonInsights.commonPatterns.length > 0 && (
-                      <div className="rounded-lg border border-gray-200 bg-white p-6">
+                      <div className="rounded-lg border border-gray-200 bg-white p-4 sm:p-6">
                         <h3 className="mb-4 text-lg font-semibold text-gray-900">Common Patterns</h3>
                         <div className="space-y-3">
                           {comparisonInsights.commonPatterns.map((pattern, idx) => (
@@ -486,7 +482,7 @@ export default function CompareAnalyses() {
 
                     {/* Insights */}
                     {comparisonInsights.insights.length > 0 && (
-                      <div className="rounded-lg border border-gray-200 bg-white p-6">
+                      <div className="rounded-lg border border-gray-200 bg-white p-4 sm:p-6">
                         <h3 className="mb-4 text-lg font-semibold text-gray-900">Key Insights</h3>
                         <ul className="space-y-2">
                           {comparisonInsights.insights.map((insight, idx) => (
@@ -501,7 +497,7 @@ export default function CompareAnalyses() {
 
                     {/* Recommendations */}
                     {comparisonInsights.recommendations.length > 0 && (
-                      <div className="rounded-lg border border-primary-200 bg-primary-50 p-6">
+                      <div className="rounded-lg border border-primary-200 bg-primary-50 p-4 sm:p-6">
                         <h3 className="mb-4 text-lg font-semibold text-primary-900">Recommendations</h3>
                         <ul className="space-y-2">
                           {comparisonInsights.recommendations.map((rec, idx) => (

@@ -2,14 +2,12 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createSupabaseClient } from '../_shared/supabase.ts'
 import { getUserId } from '../_shared/auth.ts'
 import { generateVaultPDF, generateChatAnalysisPDF, generateAffidavitPDF, type VaultEntry, type ChatAnalysisPDFData } from '../_shared/pdfGenerators.ts'
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-}
+import { getCorsHeaders } from '../_shared/cors.ts'
+import { checkRateLimit, rateLimitResponse } from '../_shared/rateLimit.ts'
+import { checkUsageLimit, incrementUsageSimple, limitReachedResponse } from '../_shared/subscription.ts'
 
 serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req)
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
@@ -23,6 +21,14 @@ serve(async (req) => {
       )
     }
 
+    // Rate limit exports (3 per minute)
+    const { allowed, retryAfter } = checkRateLimit(userId, 'export', 3, 60_000)
+    if (!allowed) return rateLimitResponse(retryAfter!, corsHeaders)
+
+    // Subscription limit for PDF exports
+    const pdfLimit = await checkUsageLimit(userId, 'pdf_exports')
+    if (!pdfLimit.allowed) return limitReachedResponse('pdf_exports', pdfLimit, corsHeaders)
+
     const url = new URL(req.url)
     const supabase = createSupabaseClient(req)
 
@@ -30,7 +36,7 @@ serve(async (req) => {
     if (url.pathname.endsWith('/vault') && req.method === 'POST') {
       const { data: entries, error: entriesError } = await supabase
         .from('vault_entries')
-        .select('*')
+        .select('id, user_id, type, module, file_url, file_hash, encrypted, metadata, description, created_at')
         .eq('user_id', userId)
         .order('created_at', { ascending: true })
 
@@ -63,7 +69,8 @@ serve(async (req) => {
         generatedAt: new Date().toISOString(),
       })
 
-      // Return PDF
+      await incrementUsageSimple(userId, 'pdf_exports').catch(() => {})
+
       return new Response(pdfBytes, {
         headers: {
           ...corsHeaders,
@@ -87,7 +94,7 @@ serve(async (req) => {
 
       const { data: entry, error: entryError } = await supabase
         .from('income_tracker')
-        .select('*')
+        .select('id, user_id, month_year, gross_income, deductions, expenses, disposable_income, notes, created_at')
         .eq('user_id', userId)
         .eq('month_year', month_year)
         .single()
@@ -125,7 +132,8 @@ serve(async (req) => {
         notes: entry.notes || undefined,
       })
 
-      // Return PDF
+      await incrementUsageSimple(userId, 'pdf_exports').catch(() => {})
+
       return new Response(pdfBytes, {
         headers: {
           ...corsHeaders,
@@ -149,7 +157,7 @@ serve(async (req) => {
 
       const { data: analysis, error: analysisError } = await supabase
         .from('chat_analyses')
-        .select('*')
+        .select('id, user_id, risk_score, red_flags, keywords_detected, analysis_text, platform, patterns_detected, recommendations, created_at, summary, participants, total_messages, date_range')
         .eq('id', analysisId)
         .eq('user_id', userId)
         .single()
@@ -191,7 +199,8 @@ serve(async (req) => {
 
       const pdfBytes = await generateChatAnalysisPDF(pdfData)
 
-      // Return PDF
+      await incrementUsageSimple(userId, 'pdf_exports').catch(() => {})
+
       return new Response(pdfBytes, {
         headers: {
           ...corsHeaders,

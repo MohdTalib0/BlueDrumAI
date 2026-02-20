@@ -3,10 +3,14 @@ import { useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import FileUploader from '../../../components/vault/FileUploader'
 import { DashboardLayout } from '../../../layouts/DashboardLayout'
+import { useAuth } from '../../../context/AuthContext'
+import UpgradePrompt from '../../../components/UpgradePrompt'
 
 export default function VaultUpload() {
+  const { user } = useAuth()
   const navigate = useNavigate()
   const [uploadSuccess, setUploadSuccess] = useState(false)
+  const [limitInfo, setLimitInfo] = useState<{ feature: string; current: number; limit: number } | null>(null)
 
   const handleUploadSuccess = () => {
     setUploadSuccess(true)
@@ -17,7 +21,7 @@ export default function VaultUpload() {
   }
 
   return (
-    <DashboardLayout title="Consent Vault" subtitle="Upload and organize your evidence">
+    <DashboardLayout title="Consent Vault" subtitle="Upload and organize your evidence" backHref="/dashboard/vault/timeline">
       <div className="w-full">
         {/* Success Banner */}
         {uploadSuccess && (
@@ -41,7 +45,12 @@ export default function VaultUpload() {
               <p className="text-sm text-gray-600">Add evidence to your secure vault</p>
             </div>
           </div>
-          <FileUploader module="male" onUploadSuccess={handleUploadSuccess} multiple={true} />
+          <FileUploader
+            module={user?.gender === 'female' ? 'female' : 'male'}
+            onUploadSuccess={handleUploadSuccess}
+            onLimitReached={(feature, current, limit) => setLimitInfo({ feature, current, limit })}
+            multiple={true}
+          />
         </div>
 
         {/* Info Cards */}
@@ -110,6 +119,15 @@ export default function VaultUpload() {
           </ul>
         </div>
       </div>
+
+      {limitInfo && (
+        <UpgradePrompt
+          feature={limitInfo.feature}
+          current={limitInfo.current}
+          limit={limitInfo.limit}
+          onClose={() => setLimitInfo(null)}
+        />
+      )}
     </DashboardLayout>
   )
 }

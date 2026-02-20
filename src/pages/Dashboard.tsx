@@ -10,20 +10,19 @@ import {
   Activity,
   ArrowUpRight,
   ArrowDownRight,
-  CheckCircle2,
-  XCircle,
-  AlertCircle,
   BarChart3,
-  PieChart,
-  DollarSign,
   MessageSquare,
   Zap,
+  Gift,
+  ShieldAlert,
+  FileHeart,
+  Calculator,
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { getEdgeFunctionUrl, getAuthHeadersWithSession } from '../lib/api'
 import { DashboardLayout } from '../layouts/DashboardLayout'
 import { format, parseISO } from 'date-fns'
-import { LineChart, Line, BarChart, Bar, PieChart as RechartsPieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
+import { LineChart, Line, BarChart, Bar, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 
 interface DashboardStats {
   vault: {
@@ -70,43 +69,15 @@ export default function Dashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [loadingStats, setLoadingStats] = useState(true)
   const [error, setError] = useState('')
-  const [userProfile, setUserProfile] = useState<{ first_name?: string; last_name?: string; email?: string } | null>(null)
   const fetchingRef = useRef(false)
   const lastFetchRef = useRef<number>(0)
 
-  // Fetch user profile to get name
-  useEffect(() => {
-    const fetchUserProfile = async () => {
-      if (loading || !user?.id || !sessionToken) return
-
-      try {
-        const headers = await getAuthHeadersWithSession()
-        if (sessionToken) {
-          headers['Authorization'] = `Bearer ${sessionToken}`
-        }
-        const response = await fetch(`${getEdgeFunctionUrl('auth')}/me`, {
-          headers,
-        })
-
-        if (response.ok) {
-          const data = await response.json()
-          if (data.ok && data.user) {
-            setUserProfile({
-              first_name: data.user.first_name,
-              last_name: data.user.last_name,
-              email: data.user.email,
-            })
-          }
-        }
-      } catch (err) {
-        console.error('Error fetching user profile:', err)
-      }
-    }
-
-    fetchUserProfile()
-  }, [loading, user?.id, sessionToken])
+  const gender = user?.gender ?? null
+  const isMale = gender === 'male' || gender === 'both' || gender === null
 
   useEffect(() => {
+    const controller = new AbortController()
+    
     const fetchStats = async () => {
       // Prevent multiple simultaneous fetches
       if (fetchingRef.current) return
@@ -133,6 +104,7 @@ export default function Dashboard() {
         }
         const response = await fetch(`${getEdgeFunctionUrl('dashboard')}/stats`, {
           headers,
+          signal: controller.signal,
         })
 
         if (!response.ok) {
@@ -143,6 +115,7 @@ export default function Dashboard() {
         setStats(data.stats)
         lastFetchRef.current = Date.now()
       } catch (err: any) {
+        if (err.name === 'AbortError') return
         console.error('Error fetching dashboard stats:', err)
         setError(err.message || 'Failed to load dashboard')
       } finally {
@@ -152,6 +125,10 @@ export default function Dashboard() {
     }
 
     fetchStats()
+    
+    return () => {
+      controller.abort()
+    }
   }, [loading, user?.id, sessionToken]) // Only depend on user.id, not the whole user object
 
   // Calculate trend indicators
@@ -185,6 +162,8 @@ export default function Dashboard() {
         return <AlertTriangle className="h-4 w-4" />
       case 'Income Tracker':
         return <TrendingUp className="h-4 w-4" />
+      case 'Breakup Generator':
+        return <MessageSquare className="h-4 w-4" />
       default:
         return <Activity className="h-4 w-4" />
     }
@@ -201,10 +180,9 @@ export default function Dashboard() {
     )
   }
 
-  // Get display name
-  const displayName = userProfile?.first_name || userProfile?.last_name
-    ? [userProfile.first_name, userProfile.last_name].filter(Boolean).join(' ')
-    : userProfile?.email || user?.email || 'User'
+  const displayName = user?.first_name || user?.last_name
+    ? [user.first_name, user.last_name].filter(Boolean).join(' ')
+    : user?.email || 'User'
 
   return (
     <DashboardLayout title="Dashboard" subtitle={`Welcome back, ${displayName}`}>
@@ -215,547 +193,378 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* Quick Insights at a glance */}
-      {stats && !loadingStats && (
-        <div className="mb-8 rounded-lg border border-blue-200 bg-blue-50 p-6 shadow-sm">
-          <h3 className="mb-3 flex items-center gap-2 text-base font-semibold text-blue-900">
-            <Zap className="h-5 w-5" />
-            At a glance
-          </h3>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 text-sm text-blue-900">
-            <div className="rounded-lg bg-white/70 p-3">
-              <p className="font-semibold">Evidence</p>
-              <p className="text-blue-700">{stats.vault.total || 0} files</p>
-            </div>
-            <div className="rounded-lg bg-white/70 p-3">
-              <p className="font-semibold">Chat Analyses</p>
-              <p className="text-blue-700">
-                {stats.chatAnalysis.total || 0} total, avg risk {stats.chatAnalysis.avgRiskScore || 0}
-              </p>
-            </div>
-            <div className="rounded-lg bg-white/70 p-3">
-              <p className="font-semibold">Income</p>
-              <p className="text-blue-700">
-                {stats.income.totalEntries || 0} entries, avg disposable ₹{(stats.income.avgDisposable || 0).toLocaleString('en-IN')}
-              </p>
-            </div>
-            <div className="rounded-lg bg-white/70 p-3">
-              <p className="font-semibold">Readiness</p>
-              <p className="text-blue-700">{stats.readinessScore || 0} / 100</p>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Quick Insights removed -- stat cards above serve this purpose */}
 
       {/* Main Stats Grid */}
-      <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {/* Vault Entries */}
-        <div className="group rounded-lg border border-gray-200/40 bg-indigo-50 p-6 shadow-sm transition-all hover:shadow-md">
-          <div className="flex items-center justify-between">
-            <div className="flex-1">
-              <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Vault Entries</p>
-              {loadingStats ? (
-                <div className="mt-2 flex items-center gap-2">
-                  <Loader2 className="h-6 w-6 animate-spin text-primary-600" />
-                  <span className="text-3xl font-bold text-gray-900">-</span>
-                </div>
-              ) : (
-                <p className="mt-2 text-3xl font-bold text-gray-900">{stats?.vault.total || 0}</p>
-              )}
-              <p className="mt-1 text-xs text-gray-600">Evidence files stored</p>
-            </div>
-            <div className="rounded-lg bg-primary-50 p-3 text-primary-700 transition-transform group-hover:scale-110">
-              <Shield className="h-6 w-6" />
-            </div>
-          </div>
-        </div>
-
-        {/* Average Risk Score */}
-        <div className="group rounded-lg border border-gray-200/40 bg-rose-50 p-6 shadow-sm transition-all hover:shadow-md">
-          <div className="flex items-center justify-between">
-            <div className="flex-1">
-              <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Avg Risk Score</p>
-              {loadingStats ? (
-                <div className="mt-2 flex items-center gap-2">
-                  <Loader2 className="h-6 w-6 animate-spin text-primary-600" />
-                  <span className="text-3xl font-bold text-gray-900">-</span>
-                </div>
-              ) : (
-                <>
-                  <p className={`mt-2 text-3xl font-bold ${stats?.chatAnalysis.avgRiskScore ? getRiskColor(stats.chatAnalysis.avgRiskScore).split(' ')[0] : 'text-gray-900'}`}>
-                    {stats?.chatAnalysis.avgRiskScore || 0}
-                  </p>
-                  <p className="mt-1 text-xs text-gray-600">
-                    {stats?.chatAnalysis.avgRiskScore ? getRiskLabel(stats.chatAnalysis.avgRiskScore) : 'No analyses'} risk
-                  </p>
-                </>
-              )}
-            </div>
-            <div className={`rounded-lg p-3 ${stats?.chatAnalysis.avgRiskScore ? getRiskColor(stats.chatAnalysis.avgRiskScore) : 'bg-amber-50 text-amber-700'}`}>
-              <AlertTriangle className="h-6 w-6" />
-            </div>
-          </div>
-        </div>
-
-        {/* Chat Analyses */}
-        <div className="group rounded-lg border border-gray-200/40 bg-amber-50 p-6 shadow-sm transition-all hover:shadow-md">
-          <div className="flex items-center justify-between">
-            <div className="flex-1">
-              <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Chat Analyses</p>
-              {loadingStats ? (
-                <div className="mt-2 flex items-center gap-2">
-                  <Loader2 className="h-6 w-6 animate-spin text-primary-600" />
-                  <span className="text-3xl font-bold text-gray-900">-</span>
-                </div>
-              ) : (
-                <>
-                  <p className="mt-2 text-3xl font-bold text-gray-900">{stats?.chatAnalysis.total || 0}</p>
-                  <p className="mt-1 text-xs text-gray-600">{stats?.chatAnalysis.totalRedFlags || 0} red flags detected</p>
-                </>
-              )}
-            </div>
-            <div className="rounded-lg bg-blue-50 p-3 text-blue-700 transition-transform group-hover:scale-110">
-              <FileText className="h-6 w-6" />
-            </div>
-          </div>
-        </div>
-
-        {/* Readiness Score */}
-        <div className="group rounded-lg border border-gray-200/40 bg-emerald-50 p-6 shadow-sm transition-all hover:shadow-md">
-          <div className="flex items-center justify-between">
-            <div className="flex-1">
-              <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Readiness Score</p>
-              {loadingStats ? (
-                <div className="mt-2 flex items-center gap-2">
-                  <Loader2 className="h-6 w-6 animate-spin text-primary-600" />
-                  <span className="text-3xl font-bold text-gray-900">-</span>
-                </div>
-              ) : (
-                <>
-                  <div className="mt-2 flex items-baseline gap-2">
-                    <p className="text-3xl font-bold text-gray-900">{stats?.readinessScore || 0}</p>
-                    <span className="text-lg text-gray-500">/ 100</span>
-                    {readinessTrend && (
-                      <span className={`flex items-center text-sm ${readinessTrend === 'up' ? 'text-green-600' : readinessTrend === 'down' ? 'text-red-600' : 'text-gray-600'}`}>
-                        {readinessTrend === 'up' ? <ArrowUpRight className="h-4 w-4" /> : readinessTrend === 'down' ? <ArrowDownRight className="h-4 w-4" /> : null}
-                      </span>
-                    )}
+      <div className="mb-6 sm:mb-8 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+          {loadingStats ? (
+            <>
+              {[0,1,2,3].map(i => (
+                <div key={i} className="rounded-lg border border-gray-200/40 bg-gray-50 p-3 sm:p-6 shadow-sm animate-pulse">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1 space-y-2">
+                      <div className="h-3 w-12 rounded bg-gray-200" />
+                      <div className="h-7 w-16 rounded bg-gray-200" />
+                      <div className="h-2.5 w-20 rounded bg-gray-200" />
+                    </div>
+                    <div className="h-10 w-10 rounded-lg bg-gray-200 shrink-0" />
                   </div>
-                  <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-gray-200">
-                    <div
-                      className="h-full bg-gradient-to-r from-primary-500 to-primary-600 transition-all duration-500"
-                      style={{ width: `${stats?.readinessScore || 0}%` }}
-                    />
+                </div>
+              ))}
+            </>
+          ) : (
+            <>
+              {/* Vault Entries */}
+              <div className="group rounded-lg border border-gray-200/40 bg-indigo-50 p-3 sm:p-6 shadow-sm transition-all hover:shadow-md">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-wide text-gray-500">Vault</p>
+                    <p className="mt-1 sm:mt-2 text-2xl sm:text-3xl font-bold text-gray-900">{stats?.vault.total || 0}</p>
+                    <p className="mt-0.5 sm:mt-1 text-[10px] sm:text-xs text-gray-600">Files stored</p>
                   </div>
-                </>
-              )}
-            </div>
-            <div className="rounded-lg bg-emerald-50 p-3 text-emerald-700 transition-transform group-hover:scale-110">
-              <Zap className="h-6 w-6" />
-            </div>
-          </div>
+                  <div className="rounded-lg bg-primary-50 p-2 sm:p-3 text-primary-700 shrink-0">
+                    <Shield className="h-4 w-4 sm:h-6 sm:w-6" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Average Risk Score */}
+              <div className="group rounded-lg border border-gray-200/40 bg-rose-50 p-3 sm:p-6 shadow-sm transition-all hover:shadow-md">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-wide text-gray-500">Avg Risk</p>
+                    <p className={`mt-1 sm:mt-2 text-2xl sm:text-3xl font-bold ${stats?.chatAnalysis.avgRiskScore ? getRiskColor(stats.chatAnalysis.avgRiskScore).split(' ')[0] : 'text-gray-900'}`}>
+                      {stats?.chatAnalysis.avgRiskScore || 0}
+                    </p>
+                    <p className="mt-0.5 sm:mt-1 text-[10px] sm:text-xs text-gray-600">
+                      {stats?.chatAnalysis.avgRiskScore ? getRiskLabel(stats.chatAnalysis.avgRiskScore) : 'No analyses'}
+                    </p>
+                  </div>
+                  <div className={`rounded-lg p-2 sm:p-3 shrink-0 ${stats?.chatAnalysis.avgRiskScore ? getRiskColor(stats.chatAnalysis.avgRiskScore) : 'bg-amber-50 text-amber-700'}`}>
+                    <AlertTriangle className="h-4 w-4 sm:h-6 sm:w-6" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Chat Analyses */}
+              <div className="group rounded-lg border border-gray-200/40 bg-amber-50 p-3 sm:p-6 shadow-sm transition-all hover:shadow-md">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-wide text-gray-500">Analyses</p>
+                    <p className="mt-1 sm:mt-2 text-2xl sm:text-3xl font-bold text-gray-900">{stats?.chatAnalysis.total || 0}</p>
+                    <p className="mt-0.5 sm:mt-1 text-[10px] sm:text-xs text-gray-600">{stats?.chatAnalysis.totalRedFlags || 0} red flags</p>
+                  </div>
+                  <div className="rounded-lg bg-blue-50 p-2 sm:p-3 text-blue-700 shrink-0">
+                    <FileText className="h-4 w-4 sm:h-6 sm:w-6" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Readiness Score */}
+              <div className="group rounded-lg border border-gray-200/40 bg-emerald-50 p-3 sm:p-6 shadow-sm transition-all hover:shadow-md">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-wide text-gray-500">Readiness</p>
+                    <div className="mt-1 sm:mt-2 flex items-baseline gap-1">
+                      <p className="text-2xl sm:text-3xl font-bold text-gray-900">{stats?.readinessScore || 0}</p>
+                      <span className="text-sm text-gray-500">/ 100</span>
+                      {readinessTrend && (
+                        <span className={`flex items-center text-sm ${readinessTrend === 'up' ? 'text-green-600' : readinessTrend === 'down' ? 'text-red-600' : 'text-gray-600'}`}>
+                          {readinessTrend === 'up' ? <ArrowUpRight className="h-3 w-3" /> : readinessTrend === 'down' ? <ArrowDownRight className="h-3 w-3" /> : null}
+                        </span>
+                      )}
+                    </div>
+                    <div className="mt-1.5 sm:mt-2 h-1.5 sm:h-2 w-full overflow-hidden rounded-full bg-gray-200">
+                      <div
+                        className="h-full bg-gradient-to-r from-primary-500 to-primary-600 transition-all duration-500"
+                        style={{ width: `${stats?.readinessScore || 0}%` }}
+                      />
+                    </div>
+                  </div>
+                  <div className="rounded-lg bg-emerald-100 p-2 sm:p-3 text-emerald-700 shrink-0">
+                    <Zap className="h-4 w-4 sm:h-6 sm:w-6" />
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
         </div>
-      </div>
 
       {/* Charts Row */}
       {stats && !loadingStats && (
-        <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
-          {/* Income Trend Chart */}
-          {stats.income.monthlyTrend.length > 0 && (
-            <div className="rounded-lg border border-gray-200/20 bg-white/50 p-6 shadow-sm">
-              <div className="mb-4 flex items-center justify-between">
-                <h3 className="text-base font-semibold text-gray-900">Income Trend</h3>
-                <TrendingUp className="h-5 w-5 text-emerald-600" />
+        <div className="mb-6 sm:mb-8 grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
+          {/* Income Trend Chart — male only */}
+          {isMale && stats.income.monthlyTrend.length > 0 && (
+            <div className="rounded-lg border border-gray-200/20 bg-white/50 p-3 sm:p-4 shadow-sm">
+              <div className="mb-3 flex items-center justify-between">
+                <h3 className="text-xs sm:text-sm font-semibold text-gray-900">Income Trend</h3>
+                <TrendingUp className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-emerald-500" />
               </div>
-              <ResponsiveContainer width="100%" height={200}>
+              <div style={{ height: 140 }}>
+              <ResponsiveContainer width="100%" height="100%">
                 <LineChart
                   data={stats.income.monthlyTrend
                     .filter((d) => d.month && d.month.trim())
                     .map((d) => {
                       try {
-                        // Handle different month formats: "2024-01" or "2024-01-01" (already full date)
                         let dateStr = d.month.trim()
-                        // If it's just YYYY-MM format (7 chars), append -01
-                        if (dateStr.length === 7 && dateStr.match(/^\d{4}-\d{2}$/)) {
-                          dateStr = `${dateStr}-01`
-                        }
-                        // If it's already YYYY-MM-DD format (10 chars), use as is
+                        if (dateStr.length === 7 && dateStr.match(/^\d{4}-\d{2}$/)) dateStr = `${dateStr}-01`
                         const parsedDate = parseISO(dateStr)
-                        if (isNaN(parsedDate.getTime())) {
-                          console.warn('Invalid date:', dateStr, 'from:', d.month)
-                          return { ...d, month: d.month.substring(0, 7) || d.month }
-                        }
+                        if (isNaN(parsedDate.getTime())) return { ...d, month: d.month.substring(0, 7) || d.month }
                         return { ...d, month: format(parsedDate, 'MMM') }
-                      } catch (err) {
-                        console.warn('Error parsing date:', d.month, err)
-                        // Try to extract month part if it's a full date
-                        const monthPart = d.month.substring(0, 7)
-                        return { ...d, month: monthPart || d.month }
+                      } catch {
+                        return { ...d, month: d.month.substring(0, 7) || d.month }
                       }
                     })}
+                  margin={{ top: 8, right: 8, left: 0, bottom: 4 }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis dataKey="month" stroke="#6b7280" fontSize={12} />
-                  <YAxis stroke="#6b7280" fontSize={12} />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: 'white',
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '8px',
-                    }}
-                  />
-                  <Legend />
-                  <Line type="monotone" dataKey="gross" stroke="#3b82f6" strokeWidth={2} name="Gross Income" />
-                  <Line type="monotone" dataKey="disposable" stroke="#10b981" strokeWidth={2} name="Disposable Income" />
+                  <XAxis dataKey="month" stroke="#d1d5db" fontSize={10} tickLine={false} axisLine={false} />
+                  <YAxis hide />
+                  <Tooltip contentStyle={{ backgroundColor: '#1f2937', color: '#fff', border: 'none', borderRadius: '8px', fontSize: 11, padding: '6px 10px' }} itemStyle={{ color: '#fff' }} />
+                  <Line type="monotone" dataKey="gross" stroke="#3b82f6" strokeWidth={2.5} dot={false} name="Gross" />
+                  <Line type="monotone" dataKey="disposable" stroke="#10b981" strokeWidth={2.5} dot={false} name="Disposable" />
                 </LineChart>
               </ResponsiveContainer>
+              </div>
             </div>
           )}
 
           {/* Risk Score Distribution */}
           {stats.chatAnalysis.total > 0 && (
-            <div className="rounded-lg border border-gray-200/20 bg-white/50 p-6 shadow-sm">
-              <div className="mb-4 flex items-center justify-between">
-                <h3 className="text-base font-semibold text-gray-900">Risk Score Distribution</h3>
-                <BarChart3 className="h-5 w-5 text-red-600" />
+            <div className="rounded-lg border border-gray-200/20 bg-white/50 p-3 sm:p-4 shadow-sm">
+              <div className="mb-3 flex items-center justify-between">
+                <h3 className="text-xs sm:text-sm font-semibold text-gray-900">Risk Distribution</h3>
+                <BarChart3 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-red-500" />
               </div>
-              <ResponsiveContainer width="100%" height={200}>
+              <div style={{ height: 140 }}>
+              <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                   data={[
                     { range: '0-20', count: stats.chatAnalysis.recent.filter((a) => a.riskScore && a.riskScore < 20).length },
                     { range: '21-40', count: stats.chatAnalysis.recent.filter((a) => a.riskScore && a.riskScore >= 20 && a.riskScore < 40).length },
                     { range: '41-60', count: stats.chatAnalysis.recent.filter((a) => a.riskScore && a.riskScore >= 40 && a.riskScore < 60).length },
                     { range: '61-80', count: stats.chatAnalysis.recent.filter((a) => a.riskScore && a.riskScore >= 60 && a.riskScore < 80).length },
-                    { range: '81-100', count: stats.chatAnalysis.recent.filter((a) => a.riskScore && a.riskScore >= 80).length },
+                    { range: '81+', count: stats.chatAnalysis.recent.filter((a) => a.riskScore && a.riskScore >= 80).length },
                   ]}
+                  margin={{ top: 8, right: 8, left: 0, bottom: 4 }}
+                  barCategoryGap="25%"
                 >
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis dataKey="range" stroke="#6b7280" fontSize={12} />
-                  <YAxis stroke="#6b7280" fontSize={12} />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: 'white',
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '8px',
-                    }}
-                  />
-                  <Bar dataKey="count" fill="#ef4444" radius={[8, 8, 0, 0]} />
+                  <XAxis dataKey="range" stroke="#d1d5db" fontSize={10} tickLine={false} axisLine={false} />
+                  <YAxis hide />
+                  <Tooltip contentStyle={{ backgroundColor: '#1f2937', color: '#fff', border: 'none', borderRadius: '8px', fontSize: 11, padding: '6px 10px' }} itemStyle={{ color: '#fff' }} />
+                  <Bar dataKey="count" radius={[6, 6, 0, 0]} name="Analyses" maxBarSize={40}>
+                    {['#22c55e', '#3b82f6', '#eab308', '#f97316', '#ef4444'].map((color, i) => (
+                      <Cell key={i} fill={color} />
+                    ))}
+                  </Bar>
                 </BarChart>
               </ResponsiveContainer>
+              </div>
             </div>
           )}
 
-          {/* Vault Entries by Type */}
+          {/* Evidence by Type */}
           {stats.vault.total > 0 && Object.keys(stats.vault.byType).length > 0 && (
-            <div className="rounded-lg border border-gray-200/20 bg-white/50 p-6 shadow-sm">
-              <div className="mb-4 flex items-center justify-between">
-                <h3 className="text-base font-semibold text-gray-900">Evidence by Type</h3>
-                <PieChart className="h-5 w-5 text-primary-600" />
+            <div className="rounded-lg border border-gray-200/20 bg-white/50 p-3 sm:p-4 shadow-sm">
+              <div className="mb-3 flex items-center justify-between">
+                <h3 className="text-xs sm:text-sm font-semibold text-gray-900">Evidence by Type</h3>
+                <BarChart3 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary-500" />
               </div>
-              <ResponsiveContainer width="100%" height={200}>
-                <RechartsPieChart>
-                  <Pie
-                    data={Object.entries(stats.vault.byType).map(([name, value]) => ({ name, value }))}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={({ name, percent }) => `${name}: ${((percent || 0) * 100).toFixed(0)}%`}
-                    outerRadius={70}
-                    fill="#8884d8"
-                    dataKey="value"
-                  >
+              <div style={{ height: 140 }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={Object.entries(stats.vault.byType).map(([name, value]) => ({ name, value }))}
+                  margin={{ top: 8, right: 8, left: 0, bottom: 4 }}
+                  barCategoryGap="25%"
+                >
+                  <XAxis dataKey="name" stroke="#d1d5db" fontSize={10} tickLine={false} axisLine={false} />
+                  <YAxis hide />
+                  <Tooltip contentStyle={{ backgroundColor: '#1f2937', color: '#fff', border: 'none', borderRadius: '8px', fontSize: 11, padding: '6px 10px' }} itemStyle={{ color: '#fff' }} />
+                  <Bar dataKey="value" radius={[6, 6, 0, 0]} name="Files" maxBarSize={40}>
                     {Object.entries(stats.vault.byType).map((_, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      <Cell key={index} fill={COLORS[index % COLORS.length]} />
                     ))}
-                  </Pie>
-                  <Tooltip />
-                </RechartsPieChart>
+                  </Bar>
+                </BarChart>
               </ResponsiveContainer>
+              </div>
             </div>
           )}
 
-          {/* Platform Distribution */}
+          {/* Analyses by Platform */}
           {stats.chatAnalysis.total > 0 && Object.keys(stats.chatAnalysis.byPlatform).length > 0 && (
-            <div className="rounded-lg border border-gray-200/20 bg-white/50 p-6 shadow-sm">
-              <div className="mb-4 flex items-center justify-between">
-                <h3 className="text-base font-semibold text-gray-900">Analyses by Platform</h3>
-                <MessageSquare className="h-5 w-5 text-blue-600" />
+            <div className="rounded-lg border border-gray-200/20 bg-white/50 p-3 sm:p-4 shadow-sm">
+              <div className="mb-3 flex items-center justify-between">
+                <h3 className="text-xs sm:text-sm font-semibold text-gray-900">By Platform</h3>
+                <MessageSquare className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-blue-500" />
               </div>
-              <ResponsiveContainer width="100%" height={200}>
-                <RechartsPieChart>
-                  <Pie
-                    data={Object.entries(stats.chatAnalysis.byPlatform).map(([name, value]) => ({ name, value }))}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={({ name, percent }) => `${name}: ${((percent || 0) * 100).toFixed(0)}%`}
-                    outerRadius={70}
-                    fill="#8884d8"
-                    dataKey="value"
-                  >
+              <div style={{ height: 140 }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={Object.entries(stats.chatAnalysis.byPlatform).map(([name, value]) => ({ name, value }))}
+                  margin={{ top: 8, right: 8, left: 0, bottom: 4 }}
+                  barCategoryGap="25%"
+                >
+                  <XAxis dataKey="name" stroke="#d1d5db" fontSize={10} tickLine={false} axisLine={false} />
+                  <YAxis hide />
+                  <Tooltip contentStyle={{ backgroundColor: '#1f2937', color: '#fff', border: 'none', borderRadius: '8px', fontSize: 11, padding: '6px 10px' }} itemStyle={{ color: '#fff' }} />
+                  <Bar dataKey="value" radius={[6, 6, 0, 0]} name="Analyses" maxBarSize={40}>
                     {Object.entries(stats.chatAnalysis.byPlatform).map((_, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      <Cell key={index} fill={COLORS[index % COLORS.length]} />
                     ))}
-                  </Pie>
-                  <Tooltip />
-                </RechartsPieChart>
+                  </Bar>
+                </BarChart>
               </ResponsiveContainer>
+              </div>
             </div>
           )}
         </div>
       )}
 
-        {/* Quick Actions */}
-        <div className="mb-8">
-        <h2 className="mb-4 text-lg font-semibold text-gray-900">Quick Actions</h2>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          <button
-            onClick={() => navigate('/dashboard/vault/upload')}
-              className="group rounded-lg border border-gray-200/40 bg-sky-50 p-5 text-left shadow-sm transition-all hover:shadow-md"
-          >
-            <div className="flex items-center gap-3">
-              <div className="rounded-lg bg-primary-50 p-2 text-primary-700 transition-transform group-hover:scale-110">
-                <Shield className="h-5 w-5" />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-semibold text-gray-900">Upload Evidence</h3>
-                <p className="mt-1 text-sm text-gray-600">Add files to your consent vault</p>
-              </div>
-              <ArrowUpRight className="h-5 w-5 text-gray-400 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
-            </div>
-          </button>
-
-          <button
-            onClick={() => navigate('/dashboard/red-flag-radar')}
-              className="group rounded-lg border border-gray-200/40 bg-rose-50 p-5 text-left shadow-sm transition-all hover:shadow-md"
-          >
-            <div className="flex items-center gap-3">
-              <div className="rounded-lg bg-red-50 p-2 text-red-700 transition-transform group-hover:scale-110">
-                <AlertTriangle className="h-5 w-5" />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-semibold text-gray-900">Analyze Chat</h3>
-                <p className="mt-1 text-sm text-gray-600">Detect red flags in conversations</p>
-              </div>
-              <ArrowUpRight className="h-5 w-5 text-gray-400 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
-            </div>
-          </button>
-
-          <button
-            onClick={() => navigate('/dashboard/income-tracker')}
-              className="group rounded-lg border border-gray-200/40 bg-amber-50 p-5 text-left shadow-sm transition-all hover:shadow-md"
-          >
-            <div className="flex items-center gap-3">
-              <div className="rounded-lg bg-emerald-50 p-2 text-emerald-700 transition-transform group-hover:scale-110">
-                <TrendingUp className="h-5 w-5" />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-semibold text-gray-900">Log Income</h3>
-                <p className="mt-1 text-sm text-gray-600">Track monthly income & expenses</p>
-              </div>
-              <ArrowUpRight className="h-5 w-5 text-gray-400 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
-            </div>
-          </button>
-
-          <button
-            onClick={() => navigate('/dashboard/vault/timeline')}
-              className="group rounded-lg border border-gray-200/40 bg-indigo-50 p-5 text-left shadow-sm transition-all hover:shadow-md"
-          >
-            <div className="flex items-center gap-3">
-              <div className="rounded-lg bg-blue-50 p-2 text-blue-700 transition-transform group-hover:scale-110">
-                <Clock className="h-5 w-5" />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-semibold text-gray-900">View Timeline</h3>
-                <p className="mt-1 text-sm text-gray-600">See your evidence timeline</p>
-              </div>
-              <ArrowUpRight className="h-5 w-5 text-gray-400 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
-            </div>
-          </button>
-
-          <button
-            onClick={() => navigate('/dashboard/red-flag-radar/history')}
-              className="group rounded-lg border border-gray-200/40 bg-purple-50 p-5 text-left shadow-sm transition-all hover:shadow-md"
-          >
-            <div className="flex items-center gap-3">
-              <div className="rounded-lg bg-purple-50 p-2 text-purple-700 transition-transform group-hover:scale-110">
-                <FileText className="h-5 w-5" />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-semibold text-gray-900">Analysis History</h3>
-                <p className="mt-1 text-sm text-gray-600">Review past chat analyses</p>
-              </div>
-              <ArrowUpRight className="h-5 w-5 text-gray-400 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
-            </div>
-          </button>
-
-          <button
-            onClick={() => navigate('/dashboard/income-tracker/history')}
-              className="group rounded-lg border border-gray-200/40 bg-lime-50 p-5 text-left shadow-sm transition-all hover:shadow-md"
-          >
-            <div className="flex items-center gap-3">
-              <div className="rounded-lg bg-amber-50 p-2 text-amber-700 transition-transform group-hover:scale-110">
-                <BarChart3 className="h-5 w-5" />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-semibold text-gray-900">Income History</h3>
-                <p className="mt-1 text-sm text-gray-600">View financial trends</p>
-              </div>
-              <ArrowUpRight className="h-5 w-5 text-gray-400 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
-            </div>
-          </button>
-        </div>
-      </div>
-
-      {/* Recent Activity Feed */}
-      <div>
-        <div className="mb-4">
-          <h2 className="text-lg font-semibold text-gray-900">Recent Activity</h2>
-        </div>
-
-        {loadingStats ? (
-          <div className="rounded-lg border border-gray-200/40 bg-slate-50 p-12 text-center shadow-sm">
-            <Loader2 className="mx-auto mb-4 h-8 w-8 animate-spin text-primary-600" />
-            <p className="text-gray-600">Loading activity...</p>
-          </div>
-        ) : stats && stats.recentActivity.length > 0 ? (
-          <div className="space-y-3">
-            {stats.recentActivity.map((activity, index) => (
-              <div
-                key={activity.id || index}
-                className="group rounded-lg border border-gray-200/20 bg-white/50 p-4 shadow-sm transition-all hover:bg-white/70 hover:shadow-md"
+      {/* Quick Actions + Recent Activity — side by side */}
+      <div className="mb-6 sm:mb-8 grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-5">
+        {/* Quick Actions — left 3 cols */}
+        <div className="lg:col-span-3">
+          <h2 className="mb-3 text-sm sm:text-base font-semibold text-gray-900">Quick Actions</h2>
+          <div className="grid grid-cols-3 gap-2 sm:gap-3">
+            {[
+              { label: 'Upload Evidence', icon: Shield, color: 'text-primary-700', bg: 'bg-primary-600', bgLight: 'bg-primary-50', path: '/dashboard/vault/upload', primary: true, access: 'all' as const },
+              { label: 'Analyze Chat', icon: AlertTriangle, color: 'text-red-700', bg: 'bg-white', bgLight: 'bg-white', path: '/dashboard/red-flag-radar', primary: false, access: 'all' as const },
+              { label: 'Log Income', icon: TrendingUp, color: 'text-emerald-700', bg: 'bg-white', bgLight: 'bg-white', path: '/dashboard/income-tracker', primary: false, access: 'male' as const },
+              { label: 'Dowry Vault', icon: Gift, color: 'text-purple-700', bg: 'bg-white', bgLight: 'bg-purple-50', path: '/dashboard/dowry-vault', primary: false, access: 'female' as const },
+              { label: 'Log Incident', icon: ShieldAlert, color: 'text-red-700', bg: 'bg-white', bgLight: 'bg-white', path: '/dashboard/dv-log/add', primary: false, access: 'female' as const },
+              { label: 'View Timeline', icon: Clock, color: 'text-blue-700', bg: 'bg-white', bgLight: 'bg-white', path: '/dashboard/vault/timeline', primary: false, access: 'all' as const },
+              { label: 'Analysis History', icon: FileText, color: 'text-purple-700', bg: 'bg-white', bgLight: 'bg-white', path: '/dashboard/red-flag-radar/history', primary: false, access: 'all' as const },
+              { label: 'Income History', icon: BarChart3, color: 'text-amber-700', bg: 'bg-white', bgLight: 'bg-white', path: '/dashboard/income-tracker/history', primary: false, access: 'male' as const },
+              { label: 'Medical Reports', icon: FileHeart, color: 'text-rose-700', bg: 'bg-white', bgLight: 'bg-white', path: '/dashboard/dv-log/medical', primary: false, access: 'female' as const },
+              { label: 'Maintenance', icon: Calculator, color: 'text-teal-700', bg: 'bg-white', bgLight: 'bg-teal-50', path: '/dashboard/maintenance', primary: false, access: 'female' as const },
+              { label: 'Breakup Generator', icon: MessageSquare, color: 'text-indigo-700', bg: 'bg-white', bgLight: 'bg-indigo-50', path: '/dashboard/breakup-generator', primary: false, access: 'male' as const },
+            ].filter(item => {
+              if (item.access === 'all') return true
+              if (!gender || gender === 'both') return true
+              return item.access === gender
+            }).map(({ label, icon: Icon, color, bg, bgLight, path, primary }) => (
+              <button
+                key={path}
+                onClick={() => navigate(path)}
+                className={`group flex items-center gap-2 rounded-lg border border-gray-200/60 ${primary ? `${bg} text-white` : `${bgLight} text-gray-900`} p-2.5 sm:p-3.5 text-left shadow-sm transition-all hover:shadow-md touch-manipulation`}
               >
-                <div className="flex items-start gap-4">
-                  <div className="mt-1 rounded-lg bg-primary-50 p-2 text-primary-700">
-                    {getActivityIcon(activity.module)}
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-semibold text-gray-900">
-                          {activity.action === 'uploaded' && `Uploaded ${activity.type} evidence`}
-                          {activity.action === 'analyzed' && `Analyzed chat (Risk: ${activity.riskScore})`}
-                          {activity.action === 'logged' &&
-                            (() => {
-                              try {
-                                if (!activity.month) return `Logged income`
-                                let dateStr = activity.month.trim()
-                                // If it's just YYYY-MM format (7 chars), append -01
-                                if (dateStr.length === 7 && dateStr.match(/^\d{4}-\d{2}$/)) {
-                                  dateStr = `${dateStr}-01`
-                                }
-                                // If it's already YYYY-MM-DD format (10 chars), use as is
-                                const parsedDate = parseISO(dateStr)
-                                if (isNaN(parsedDate.getTime())) {
-                                  const monthPart = dateStr.substring(0, 7)
-                                  return `Logged income for ${monthPart}`
-                                }
-                                return `Logged income for ${format(parsedDate, 'MMMM yyyy')}`
-                              } catch (err) {
-                                const monthPart = activity.month?.substring(0, 7) || 'unknown'
-                                return `Logged income for ${monthPart}`
-                              }
-                            })()}
-                        </p>
-                        <p className="mt-1 text-sm text-gray-600">{activity.module}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-xs text-gray-500">
-                          {(() => {
-                            try {
-                              if (!activity.timestamp) return 'Unknown date'
-                              const date = new Date(activity.timestamp)
-                              if (isNaN(date.getTime())) return 'Invalid date'
-                              return format(date, 'MMM d, h:mm a')
-                            } catch (err) {
-                              return 'Invalid date'
-                            }
-                          })()}
-                        </p>
-                        {activity.riskScore && (
-                          <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${getRiskColor(activity.riskScore)}`}>
-                            {getRiskLabel(activity.riskScore)}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
+                <div className={`rounded-md ${primary ? 'bg-white/20' : bgLight} p-1.5 shrink-0`}>
+                  <Icon className={`h-4 w-4 ${primary ? 'text-white' : color}`} />
                 </div>
-              </div>
+                <span className="text-xs sm:text-sm font-medium leading-tight truncate">{label}</span>
+              </button>
             ))}
           </div>
-        ) : (
-          <div className="rounded-lg border border-gray-200/40 bg-slate-50 p-12 text-center shadow-sm">
-            <Activity className="mx-auto mb-4 h-12 w-12 text-gray-400" />
-            <h3 className="mb-2 text-lg font-semibold text-gray-900">No activity yet</h3>
-            <p className="mb-6 text-gray-600">Start by uploading evidence, analyzing chats, or tracking your income.</p>
-            <div className="flex justify-center gap-3">
+
+          {/* Key Insights — below Quick Actions */}
+          {stats && !loadingStats && (stats.vault.total > 0 || stats.chatAnalysis.total > 0 || (isMale && stats.income.totalEntries > 0)) && (
+            <div className="mt-4 rounded-lg border border-gray-200/40 bg-white/50 p-3 sm:p-4 shadow-sm">
+              <h3 className="mb-2 text-xs sm:text-sm font-semibold text-gray-900">Key Insights</h3>
+              <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                {stats.chatAnalysis.highestRisk > 0 && (
+                  <div className="rounded-lg bg-gray-50 p-2.5 sm:p-3">
+                    <p className="text-[10px] sm:text-xs text-gray-500 font-medium">Highest Risk:</p>
+                    <p className="mt-0.5 text-xl sm:text-2xl font-bold text-gray-900">{stats.chatAnalysis.highestRisk}</p>
+                  </div>
+                )}
+                {stats.vault.total > 0 && (
+                  <div className="rounded-lg bg-gray-50 p-2.5 sm:p-3">
+                    <p className="text-[10px] sm:text-xs text-gray-500 font-medium">Evidence:</p>
+                    <p className="mt-0.5 text-xl sm:text-2xl font-bold text-gray-900">{stats.vault.total}</p>
+                  </div>
+                )}
+                {isMale && stats.income.avgDisposable > 0 && (
+                  <div className="rounded-lg bg-gray-50 p-2.5 sm:p-3">
+                    <p className="text-[10px] sm:text-xs text-gray-500 font-medium">Avg Disposable:</p>
+                    <p className="mt-0.5 text-xl sm:text-2xl font-bold text-gray-900 truncate">
+                      ₹{stats.income.avgDisposable.toLocaleString('en-IN')}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Recent Activity — right 2 cols */}
+        <div className="lg:col-span-2">
+          <h2 className="mb-3 text-sm sm:text-base font-semibold text-gray-900">Recent Activity</h2>
+          {loadingStats ? (
+            <div className="rounded-lg border border-gray-200/40 bg-white/50 p-6 text-center shadow-sm">
+              <Loader2 className="mx-auto h-6 w-6 animate-spin text-primary-600" />
+            </div>
+          ) : stats && stats.recentActivity.length > 0 ? (
+            <div className="rounded-lg border border-gray-200/40 bg-white/50 shadow-sm divide-y divide-gray-100">
+              {stats.recentActivity.slice(0, 5).map((activity, index) => {
+                const getModuleColor = (mod: string) => {
+                  if (mod === 'Consent Vault') return 'bg-primary-50 text-primary-700'
+                  if (mod === 'Red Flag Radar') return 'bg-red-50 text-red-700'
+                  if (mod === 'Income Tracker') return 'bg-emerald-50 text-emerald-700'
+                  if (mod === 'Breakup Generator') return 'bg-purple-50 text-purple-700'
+                  return 'bg-gray-50 text-gray-700'
+                }
+                const getBadgeColor = (mod: string) => {
+                  if (mod === 'Consent Vault') return 'bg-primary-100 text-primary-700'
+                  if (mod === 'Red Flag Radar') return 'bg-red-100 text-red-700'
+                  if (mod === 'Income Tracker') return 'bg-amber-100 text-amber-700'
+                  if (mod === 'Breakup Generator') return 'bg-purple-100 text-purple-700'
+                  return 'bg-gray-100 text-gray-700'
+                }
+                const getLabel = () => {
+                  if (activity.action === 'uploaded') return 'Upload Evidence'
+                  if (activity.action === 'analyzed') return 'Chat Analysis'
+                  if (activity.action === 'logged') return 'Log Income'
+                  if (activity.action === 'generated') return 'Breakup Message'
+                  if (activity.action === 'checked') return 'Risk Check'
+                  return activity.action
+                }
+                const getBadgeLabel = () => {
+                  if (activity.riskScore != null) return getRiskLabel(activity.riskScore)
+                  if (activity.action === 'uploaded') return 'vault'
+                  if (activity.action === 'logged') return 'income'
+                  if (activity.action === 'generated') return 'generated'
+                  return 'done'
+                }
+                const getDate = () => {
+                  try {
+                    if (!activity.timestamp) return ''
+                    const date = new Date(activity.timestamp)
+                    if (isNaN(date.getTime())) return ''
+                    return format(date, 'MMM d, yyyy, h:mm a')
+                  } catch { return '' }
+                }
+                return (
+                  <div key={activity.id || index} className="flex items-center gap-3 px-3 py-2.5 sm:px-4 sm:py-3">
+                    <div className={`rounded-lg p-1.5 shrink-0 ${getModuleColor(activity.module)}`}>
+                      {getActivityIcon(activity.module)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs sm:text-sm font-medium text-gray-900 truncate">{getLabel()}</p>
+                      <p className="text-[10px] sm:text-xs text-gray-400">{getDate()}</p>
+                    </div>
+                    <span className={`rounded-full px-2 py-0.5 text-[10px] sm:text-xs font-semibold shrink-0 ${getBadgeColor(activity.module)}`}>
+                      {getBadgeLabel()}
+                    </span>
+                  </div>
+                )
+              })}
+            </div>
+          ) : (
+            <div className="rounded-lg border border-gray-200/40 bg-white/50 p-6 text-center shadow-sm">
+              <Activity className="mx-auto mb-2 h-8 w-8 text-gray-300" />
+              <p className="text-xs text-gray-500">No activity yet</p>
               <button
                 onClick={() => navigate('/dashboard/vault/upload')}
-                className="rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-700 transition-colors"
+                className="mt-3 rounded-lg bg-primary-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-primary-700 transition-colors"
               >
-                Upload Evidence
-              </button>
-              <button
-                onClick={() => navigate('/dashboard/red-flag-radar')}
-                className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 transition-colors"
-              >
-                Analyze Chat
+                Get Started
               </button>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
-      {/* Key Insights */}
-      {stats && !loadingStats && (stats.vault.total > 0 || stats.chatAnalysis.total > 0 || stats.income.totalEntries > 0) && (
-        <div className="mt-8 rounded-lg border border-blue-200 bg-blue-50 p-6 shadow-sm">
-          <h3 className="mb-4 flex items-center gap-2 text-base font-semibold text-blue-900">
-            <Zap className="h-5 w-5" />
-            Key Insights
-          </h3>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {stats.chatAnalysis.highestRisk > 0 && (
-              <div className="rounded-lg bg-white/80 p-4">
-                <div className="flex items-center gap-2">
-                  {stats.chatAnalysis.highestRisk >= 80 ? (
-                    <XCircle className="h-5 w-5 text-red-600" />
-                  ) : stats.chatAnalysis.highestRisk >= 60 ? (
-                    <AlertTriangle className="h-5 w-5 text-orange-600" />
-                  ) : (
-                    <AlertCircle className="h-5 w-5 text-yellow-600" />
-                  )}
-                  <p className="text-sm font-semibold text-gray-900">Highest Risk Detected</p>
-                </div>
-                <p className="mt-2 text-2xl font-bold text-gray-900">{stats.chatAnalysis.highestRisk}</p>
-                <p className="text-xs text-gray-600">Monitor closely</p>
-              </div>
-            )}
-            {stats.income.avgDisposable > 0 && (
-              <div className="rounded-lg bg-white/80 p-4">
-                <div className="flex items-center gap-2">
-                  <DollarSign className="h-5 w-5 text-emerald-600" />
-                  <p className="text-sm font-semibold text-gray-900">Avg Disposable Income</p>
-                </div>
-                <p className="mt-2 text-2xl font-bold text-gray-900">
-                  ₹{stats.income.avgDisposable.toLocaleString('en-IN')}
-                </p>
-                <p className="text-xs text-gray-600">Per month</p>
-              </div>
-            )}
-            {stats.vault.total > 0 && (
-              <div className="rounded-lg bg-white/80 p-4">
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-5 w-5 text-primary-600" />
-                  <p className="text-sm font-semibold text-gray-900">Evidence Collected</p>
-                </div>
-                <p className="mt-2 text-2xl font-bold text-gray-900">{stats.vault.total}</p>
-                <p className="text-xs text-gray-600">Files in vault</p>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
     </DashboardLayout>
   )
 }

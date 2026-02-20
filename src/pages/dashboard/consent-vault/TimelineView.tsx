@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useCallback } from 'react'
+import { useEffect, useState, useMemo, useCallback, useRef } from 'react'
 import { useAuth } from '../../../context/AuthContext'
 import {
   Shield,
@@ -10,7 +10,6 @@ import {
   Filter,
   X,
   Eye,
-  Calendar,
   FileCheck,
   Receipt,
   File,
@@ -25,24 +24,45 @@ import {
   CheckSquare,
   Square,
   RefreshCw,
+  Lock,
+  Hash,
+  Calendar,
+  Camera,
+  MapPin,
 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-import { format, formatDistanceToNow } from 'date-fns'
+import { format } from 'date-fns'
 import DocumentViewer from '../../../components/vault/DocumentViewer'
 import { DashboardLayout } from '../../../layouts/DashboardLayout'
 import ExportButton from '../../../components/export/ExportButton'
 import { getEdgeFunctionUrl, getAuthHeadersWithSession } from '../../../lib/api'
+import { decryptFile } from '../../../lib/encryption/clientEncryption'
+import ConfirmModal from '../../../components/ui/ConfirmModal'
+import toast from 'react-hot-toast'
 
 interface VaultEntry {
   id: string
   type: 'photo' | 'document' | 'ticket' | 'receipt' | 'other'
   file_url: string
+  file_hash?: string
+  encrypted?: boolean
   description?: string
   metadata?: {
     filename: string
     mimeType: string
+    originalMimeType?: string
     size: number
     uploadedAt: string
+    iv?: string
+    exif?: {
+      dateTaken?: string
+      camera?: string
+      gpsLatitude?: number
+      gpsLongitude?: number
+      orientation?: number
+    }
+    imageWidth?: number
+    imageHeight?: number
   }
   created_at: string
 }
@@ -51,8 +71,177 @@ type FilterType = 'all' | 'photo' | 'document' | 'ticket' | 'receipt' | 'other'
 type ViewMode = 'grid' | 'list'
 type SortOption = 'newest' | 'oldest' | 'name' | 'size'
 
+function PreviewModal({
+  entry,
+  getDisplayUrl,
+  getDecryptedUrl,
+  onClose,
+  getTypeIcon,
+  getTypeLabel,
+  formatFileSize: fmtSize,
+}: {
+  entry: VaultEntry
+  getDisplayUrl: (e: VaultEntry) => string
+  getDecryptedUrl: (e: VaultEntry) => Promise<string>
+  onClose: () => void
+  getTypeIcon: (type: string) => React.ReactNode
+  getTypeLabel: (type: string) => string
+  formatFileSize: (bytes: number) => string
+}) {
+  const [resolvedUrl, setResolvedUrl] = useState<string>('')
+  const [decryptingLocal, setDecryptingLocal] = useState(false)
+
+  useEffect(() => {
+    let cancelled = false
+    if (entry.encrypted) {
+      const existing = getDisplayUrl(entry)
+      if (existing) {
+        setResolvedUrl(existing)
+      } else {
+        setDecryptingLocal(true)
+        getDecryptedUrl(entry).then((url) => {
+          if (!cancelled) {
+            setResolvedUrl(url)
+            setDecryptingLocal(false)
+          }
+        })
+      }
+    } else {
+      setResolvedUrl(entry.file_url)
+    }
+    return () => { cancelled = true }
+  }, [entry.id])
+
+  const displayMimeType = entry.metadata?.originalMimeType || entry.metadata?.mimeType
+
+  const handleDownload = async () => {
+    const url = resolvedUrl || await getDecryptedUrl(entry)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = entry.metadata?.filename || 'download'
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-[60] flex items-start justify-center bg-black/75 pt-14 sm:pt-16 px-2 sm:px-4 pb-2 sm:pb-4 backdrop-blur-sm overflow-y-auto overscroll-contain"
+      onClick={onClose}
+    >
+      <div
+        className="relative mb-4 sm:mb-8 w-full max-w-6xl rounded-lg sm:rounded-xl bg-white shadow-2xl overflow-hidden flex flex-col max-h-[calc(100vh-3.5rem)] sm:max-h-[calc(100vh-4rem)]"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-gray-200 bg-white px-4 py-3 sm:px-6 sm:py-4 shrink-0">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            <div className="shrink-0">{getTypeIcon(entry.type)}</div>
+            <div className="min-w-0 flex-1">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900">{getTypeLabel(entry.type)}</h3>
+              {entry.metadata?.filename && (
+                <p className="text-xs text-gray-500 truncate max-w-[200px] sm:max-w-md">{entry.metadata.filename}</p>
+              )}
+            </div>
+          </div>
+          <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-4">
+            {entry.encrypted && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-green-50 border border-green-200 px-2 py-0.5 text-xs font-medium text-green-700">
+                <Lock className="h-3 w-3" /> Encrypted
+              </span>
+            )}
+            {entry.metadata && (
+              <div className="hidden sm:flex items-center gap-2 text-xs text-gray-500">
+                <span>{fmtSize(entry.metadata.size)}</span>
+                {displayMimeType && (
+                  <>
+                    <span>•</span>
+                    <span className="uppercase">{displayMimeType.split('/')[1]}</span>
+                  </>
+                )}
+              </div>
+            )}
+            <button
+              onClick={onClose}
+              className="flex h-10 w-10 sm:h-8 sm:w-8 items-center justify-center rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-900 transition-colors touch-manipulation"
+              aria-label="Close"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-6 min-h-0">
+          {decryptingLocal ? (
+            <div className="flex flex-col items-center justify-center py-20">
+              <Loader2 className="h-8 w-8 animate-spin text-primary-600 mb-3" />
+              <p className="text-sm text-gray-600">Decrypting file...</p>
+            </div>
+          ) : resolvedUrl ? (
+            <div className="mb-4">
+              <DocumentViewer
+                fileUrl={resolvedUrl}
+                mimeType={displayMimeType}
+                fileName={entry.metadata?.filename}
+              />
+            </div>
+          ) : null}
+
+          {/* EXIF Info */}
+          {entry.metadata?.exif && (
+            <div className="mb-4 rounded-lg bg-blue-50 border border-blue-200 p-4">
+              <h4 className="text-sm font-semibold text-blue-900 mb-2">Image Metadata (EXIF)</h4>
+              <div className="grid grid-cols-2 gap-2 text-xs text-blue-800">
+                {entry.metadata.exif.dateTaken && (
+                  <div><span className="font-medium">Date Taken:</span> {entry.metadata.exif.dateTaken}</div>
+                )}
+                {entry.metadata.exif.camera && (
+                  <div><span className="font-medium">Camera:</span> {entry.metadata.exif.camera}</div>
+                )}
+                {entry.metadata.exif.gpsLatitude && entry.metadata.exif.gpsLongitude && (
+                  <div><span className="font-medium">GPS:</span> {entry.metadata.exif.gpsLatitude.toFixed(6)}, {entry.metadata.exif.gpsLongitude.toFixed(6)}</div>
+                )}
+                {entry.metadata.imageWidth && entry.metadata.imageHeight && (
+                  <div><span className="font-medium">Dimensions:</span> {entry.metadata.imageWidth} x {entry.metadata.imageHeight}</div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Hash */}
+          {entry.file_hash && (
+            <div className="mb-4 rounded-lg bg-gray-50 border border-gray-200 p-4">
+              <h4 className="text-sm font-semibold text-gray-700 mb-1">Evidence Integrity Hash (SHA-256)</h4>
+              <code className="block text-xs text-gray-500 break-all font-mono">{entry.file_hash}</code>
+            </div>
+          )}
+
+          {entry.description && (
+            <div className="mb-4 rounded-lg bg-gray-50 p-4">
+              <p className="text-sm text-gray-700 whitespace-pre-wrap">{entry.description}</p>
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3 border-t border-gray-200 bg-gray-50 px-4 py-3 sm:px-6 sm:py-4 shrink-0">
+          <span className="text-xs text-gray-500 text-center sm:text-left">{format(new Date(entry.created_at), 'PPP p')}</span>
+          <button
+            onClick={handleDownload}
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary-600 px-4 py-3 sm:py-2 text-sm font-medium text-white hover:bg-primary-700 transition-colors min-h-[44px] touch-manipulation w-full sm:w-auto"
+          >
+            <Download className="h-4 w-4" />
+            Download File
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function TimelineView() {
-  const { sessionToken } = useAuth()
+  const { sessionToken, user } = useAuth()
   const navigate = useNavigate()
   const [entries, setEntries] = useState<VaultEntry[]>([])
   const [loading, setLoading] = useState(true)
@@ -63,16 +252,65 @@ export default function TimelineView() {
   const [previewEntry, setPreviewEntry] = useState<VaultEntry | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
-  const [viewMode, setViewMode] = useState<ViewMode>('list')
+  const [viewMode, setViewMode] = useState<ViewMode>('grid')
   const [sortBy, setSortBy] = useState<SortOption>('newest')
   const [showSortMenu, setShowSortMenu] = useState(false)
   const [retrying, setRetrying] = useState(false)
+  const [decryptedUrls, setDecryptedUrls] = useState<Record<string, string>>({})
+  const [deleteConfirm, setDeleteConfirm] = useState<{ type: 'single'; id: string } | { type: 'bulk' } | null>(null)
 
+  // Cleanup decrypted blob URLs on unmount
+  const decryptedUrlsRef = useRef(decryptedUrls)
+  decryptedUrlsRef.current = decryptedUrls
   useEffect(() => {
-    loadEntries()
+    return () => {
+      Object.values(decryptedUrlsRef.current).forEach((url) => URL.revokeObjectURL(url))
+    }
   }, [])
 
-  const loadEntries = useCallback(async () => {
+  /**
+   * Decrypt an encrypted vault entry and return a usable blob URL
+   */
+  const getDecryptedUrl = useCallback(async (entry: VaultEntry): Promise<string> => {
+    if (!entry.encrypted || !user?.id) return entry.file_url
+    if (decryptedUrls[entry.id]) return decryptedUrls[entry.id]
+
+    try {
+      const response = await fetch(entry.file_url)
+      if (!response.ok) throw new Error('Failed to fetch encrypted file')
+      const encryptedBytes = await response.arrayBuffer()
+      const decryptedBytes = await decryptFile(encryptedBytes, user.id)
+
+      const mimeType = entry.metadata?.originalMimeType || entry.metadata?.mimeType || 'application/octet-stream'
+      const blob = new Blob([decryptedBytes], { type: mimeType })
+      const blobUrl = URL.createObjectURL(blob)
+
+      setDecryptedUrls((prev) => ({ ...prev, [entry.id]: blobUrl }))
+      return blobUrl
+    } catch (err) {
+      console.error('Decryption failed:', err)
+      return entry.file_url
+    }
+  }, [user?.id, decryptedUrls])
+
+  /**
+   * Get the displayable URL for an entry (decrypted or plain)
+   */
+  const getDisplayUrl = (entry: VaultEntry): string => {
+    if (!entry.encrypted) return entry.file_url
+    return decryptedUrls[entry.id] || ''
+  }
+
+  useEffect(() => {
+    const controller = new AbortController()
+    loadEntries(controller.signal)
+    
+    return () => {
+      controller.abort()
+    }
+  }, [])
+
+  const loadEntries = useCallback(async (signal?: AbortSignal) => {
     try {
       setLoading(true)
       setError('')
@@ -88,6 +326,7 @@ export default function TimelineView() {
 
       const response = await fetch(`${getEdgeFunctionUrl('vault')}/entries`, {
         headers,
+        signal,
       })
 
       if (!response.ok) {
@@ -97,10 +336,10 @@ export default function TimelineView() {
       }
 
       const data = await response.json()
-      console.log('Loaded entries:', data.entries?.length || 0, 'entries')
       setEntries(data.entries || [])
       setSelectedIds(new Set()) // Clear selections on reload
     } catch (err: any) {
+      if (err.name === 'AbortError') return
       console.error('Error loading entries:', err)
       setError(err.message || 'Failed to load entries')
     } finally {
@@ -114,13 +353,24 @@ export default function TimelineView() {
     loadEntries()
   }
 
+  const requestDelete = (id: string) => setDeleteConfirm({ type: 'single', id })
+  const requestBulkDelete = () => setDeleteConfirm({ type: 'bulk' })
+
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this file? This action cannot be undone.')) {
-      return
+    setDeleteConfirm(null)
+    const savedEntries = entries
+    setDeletingId(id)
+    setEntries(entries.filter((entry) => entry.id !== id))
+    setSelectedIds((prev) => {
+      const next = new Set(prev)
+      next.delete(id)
+      return next
+    })
+    if (previewEntry?.id === id) {
+      setPreviewEntry(null)
     }
 
     try {
-      setDeletingId(id)
       const token = sessionToken
       if (!token) {
         throw new Error('Not authenticated')
@@ -139,19 +389,9 @@ export default function TimelineView() {
       if (!response.ok) {
         throw new Error('Failed to delete entry')
       }
-
-      // Remove from local state
-      setEntries(entries.filter((entry) => entry.id !== id))
-      setSelectedIds((prev) => {
-        const next = new Set(prev)
-        next.delete(id)
-        return next
-      })
-      if (previewEntry?.id === id) {
-        setPreviewEntry(null)
-      }
     } catch (err: any) {
-      alert(err.message || 'Failed to delete entry')
+      setEntries(savedEntries)
+      toast.error(err.message || 'Failed to delete entry')
     } finally {
       setDeletingId(null)
     }
@@ -159,11 +399,7 @@ export default function TimelineView() {
 
   const handleBulkDelete = async () => {
     if (selectedIds.size === 0) return
-
-    if (!confirm(`Are you sure you want to delete ${selectedIds.size} file(s)? This action cannot be undone.`)) {
-      return
-    }
-
+    setDeleteConfirm(null)
     const idsToDelete = Array.from(selectedIds)
     let successCount = 0
     let failCount = 0
@@ -197,9 +433,9 @@ export default function TimelineView() {
     await loadEntries()
 
     if (failCount > 0) {
-      alert(`Deleted ${successCount} file(s). ${failCount} file(s) failed to delete.`)
+      toast.error(`Deleted ${successCount} file(s). ${failCount} failed.`)
     } else {
-      alert(`Successfully deleted ${successCount} file(s).`)
+      toast.success(`Deleted ${successCount} file(s)`)
     }
   }
 
@@ -340,7 +576,7 @@ export default function TimelineView() {
       title="Consent Vault"
       subtitle={loading ? 'Loading...' : `${filteredEntries.length} of ${entries.length} entries`}
     >
-      <div className="w-full">
+      <div className="w-full min-w-0 overflow-x-hidden">
         {/* Toolbar */}
         <div className="mb-6 space-y-4">
           {/* Search Bar */}
@@ -348,10 +584,10 @@ export default function TimelineView() {
             <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
             <input
               type="text"
-              placeholder="Search by description, filename, or type..."
+              placeholder="Search..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-xl border border-blue-200 bg-blue-50/50 py-3 pl-10 pr-4 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-colors"
+              className="w-full rounded-xl border border-blue-200 bg-blue-50/50 py-3 pl-10 pr-10 sm:pr-4 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-colors min-h-[44px]"
             />
             {searchQuery && (
               <button
@@ -364,11 +600,11 @@ export default function TimelineView() {
           </div>
 
           {/* Filters, View Mode, Sort */}
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center justify-between gap-3 sm:gap-4">
+            <div className="flex flex-wrap items-center gap-2">
               <button
                 onClick={() => setShowFilters(!showFilters)}
-                className={`inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium transition-colors ${
+                className={`inline-flex items-center gap-2 rounded-lg border px-3 sm:px-4 py-2 text-sm font-medium transition-colors min-h-[40px] touch-manipulation ${
                   showFilters || filterType !== 'all'
                     ? 'border-primary-500 bg-primary-50 text-primary-700'
                     : 'border-blue-200 bg-blue-50/50 text-gray-700 hover:bg-blue-100/50'
@@ -387,7 +623,7 @@ export default function TimelineView() {
               <div className="relative">
                 <button
                   onClick={() => setShowSortMenu(!showSortMenu)}
-                  className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                  className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 sm:px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors min-h-[40px] touch-manipulation"
                 >
                   {sortBy === 'newest' ? (
                     <SortDesc className="h-4 w-4" />
@@ -456,7 +692,7 @@ export default function TimelineView() {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => navigate('/dashboard/vault/upload')}
-                  className="inline-flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-700 transition-colors"
+                  className="inline-flex items-center gap-2 rounded-lg bg-primary-600 px-3 sm:px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-700 transition-colors min-h-[40px] touch-manipulation"
                 >
                   <Upload className="h-4 w-4" />
                   <span className="hidden sm:inline">Upload Evidence</span>
@@ -473,7 +709,7 @@ export default function TimelineView() {
               <div className="flex items-center gap-2">
                 <span className="text-sm text-gray-600">{selectedIds.size} selected</span>
                 <button
-                  onClick={handleBulkDelete}
+                  onClick={requestBulkDelete}
                   className="inline-flex items-center gap-2 rounded-lg border border-red-300 bg-white px-3 py-1.5 text-sm font-medium text-red-700 hover:bg-red-50 transition-colors"
                 >
                   <Trash2 className="h-4 w-4" />
@@ -491,7 +727,7 @@ export default function TimelineView() {
 
           {/* Filter Options */}
           {showFilters && (
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-6 rounded-xl border border-blue-200 bg-blue-50/50 p-4 animate-in slide-in-from-top-2">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 rounded-xl border border-blue-200 bg-blue-50/50 p-3 sm:p-4 animate-in slide-in-from-top-2">
               {[
                 { value: 'all', label: 'All Types' },
                 { value: 'photo', label: 'Photos' },
@@ -582,152 +818,163 @@ export default function TimelineView() {
           </div>
         )}
 
-        {/* Timeline - List View */}
+        {/* Timeline - List View (rich but compact) */}
         {filteredEntries.length > 0 && viewMode === 'list' && (
-          <div className="space-y-3">
+          <div className="space-y-1.5">
             {/* Select All Header */}
-            {filteredEntries.length > 0 && (
-              <div className="flex items-center gap-3 rounded-lg border border-gray-200 bg-white px-4 py-2">
-                <button
-                  onClick={handleSelectAll}
-                  className="text-gray-600 hover:text-gray-900 transition-colors"
-                >
-                  {selectedIds.size === filteredEntries.length ? (
-                    <CheckSquare className="h-5 w-5 text-primary-600" />
-                  ) : (
-                    <Square className="h-5 w-5" />
-                  )}
-                </button>
-                <span className="text-sm font-medium text-gray-700">
-                  {selectedIds.size === filteredEntries.length ? 'Deselect All' : 'Select All'}
-                </span>
-              </div>
-            )}
+            <div className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2">
+              <button
+                onClick={handleSelectAll}
+                className="text-gray-500 hover:text-gray-900 transition-colors p-1"
+              >
+                {selectedIds.size === filteredEntries.length ? (
+                  <CheckSquare className="h-4 w-4 text-primary-600" />
+                ) : (
+                  <Square className="h-4 w-4" />
+                )}
+              </button>
+              <span className="text-xs font-medium text-gray-600">
+                {selectedIds.size === filteredEntries.length ? 'Deselect All' : 'Select All'}
+              </span>
+            </div>
 
-            {filteredEntries.map((entry, index) => {
+            {filteredEntries.map((entry) => {
               const isSelected = selectedIds.has(entry.id)
+              const hasHash = !!entry.file_hash
+              const hasExif = !!(entry.metadata?.exif?.dateTaken || entry.metadata?.exif?.camera)
+              const hasGps = !!(entry.metadata?.exif?.gpsLatitude && entry.metadata?.exif?.gpsLongitude)
+              const hasBadges = hasHash || hasExif || hasGps
+              const hasDescription = !!entry.description?.trim()
+              const showSecondary = hasDescription || hasBadges
+
               return (
                 <div
                   key={entry.id}
-                  className={`group relative rounded-xl border-2 bg-blue-50/50 p-6 shadow-sm transition-all duration-200 ${
+                  className={`group flex items-start gap-3 rounded-lg border px-3 py-2 transition-all ${
                     isSelected
-                      ? 'border-primary-500 bg-primary-50 shadow-md'
-                      : 'border-blue-200 hover:border-blue-300 hover:shadow-md'
+                      ? 'border-primary-500 bg-primary-50/80'
+                      : 'border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50/50'
                   }`}
                 >
-                  <div className="flex items-start gap-4">
-                    {/* Selection Checkbox */}
+                  <button
+                    onClick={() => handleToggleSelect(entry.id)}
+                    className="shrink-0 mt-0.5 text-gray-400 hover:text-gray-600 p-0.5"
+                  >
+                    {isSelected ? (
+                      <CheckSquare className="h-4 w-4 text-primary-600" />
+                    ) : (
+                      <Square className="h-4 w-4" />
+                    )}
+                  </button>
+
+                  {/* Thumb or Icon */}
+                  <div
+                    className="relative h-12 w-12 shrink-0 overflow-hidden rounded-md bg-gray-100 cursor-pointer flex items-center justify-center"
+                    onClick={async () => {
+                      if (entry.encrypted) await getDecryptedUrl(entry)
+                      setPreviewEntry(entry)
+                    }}
+                  >
+                    {entry.type === 'photo' && !entry.encrypted && (
+                      <img src={entry.file_url} alt="" className="h-full w-full object-cover" loading="lazy" />
+                    )}
+                    {entry.type === 'photo' && entry.encrypted && decryptedUrls[entry.id] && (
+                      <img src={decryptedUrls[entry.id]} alt="" className="h-full w-full object-cover" loading="lazy" />
+                    )}
+                    {((entry.type !== 'photo') || (entry.encrypted && !decryptedUrls[entry.id])) && (
+                      <div className={`flex h-full w-full items-center justify-center rounded ${entry.encrypted && !decryptedUrls[entry.id] ? 'bg-green-50 text-green-600' : getTypeColor(entry.type)}`}>
+                        {entry.encrypted && !decryptedUrls[entry.id] ? (
+                          <Lock className="h-5 w-5" />
+                        ) : (
+                          getTypeIcon(entry.type)
+                        )}
+                      </div>
+                    )}
+                    {entry.encrypted && decryptedUrls[entry.id] && (
+                      <div className="absolute right-0.5 top-0.5 rounded bg-white/90 p-0.5">
+                        <Lock className="h-2.5 w-2.5 text-green-600" />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Info - compact 2-line layout */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-wrap items-center gap-2 gap-y-0.5">
+                      <p className="truncate text-sm font-medium text-gray-900">
+                        {entry.metadata?.filename || 'Untitled'}
+                      </p>
+                      <span className={`shrink-0 rounded px-1.5 py-0.5 text-[10px] font-medium ${getTypeColor(entry.type)}`}>
+                        {getTypeLabel(entry.type)}
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-gray-500 mt-0.5">
+                      <span>{format(new Date(entry.created_at), 'MMM d, yyyy')}</span>
+                      {entry.metadata?.size && (
+                        <>
+                          <span>·</span>
+                          <span>{formatFileSize(entry.metadata.size)}</span>
+                        </>
+                      )}
+                      {showSecondary && (
+                        <>
+                          <span>·</span>
+                          {hasDescription && (
+                            <span className="truncate max-w-[200px] sm:max-w-xs" title={entry.description}>
+                              {entry.description}
+                            </span>
+                          )}
+                          {hasBadges && (
+                            <span className="flex items-center gap-1.5 shrink-0 text-gray-400">
+                              {hasHash && <span title="Integrity hash"><Hash className="h-3 w-3" /></span>}
+                              {hasExif && <span title="EXIF date"><Calendar className="h-3 w-3" /></span>}
+                              {hasExif && entry.metadata?.exif?.camera && <span title="Camera"><Camera className="h-3 w-3" /></span>}
+                              {hasGps && <span title="GPS location"><MapPin className="h-3 w-3" /></span>}
+                            </span>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex items-center gap-1 shrink-0">
                     <button
-                      onClick={() => handleToggleSelect(entry.id)}
-                      className="mt-1 shrink-0 text-gray-400 hover:text-gray-600 transition-colors"
+                      onClick={async () => {
+                        if (entry.encrypted) await getDecryptedUrl(entry)
+                        setPreviewEntry(entry)
+                      }}
+                      className="rounded p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+                      title="View"
                     >
-                      {isSelected ? (
-                        <CheckSquare className="h-5 w-5 text-primary-600" />
+                      <Eye className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={async () => {
+                        const url = entry.encrypted ? await getDecryptedUrl(entry) : entry.file_url
+                        const a = document.createElement('a')
+                        a.href = url
+                        a.download = entry.metadata?.filename || 'download'
+                        document.body.appendChild(a)
+                        a.click()
+                        document.body.removeChild(a)
+                      }}
+                      className="rounded p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+                      title="Download"
+                    >
+                      <Download className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => requestDelete(entry.id)}
+                      disabled={deletingId === entry.id}
+                      className="rounded p-1.5 text-gray-500 hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
+                      title="Delete"
+                    >
+                      {deletingId === entry.id ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
                       ) : (
-                        <Square className="h-5 w-5" />
+                        <Trash2 className="h-4 w-4" />
                       )}
                     </button>
-
-                    {/* Timeline Indicator */}
-                    <div className="relative flex shrink-0 flex-col items-center">
-                      <div className={`flex h-12 w-12 items-center justify-center rounded-full border-2 ${getTypeColor(entry.type)}`}>
-                        {getTypeIcon(entry.type)}
-                      </div>
-                      {index < filteredEntries.length - 1 && (
-                        <div className="absolute top-12 h-full w-0.5 bg-gray-200" />
-                      )}
-                    </div>
-
-                    {/* Content */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex-1 min-w-0">
-                          {/* Header */}
-                          <div className="mb-3 flex flex-wrap items-center gap-3">
-                            <span className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-semibold ${getTypeColor(entry.type)}`}>
-                              {getTypeLabel(entry.type)}
-                            </span>
-                            <span className="flex items-center gap-1 text-xs text-gray-500">
-                              <Calendar className="h-3.5 w-3.5" />
-                              {format(new Date(entry.created_at), 'MMM d, yyyy')}
-                            </span>
-                            <span className="text-xs text-gray-400">
-                              {formatDistanceToNow(new Date(entry.created_at), { addSuffix: true })}
-                            </span>
-                          </div>
-
-                          {/* Description */}
-                          {entry.description && (
-                            <p className="mb-3 text-sm leading-relaxed text-gray-700 line-clamp-2">{entry.description}</p>
-                          )}
-
-                          {/* File Info */}
-                          {entry.metadata && (
-                            <div className="mb-4 flex flex-wrap items-center gap-4 text-xs text-gray-500">
-                              <span className="font-medium truncate max-w-xs">{entry.metadata.filename}</span>
-                              <span>•</span>
-                              <span>{formatFileSize(entry.metadata.size)}</span>
-                              {entry.metadata.mimeType && (
-                                <>
-                                  <span>•</span>
-                                  <span className="uppercase">{entry.metadata.mimeType.split('/')[1]}</span>
-                                </>
-                              )}
-                            </div>
-                          )}
-
-                          {/* Preview for Images */}
-                          {entry.type === 'photo' && (
-                            <div className="mb-4">
-                              <img
-                                src={entry.file_url}
-                                alt={entry.description || 'Uploaded image'}
-                                className="max-h-48 max-w-full cursor-pointer rounded-lg border border-gray-200 object-cover shadow-sm hover:shadow-md transition-shadow"
-                                onClick={() => setPreviewEntry(entry)}
-                              />
-                            </div>
-                          )}
-
-                          {/* Actions */}
-                          <div className="flex items-center gap-2">
-                            <button
-                              onClick={() => setPreviewEntry(entry)}
-                              className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-                            >
-                              <Eye className="h-4 w-4" />
-                              View
-                            </button>
-                            <a
-                              href={entry.file_url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              download
-                              className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-                            >
-                              <Download className="h-4 w-4" />
-                              Download
-                            </a>
-                            <button
-                              onClick={() => handleDelete(entry.id)}
-                              disabled={deletingId === entry.id}
-                              className="inline-flex items-center gap-1.5 rounded-lg border border-red-300 bg-white px-3 py-1.5 text-sm font-medium text-red-700 hover:bg-red-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                              {deletingId === entry.id ? (
-                                <>
-                                  <Loader2 className="h-4 w-4 animate-spin" />
-                                  Deleting...
-                                </>
-                              ) : (
-                                <>
-                                  <Trash2 className="h-4 w-4" />
-                                  Delete
-                                </>
-                              )}
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
                   </div>
                 </div>
               )
@@ -737,83 +984,104 @@ export default function TimelineView() {
 
         {/* Grid View */}
         {filteredEntries.length > 0 && viewMode === 'grid' && (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
             {filteredEntries.map((entry) => {
               const isSelected = selectedIds.has(entry.id)
               return (
                 <div
                   key={entry.id}
-                  className={`group relative rounded-xl border-2 bg-blue-50/50 shadow-sm transition-all duration-200 hover:shadow-md ${
+                  className={`group relative flex flex-col rounded-lg border bg-white shadow-sm transition-all duration-200 hover:shadow-md overflow-hidden ${
                     isSelected
-                      ? 'border-primary-500 bg-primary-50'
-                      : 'border-blue-200 hover:border-blue-300'
+                      ? 'border-primary-500 ring-2 ring-primary-200'
+                      : 'border-gray-200 hover:border-gray-300'
                   }`}
                 >
                   {/* Selection Checkbox */}
                   <button
                     onClick={() => handleToggleSelect(entry.id)}
-                    className="absolute left-3 top-3 z-10 rounded-lg bg-white/90 p-1.5 shadow-sm text-gray-400 hover:text-gray-600 transition-colors backdrop-blur-sm"
+                    className="absolute left-2 top-2 z-10 rounded-md bg-white/95 p-1 shadow-sm text-gray-400 hover:text-gray-600 transition-colors"
                   >
                     {isSelected ? (
-                      <CheckSquare className="h-4 w-4 text-primary-600" />
+                      <CheckSquare className="h-3.5 w-3.5 text-primary-600" />
                     ) : (
-                      <Square className="h-4 w-4" />
+                      <Square className="h-3.5 w-3.5" />
                     )}
                   </button>
 
                   {/* Image Preview or Icon */}
                   <div
-                    className="relative aspect-square w-full cursor-pointer overflow-hidden rounded-t-xl bg-gray-100"
-                    onClick={() => setPreviewEntry(entry)}
+                    className="relative aspect-[4/3] w-full cursor-pointer overflow-hidden bg-gray-100"
+                    onClick={async () => {
+                      if (entry.encrypted) await getDecryptedUrl(entry)
+                      setPreviewEntry(entry)
+                    }}
                   >
-                    {entry.type === 'photo' ? (
+                    {entry.type === 'photo' && !entry.encrypted ? (
                       <img
                         src={entry.file_url}
                         alt={entry.description || 'Preview'}
                         className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                        loading="lazy"
                       />
+                    ) : entry.type === 'photo' && entry.encrypted && decryptedUrls[entry.id] ? (
+                      <img
+                        src={decryptedUrls[entry.id]}
+                        alt={entry.description || 'Preview'}
+                        className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                        loading="lazy"
+                      />
+                    ) : entry.type === 'photo' && entry.encrypted ? (
+                      <div className="flex h-full flex-col items-center justify-center bg-green-50/50 text-green-600">
+                        <Lock className="h-6 w-6 mb-0.5" />
+                        <span className="text-[10px] font-medium">Encrypted</span>
+                      </div>
                     ) : (
-                      <div className="flex h-full items-center justify-center">
+                      <div className={`flex h-full items-center justify-center ${getTypeColor(entry.type)}`}>
                         {getTypeIcon(entry.type)}
                       </div>
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                    <div className="absolute bottom-2 left-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <span className={`inline-flex items-center gap-1 rounded-lg border px-2 py-1 text-xs font-semibold text-white backdrop-blur-sm ${getTypeColor(entry.type)}`}>
+                    {/* Type badge - always visible */}
+                    <span className="absolute bottom-1 left-1 right-1 flex justify-center">
+                      <span className="inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[10px] font-semibold bg-black/50 text-white backdrop-blur-sm">
                         {getTypeLabel(entry.type)}
                       </span>
-                    </div>
+                    </span>
+                    {entry.encrypted && (decryptedUrls[entry.id] || entry.type !== 'photo') && (
+                      <div className="absolute right-1 top-1 rounded bg-white/90 p-0.5">
+                        <Lock className="h-2.5 w-2.5 text-green-600" />
+                      </div>
+                    )}
                   </div>
 
-                  {/* Content */}
-                  <div className="p-4">
-                    <h3 className="mb-1 truncate text-sm font-semibold text-gray-900">
+                  {/* Content - compact */}
+                  <div className="p-2 sm:p-3 flex-1 flex flex-col min-w-0">
+                    <h3 className="truncate text-xs sm:text-sm font-medium text-gray-900 mb-0.5">
                       {entry.metadata?.filename || 'Untitled'}
                     </h3>
-                    {entry.description && (
-                      <p className="mb-2 line-clamp-2 text-xs text-gray-600">{entry.description}</p>
-                    )}
-                    <div className="mb-3 flex items-center justify-between text-xs text-gray-500">
-                      <span>{format(new Date(entry.created_at), 'MMM d, yyyy')}</span>
+                    <div className="flex items-center justify-between text-[10px] sm:text-xs text-gray-500 mb-2">
+                      <span>{format(new Date(entry.created_at), 'MMM d')}</span>
                       {entry.metadata && <span>{formatFileSize(entry.metadata.size)}</span>}
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1 mt-auto">
                       <button
-                        onClick={() => setPreviewEntry(entry)}
-                        className="flex-1 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                        onClick={async () => {
+                          if (entry.encrypted) await getDecryptedUrl(entry)
+                          setPreviewEntry(entry)
+                        }}
+                        className="flex-1 rounded-md border border-gray-200 bg-white px-2 py-1 text-[10px] sm:text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors"
                       >
                         View
                       </button>
                       <button
-                        onClick={() => handleDelete(entry.id)}
+                        onClick={() => requestDelete(entry.id)}
                         disabled={deletingId === entry.id}
-                        className="rounded-lg border border-red-300 bg-white p-1.5 text-red-700 hover:bg-red-50 transition-colors disabled:opacity-50"
+                        className="rounded-md border border-red-200 bg-white p-1 text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50"
                         title="Delete"
                       >
                         {deletingId === entry.id ? (
-                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          <Loader2 className="h-3 w-3 animate-spin" />
                         ) : (
-                          <Trash2 className="h-3.5 w-3.5" />
+                          <Trash2 className="h-3 w-3" />
                         )}
                       </button>
                     </div>
@@ -825,82 +1093,29 @@ export default function TimelineView() {
         )}
       </div>
 
+      <ConfirmModal
+        open={!!deleteConfirm}
+        onClose={() => setDeleteConfirm(null)}
+        onConfirm={() => {
+          if (!deleteConfirm) return
+          if (deleteConfirm.type === 'single') handleDelete(deleteConfirm.id)
+          else handleBulkDelete()
+        }}
+        title={deleteConfirm?.type === 'bulk' ? `Delete ${selectedIds.size} file(s)?` : 'Delete this file?'}
+        message="This action cannot be undone. The file(s) will be permanently removed."
+      />
+
       {/* Preview Modal */}
       {previewEntry && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm overflow-y-auto"
-          onClick={() => setPreviewEntry(null)}
-        >
-          <div
-            className="relative my-8 max-h-[95vh] w-full max-w-6xl rounded-xl bg-white shadow-2xl overflow-hidden flex flex-col"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Header - Fixed */}
-            <div className="flex items-center justify-between border-b border-gray-200 bg-white px-6 py-4 shrink-0">
-              <div className="flex items-center gap-3">
-                {getTypeIcon(previewEntry.type)}
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900">{getTypeLabel(previewEntry.type)}</h3>
-                  {previewEntry.metadata?.filename && (
-                    <p className="text-xs text-gray-500 truncate max-w-md">{previewEntry.metadata.filename}</p>
-                  )}
-                </div>
-              </div>
-              <div className="flex items-center gap-4">
-                {previewEntry.metadata && (
-                  <div className="hidden sm:flex items-center gap-2 text-xs text-gray-500">
-                    <span>{formatFileSize(previewEntry.metadata.size)}</span>
-                    {previewEntry.metadata.mimeType && (
-                      <>
-                        <span>•</span>
-                        <span className="uppercase">{previewEntry.metadata.mimeType.split('/')[1]}</span>
-                      </>
-                    )}
-                  </div>
-                )}
-                <button
-                  onClick={() => setPreviewEntry(null)}
-                  className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-900 transition-colors"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-            </div>
-
-            {/* Preview Content - Scrollable */}
-            <div className="flex-1 overflow-y-auto p-6">
-              {/* Document Viewer */}
-              <div className="mb-4">
-                <DocumentViewer
-                  fileUrl={previewEntry.file_url}
-                  mimeType={previewEntry.metadata?.mimeType}
-                  fileName={previewEntry.metadata?.filename}
-                />
-              </div>
-
-              {previewEntry.description && (
-                <div className="mb-4 rounded-lg bg-gray-50 p-4">
-                  <p className="text-sm text-gray-700 whitespace-pre-wrap">{previewEntry.description}</p>
-                </div>
-              )}
-            </div>
-
-            {/* Footer - Fixed */}
-            <div className="flex items-center justify-between border-t border-gray-200 bg-gray-50 px-6 py-4 shrink-0">
-              <span className="text-xs text-gray-500">{format(new Date(previewEntry.created_at), 'PPP p')}</span>
-              <a
-                href={previewEntry.file_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                download={previewEntry.metadata?.filename}
-                className="inline-flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700 transition-colors"
-              >
-                <Download className="h-4 w-4" />
-                Download File
-              </a>
-            </div>
-          </div>
-        </div>
+        <PreviewModal
+          entry={previewEntry}
+          getDisplayUrl={getDisplayUrl}
+          getDecryptedUrl={getDecryptedUrl}
+          onClose={() => setPreviewEntry(null)}
+          getTypeIcon={getTypeIcon}
+          getTypeLabel={getTypeLabel}
+          formatFileSize={formatFileSize}
+        />
       )}
     </DashboardLayout>
   )

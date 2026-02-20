@@ -1,1129 +1,606 @@
-import { useMemo, useState, type ComponentType, type ReactNode } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useEffect, useState, useCallback, type ReactNode } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import {
-  AlertTriangle,
   ArrowRight,
   CheckCircle2,
-  FileText,
+  ChevronDown,
   Lock,
   Scale,
   Shield,
-  Sparkles,
   TrendingUp,
   Users,
   MessageSquare,
-  GitCompare,
-  BookOpen,
-  Bot,
-  Zap,
   Brain,
+  Eye,
+  Upload,
+  BarChart3,
+  Download,
+  Fingerprint,
+  Server,
+  KeyRound,
 } from 'lucide-react'
-import SignupForm from './SignupForm'
-import RiskCalculator from './RiskCalculator'
 import { useAuth } from '../context/AuthContext'
 
-type Feature = {
-  title: string
-  desc: string
-  icon: ComponentType<{ className?: string }>
+/* ═══════════════════════════════════════════════════════════════════
+   HOOKS
+   ═══════════════════════════════════════════════════════════════════ */
+
+function useScrollReveal() {
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => entries.forEach((e) => { if (e.isIntersecting) e.target.classList.add('visible') }),
+      { threshold: 0.12, rootMargin: '0px 0px -40px 0px' },
+    )
+    document.querySelectorAll('.fade-in-up').forEach((el) => observer.observe(el))
+    return () => observer.disconnect()
+  }, [])
 }
 
-function SectionTitle({
-  kicker,
-  title,
-  subtitle,
-}: {
-  kicker?: string
-  title: string
-  subtitle?: string
-}) {
-  return (
-    <div className="mx-auto max-w-3xl text-center">
-      {kicker ? (
-        <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-primary-100 px-4 py-2 text-xs font-semibold text-primary-700">
-          <Sparkles className="h-4 w-4" />
-          {kicker}
-        </div>
-      ) : null}
-      <h2 className="text-3xl md:text-4xl font-bold text-gray-900">{title}</h2>
-      {subtitle ? <p className="mt-3 text-lg text-gray-600">{subtitle}</p> : null}
-    </div>
-  )
-}
+/* ═══════════════════════════════════════════════════════════════════
+   SMALL COMPONENTS
+   ═══════════════════════════════════════════════════════════════════ */
 
-function Card({
-  children,
-  className = '',
-}: {
-  children: ReactNode
-  className?: string
-}) {
+function Badge({ children, className = '' }: { children: ReactNode; className?: string }) {
   return (
-    <div className={`rounded-2xl border border-gray-200 bg-white shadow-sm ${className}`}>
+    <span className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold tracking-wide ${className}`}>
       {children}
-    </div>
+    </span>
   )
 }
 
-function LandingPage() {
+function SectionLabel({ children }: { children: ReactNode }) {
+  return <p className="mb-4 text-sm font-bold uppercase tracking-[0.15em] text-primary-500">{children}</p>
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   MAIN PAGE
+   ═══════════════════════════════════════════════════════════════════ */
+
+export default function LandingPage() {
   const { user, signOut } = useAuth()
   const navigate = useNavigate()
-  const [showForm, setShowForm] = useState(false)
-  const [showRisk, setShowRisk] = useState(false)
-  const [openFaq, setOpenFaq] = useState<number | null>(0)
+  const [openFaq, setOpenFaq] = useState<number | null>(null)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
-  const features: Feature[] = useMemo(
-    () => [
-      {
-        title: 'Evidence vault',
-        desc: 'Store key relationship documents, photos, and files with consistent timestamps and metadata.',
-        icon: FileText,
-      },
-      {
-        title: 'AI-assisted organization',
-        desc: 'Turn messy screenshots and exports into a clean timeline and structured summary.',
-        icon: Users,
-      },
-      {
-        title: 'Privacy-first',
-        desc: 'Designed for encrypted uploads and strict access control from day one.',
-        icon: Lock,
-      },
-      {
-        title: 'Lawyer-ready export',
-        desc: 'Generate a readable PDF case file your lawyer can review quickly.',
-        icon: Scale,
-      },
-      {
-        title: 'Risk signals',
-        desc: 'Spot unhealthy patterns and threats early, with suggested next steps.',
-        icon: AlertTriangle,
-      },
-      {
-        title: 'Fair outcomes focus',
-        desc: 'The goal is truth and documentation—so disputes can be resolved fairly.',
-        icon: Shield,
-      },
-    ],
-    [],
-  )
+  useScrollReveal()
 
-  const faqs = useMemo(
-    () => [
-      {
-        q: 'Is this legal advice?',
-        a: 'No. Blue Drum AI is a documentation and information tool. Always consult a qualified lawyer for legal advice.',
-      },
-      {
-        q: 'Is my data private?',
-        a: 'We build for privacy-first storage and encrypted uploads. You control what you store and what you export.',
-      },
-      {
-        q: 'Who is this for?',
-        a: 'Anyone who wants to document facts in a relationship—men and women—so disputes can be handled fairly.',
-      },
-      {
-        q: 'When do we launch?',
-        a: 'We’ll invite waitlist users in batches for private beta. Join the waitlist to get notified.',
-      },
-    ],
-    [],
-  )
-
-  const scrollTo = (id: string) => {
+  const scrollTo = useCallback((id: string) => {
+    setMobileMenuOpen(false)
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
-  }
+  }, [])
+
+  const navLinks = [
+    { label: 'Features', id: 'features' },
+    { label: 'How it works', id: 'how-it-works' },
+    { label: 'Security', id: 'security' },
+    { label: 'Pricing', id: 'pricing' },
+  ]
+
+  const features = [
+    { icon: Lock,           title: 'Encrypted Evidence Vault',  desc: 'AES-256 client-side encryption with SHA-256 hashing. Files never leave your browser unencrypted.', accent: 'from-blue-500 to-cyan-500' },
+    { icon: Brain,          title: 'AI Chat Analysis',          desc: 'Upload WhatsApp, SMS, or email exports — AI detects manipulation, threats, and escalation patterns.', accent: 'from-purple-500 to-pink-500' },
+    { icon: TrendingUp,     title: 'Income & Expense Tracker',  desc: 'Auto-calculates disposable income per Rajnesh v. Neha. One-click court-ready affidavit generation.', accent: 'from-emerald-500 to-teal-500' },
+    { icon: Scale,          title: 'PDF Case File Export',      desc: 'Structured case files with timelines, evidence index, and AI summaries — ready for your lawyer in minutes.', accent: 'from-amber-500 to-orange-500' },
+    { icon: MessageSquare,  title: 'Universal Chat Parser',     desc: 'WhatsApp .txt, Android SMS .csv, iOS Messages, .eml emails — auto-detected and parsed.', accent: 'from-rose-500 to-red-500' },
+    { icon: Eye,            title: 'Red Flag Experience',       desc: 'Interactive AI simulations that teach you to recognize manipulation tactics in real-time.', accent: 'from-indigo-500 to-violet-500' },
+  ]
+
+  const steps = [
+    { num: '01', icon: Upload,   title: 'Upload & Document',     desc: 'Add chats, photos, documents, and financials. Everything is encrypted and timestamped automatically.' },
+    { num: '02', icon: BarChart3, title: 'AI Organizes & Analyzes', desc: 'AI structures evidence into timelines, detects risk patterns, and highlights what matters legally.' },
+    { num: '03', icon: Download, title: 'Export & Share',          desc: 'Generate a structured PDF with evidence, analysis, and recommendations. Share securely with your lawyer.' },
+  ]
+
+  const faqs = [
+    { q: 'Is this legal advice?', a: 'No. Blue Drum AI is a documentation and organization tool. Always consult a qualified lawyer for legal advice specific to your situation.' },
+    { q: 'How is my data protected?', a: 'All files are encrypted client-side with AES-256 before upload. We use SHA-256 hashing for integrity verification. Your encryption key is derived from your account — even we cannot read your files.' },
+    { q: 'Who is this platform for?', a: "Anyone navigating a relationship dispute in India — alimony, maintenance, dowry documentation, DV incident logging. Dedicated modules for both men and women." },
+    { q: 'What chat formats are supported?', a: 'WhatsApp exports (.txt), Android SMS backups (.csv), iOS Messages, email threads (.eml), and manual text paste. The universal parser auto-detects the format.' },
+    { q: 'Can I try it before committing?', a: 'Yes! The free plan includes all core features — evidence vault, AI analysis, income tracking, and PDF export. No credit card required.' },
+  ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white via-blue-50 to-white">
-      {/* Background accents */}
-      <div className="pointer-events-none fixed inset-x-0 -top-48 mx-auto h-[520px] max-w-6xl rounded-full bg-gradient-to-r from-blue-200/30 via-indigo-200/20 to-purple-200/30 blur-3xl" />
-      <div className="pointer-events-none fixed -bottom-48 left-1/2 h-[520px] w-[520px] -translate-x-1/2 rounded-full bg-gradient-to-r from-primary-200/25 to-blue-200/25 blur-3xl" />
+    <div className="min-h-screen bg-white text-gray-900 antialiased">
 
-      {/* Header */}
-      <header className="sticky top-0 z-40 border-b border-gray-100 bg-white/70 backdrop-blur">
-        <div className="container mx-auto flex items-center justify-between px-4 py-3 sm:py-4">
-          <div className="flex min-w-0 items-center gap-2 sm:gap-3">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary-600 to-primary-700 shadow-sm sm:h-10 sm:w-10">
-              <Shield className="h-5 w-5 text-white" />
+      {/* ─────────────────────────────── NAV ─────────────────────────────── */}
+      <header className="sticky top-0 z-50 border-b border-gray-100/80 bg-white/80 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-3">
+          <Link to="/" className="flex items-center gap-2.5">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-primary-600 to-blue-700 shadow-lg shadow-primary-600/20">
+              <Shield className="h-[18px] w-[18px] text-white" />
             </div>
-            <div className="min-w-0 leading-tight">
-              <div className="truncate text-base font-bold text-gray-900 sm:text-lg">Blue Drum AI</div>
-              <div className="hidden text-xs text-gray-500 sm:block">Evidence-based legal vigilance</div>
-            </div>
-          </div>
+            <span className="text-lg font-bold tracking-tight">
+              Blue Drum <span className="text-primary-600">AI</span>
+            </span>
+          </Link>
 
-          <nav className="hidden items-center gap-2 md:flex">
-            <button onClick={() => scrollTo('features')} className="rounded-xl px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-100">
-              Features
-            </button>
-            <button onClick={() => scrollTo('how')} className="rounded-xl px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-100">
-              How it works
-            </button>
-            <button onClick={() => scrollTo('pricing')} className="rounded-xl px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-100">
-              Pricing
-            </button>
-            <button onClick={() => scrollTo('faq')} className="rounded-xl px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-100">
-              FAQ
-            </button>
+          <nav className="hidden items-center gap-1 lg:flex">
+            {navLinks.map((l) => (
+              <button key={l.id} onClick={() => scrollTo(l.id)} className="rounded-lg px-3.5 py-2 text-[13px] font-medium text-gray-500 transition-colors hover:bg-gray-50 hover:text-gray-900">
+                {l.label}
+              </button>
+            ))}
           </nav>
 
           <div className="flex items-center gap-2">
             {user ? (
               <>
-                <button
-                  onClick={() => navigate('/dashboard')}
-                  className="hidden items-center gap-2 rounded-xl border border-gray-300 bg-white px-3 py-2 text-xs font-semibold text-gray-700 shadow-sm hover:bg-gray-50 sm:flex sm:px-4 sm:py-2 sm:text-sm"
-                >
+                <button onClick={() => navigate('/dashboard')} className="hidden rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-primary-600/20 transition-all hover:bg-primary-700 sm:inline-flex">
                   Dashboard
                 </button>
-                <button
-                  onClick={() => signOut().then(() => navigate('/sign-in'))}
-                  className="inline-flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-3 py-2 text-xs font-semibold text-gray-700 shadow-sm hover:bg-gray-50 sm:px-4 sm:py-2 sm:text-sm"
-                >
+                <button onClick={() => signOut().then(() => navigate('/sign-in'))} className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-600 transition hover:border-gray-300">
                   Sign out
                 </button>
               </>
             ) : (
               <>
-                <div className="hidden items-center gap-2 sm:flex">
-                  <Link
-                    to="/sign-in"
-                    className="inline-flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-3 py-2 text-xs font-semibold text-gray-700 shadow-sm hover:bg-gray-50 sm:px-4 sm:py-2 sm:text-sm"
-                  >
-                    Sign In
-                  </Link>
-                  <Link
-                    to="/sign-up"
-                    className="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-3 py-2 text-xs font-semibold text-white shadow-sm hover:bg-primary-700 sm:px-4 sm:py-2 sm:text-sm"
-                  >
-                    Sign Up
-                  </Link>
-                </div>
-                <button
-                  onClick={() => setShowForm(true)}
-                  className="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-3 py-2 text-xs font-semibold text-white shadow-sm hover:bg-primary-700 sm:px-5 sm:py-3 sm:text-sm"
-                >
-                  <span className="sm:hidden">Join waitlist</span>
-                  <span className="hidden sm:inline">Join waitlist</span>
-                  <ArrowRight className="h-4 w-4" />
+                <Link to="/sign-in" className="hidden rounded-lg px-4 py-2 text-sm font-medium text-gray-500 transition-colors hover:text-gray-900 sm:inline-flex">
+                  Sign in
+                </Link>
+                <Link to="/sign-up" className="group inline-flex items-center gap-1.5 rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-primary-600/20 transition-all hover:bg-primary-700 hover:shadow-lg">
+                  Get Started <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+                </Link>
+                <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="ml-1 rounded-lg p-2 text-gray-500 hover:bg-gray-50 lg:hidden" aria-label="Menu">
+                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    {mobileMenuOpen
+                      ? <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                      : <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />}
+                  </svg>
                 </button>
               </>
             )}
           </div>
         </div>
-      </header>
 
-      {/* Hero */}
-      <section className="container mx-auto px-4 py-16 md:py-24">
-        <div className="mx-auto max-w-5xl text-center">
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-primary-100 px-4 py-2 text-sm font-semibold text-primary-700">
-            <Sparkles className="h-4 w-4" />
-            Private beta opening soon
-          </div>
-
-          <h1 className="text-5xl font-bold leading-tight text-gray-900 md:text-6xl">
-            Document your truth.
-            <span className="block bg-gradient-to-r from-primary-700 to-blue-700 bg-clip-text text-transparent">
-              Protect your rights.
-            </span>
-          </h1>
-
-          <p className="mx-auto mt-6 max-w-3xl text-xl leading-relaxed text-gray-600">
-            Blue Drum AI helps Indian men and women organize evidence, identify risk signals, and export lawyer-ready case files.
-          </p>
-
-          <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <button onClick={() => setShowForm(true)} className="btn-primary w-full flex items-center justify-center sm:w-auto">
-              Join waitlist
-            </button>
-            <button onClick={() => scrollTo('how')} className="btn-secondary w-full flex items-center justify-center sm:w-auto">
-              See how it works
-            </button>
-            <button 
-              onClick={() => setShowRisk(true)} 
-              className="w-full flex items-center justify-center gap-2 rounded-xl border-2 border-orange-300 bg-gradient-to-r from-orange-50 to-yellow-50 px-6 py-3 text-sm font-bold text-orange-700 shadow-md hover:from-orange-100 hover:to-yellow-100 transition-all sm:w-auto"
-            >
-              <AlertTriangle className="h-5 w-5" />
-              Free Risk Check
-            </button>
-          </div>
-
-          <div className="mx-auto mt-14 grid max-w-5xl grid-cols-1 gap-4 md:grid-cols-3">
-            {[
-              { label: 'Built for clarity', value: 'Evidence timeline', icon: FileText },
-              { label: 'Built for privacy', value: 'Encrypted design', icon: Lock },
-              { label: 'Built for fairness', value: 'Men + women', icon: Users },
-            ].map((s, idx) => (
-              <Card key={idx} className="p-6 text-left">
-                <div className="flex items-start gap-3">
-                  <div className="mt-0.5 flex h-10 w-10 items-center justify-center rounded-xl bg-primary-50 text-primary-700">
-                    <s.icon className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <div className="text-sm font-semibold text-gray-500">{s.label}</div>
-                    <div className="mt-1 text-xl font-bold text-gray-900">{s.value}</div>
-                  </div>
-                </div>
-              </Card>
+        {mobileMenuOpen && (
+          <div className="border-t border-gray-100 bg-white px-5 pb-4 pt-2 lg:hidden">
+            {navLinks.map((l) => (
+              <button key={l.id} onClick={() => scrollTo(l.id)} className="block w-full rounded-lg px-3 py-2.5 text-left text-sm font-medium text-gray-600 hover:bg-gray-50">
+                {l.label}
+              </button>
             ))}
           </div>
+        )}
+      </header>
 
-          {/* Risk Check Quick Access */}
-          <div className="mx-auto mt-12 max-w-2xl">
-            <Card className="border-2 border-orange-200 bg-gradient-to-r from-orange-50 to-yellow-50 p-6 text-center">
-              <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-between">
-                <div className="text-left">
-                  <div className="flex items-center gap-2 mb-2">
-                    <AlertTriangle className="h-5 w-5 text-orange-600" />
-                    <h3 className="text-lg font-bold text-gray-900">Try Our Free Risk Check</h3>
-                  </div>
-                  <p className="text-sm text-gray-600">
-                    Get instant AI-powered insights on your legal readiness—no signup required.
-                  </p>
-                </div>
-                <button
-                  onClick={() => setShowRisk(true)}
-                  className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-orange-600 to-red-600 px-6 py-3 font-bold text-white shadow-md hover:from-orange-700 hover:to-red-700 transition-all transform hover:scale-105"
-                >
-                  <AlertTriangle className="h-5 w-5" />
-                  Start Now
-                  <ArrowRight className="h-4 w-4" />
-                </button>
-              </div>
-            </Card>
-          </div>
+      {/* ─────────────────────────────── HERO ────────────────────────────── */}
+      <section className="relative overflow-hidden">
+        <div className="pointer-events-none absolute inset-0 -z-10">
+          <div className="absolute -top-40 left-1/2 h-[700px] w-[1000px] -translate-x-1/2 rounded-full bg-gradient-to-br from-primary-100/70 via-blue-50/50 to-transparent blur-3xl" />
+          <div className="absolute bottom-0 right-0 h-[400px] w-[400px] rounded-full bg-gradient-to-tl from-indigo-100/30 to-transparent blur-3xl" />
         </div>
-      </section>
 
-      {/* Risk Check CTA Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-orange-50 via-yellow-50 to-red-50 py-16">
-        <div className="container mx-auto px-4">
-          <div className="mx-auto max-w-4xl">
-            <div className="rounded-2xl border-2 border-orange-200 bg-white p-8 shadow-xl md:p-12">
-              <div className="text-center">
-                <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-orange-100 to-yellow-100 px-6 py-2 text-sm font-bold text-orange-800">
-                  <AlertTriangle className="h-5 w-5" />
-                  <span>Try it now - No signup required</span>
-                </div>
-                <h2 className="text-3xl font-bold text-gray-900 md:text-4xl">
-                  Check Your Legal Readiness
-                  <span className="block mt-2 text-2xl md:text-3xl text-orange-600">
-                    Free AI-Powered Risk Assessment
-                  </span>
-                </h2>
-                <p className="mx-auto mt-4 max-w-2xl text-lg text-gray-600">
-                  Answer a few questions about your situation and get instant AI-powered insights on your legal readiness, risk factors, and what evidence you should collect.
-                </p>
-                <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
-                  <button
-                    onClick={() => setShowRisk(true)}
-                    className="group w-full flex items-center justify-center gap-3 rounded-xl bg-gradient-to-r from-orange-600 to-red-600 px-8 py-4 text-lg font-bold text-white shadow-lg hover:from-orange-700 hover:to-red-700 transition-all transform hover:scale-105 sm:w-auto"
-                  >
-                    <AlertTriangle className="h-6 w-6" />
-                    Start Free Risk Check
-                    <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                  </button>
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <CheckCircle2 className="h-5 w-5 text-green-600" />
-                    <span>No signup required • Takes 2 minutes • Instant results</span>
-                  </div>
-                </div>
-                <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
-                  {[
-                    { icon: Shield, text: 'AI-Powered Analysis' },
-                    { icon: Scale, text: 'Legal Readiness Score' },
-                    { icon: FileText, text: 'Actionable Recommendations' },
-                  ].map((item, idx) => (
-                    <div key={idx} className="flex flex-col items-center gap-2 rounded-lg bg-gray-50 p-4">
-                      <item.icon className="h-6 w-6 text-orange-600" />
-                      <span className="text-sm font-semibold text-gray-700">{item.text}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Red Flag Radar - Unique Feature Highlight */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50 py-20">
-        <div className="container mx-auto px-4">
-          <div className="mx-auto max-w-6xl">
-            {/* Badge */}
-            <div className="mb-6 flex justify-center">
-              <div className="inline-flex items-center gap-2 rounded-full bg-red-100 px-6 py-3 text-sm font-bold text-red-800 shadow-sm">
-                <Zap className="h-5 w-5" />
-                <span>Most Advanced Feature</span>
-              </div>
+        <div className="mx-auto max-w-7xl px-5 pb-16 pt-16 sm:pb-24 sm:pt-24 md:pb-28 md:pt-28">
+          <div className="mx-auto max-w-4xl text-center">
+            <div className="fade-in-up visible mb-6 inline-flex items-center gap-2.5 rounded-full border border-green-200/80 bg-green-50/80 px-4 py-2 text-xs font-semibold text-green-700 shadow-sm">
+              <span className="live-dot relative flex h-2 w-2 rounded-full bg-green-500" />
+              Now Live — Free to Use
             </div>
 
-            {/* Main Title */}
-            <div className="text-center">
-              <h2 className="text-4xl font-bold text-gray-900 md:text-5xl">
-                Red Flag Radar
-                <span className="block mt-2 bg-gradient-to-r from-red-600 to-orange-600 bg-clip-text text-transparent">
-                  AI-Powered Protection
-                </span>
-              </h2>
-              <p className="mx-auto mt-4 max-w-3xl text-xl text-gray-700">
-                The only platform that uses advanced AI to analyze conversations, detect manipulation patterns, and help you learn to recognize red flags—before it's too late.
-              </p>
-            </div>
+            <h1 className="fade-in-up visible text-[2.25rem] font-extrabold leading-[1.12] tracking-tight sm:text-5xl md:text-6xl lg:text-[4.25rem]">
+              Stop scrambling.
+              <br />
+              <span className="animate-gradient-text bg-gradient-to-r from-primary-600 via-blue-500 to-indigo-600">
+                Start documenting.
+              </span>
+            </h1>
 
-            {/* Unique Features Grid */}
-            <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {/* AI-Powered Analysis */}
-              <Card className="relative overflow-hidden border-2 border-red-200 bg-white p-6 shadow-lg">
-                <div className="absolute top-0 right-0 rounded-bl-lg bg-red-100 px-3 py-1 text-xs font-bold text-red-700">
-                  AI-Powered
-                </div>
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-red-500 to-orange-500 text-white shadow-md">
-                  <Brain className="h-6 w-6" />
-                </div>
-                <h3 className="text-lg font-bold text-gray-900">Advanced AI Analysis</h3>
-                <p className="mt-2 text-sm text-gray-600">
-                  Not just keyword matching. Our AI understands context, detects manipulation patterns, and identifies subtle red flags that humans might miss.
-                </p>
-                <ul className="mt-4 space-y-2 text-sm text-gray-700">
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="mt-0.5 h-4 w-4 text-green-600 shrink-0" />
-                    <span>Context-aware pattern detection</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="mt-0.5 h-4 w-4 text-green-600 shrink-0" />
-                    <span>Risk scoring (0-100) with breakdown</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="mt-0.5 h-4 w-4 text-green-600 shrink-0" />
-                    <span>Actionable recommendations</span>
-                  </li>
-                </ul>
-              </Card>
+            <p className="fade-in-up visible mx-auto mt-6 max-w-2xl text-base leading-relaxed text-gray-500 sm:text-lg md:text-xl">
+              Blue Drum AI encrypts your evidence, analyzes your chats with AI, and
+              generates lawyer-ready case files — so you walk into court prepared.
+              <span className="font-medium text-gray-700"> Built for Indian law.</span>
+            </p>
 
-              {/* Multi-Platform Support */}
-              <Card className="relative overflow-hidden border-2 border-blue-200 bg-white p-6 shadow-lg">
-                <div className="absolute top-0 right-0 rounded-bl-lg bg-blue-100 px-3 py-1 text-xs font-bold text-blue-700">
-                  Universal
-                </div>
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-indigo-500 text-white shadow-md">
-                  <MessageSquare className="h-6 w-6" />
-                </div>
-                <h3 className="text-lg font-bold text-gray-900">Multi-Platform Support</h3>
-                <p className="mt-2 text-sm text-gray-600">
-                  Works with WhatsApp, SMS, Email, or manual text input. Our universal parser handles any chat format automatically.
-                </p>
-                <ul className="mt-4 space-y-2 text-sm text-gray-700">
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="mt-0.5 h-4 w-4 text-green-600 shrink-0" />
-                    <span>WhatsApp export (.txt)</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="mt-0.5 h-4 w-4 text-green-600 shrink-0" />
-                    <span>SMS backups (.csv)</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="mt-0.5 h-4 w-4 text-green-600 shrink-0" />
-                    <span>Email threads (.eml)</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="mt-0.5 h-4 w-4 text-green-600 shrink-0" />
-                    <span>Manual text paste</span>
-                  </li>
-                </ul>
-              </Card>
-
-              {/* AI Comparison */}
-              <Card className="relative overflow-hidden border-2 border-purple-200 bg-white p-6 shadow-lg">
-                <div className="absolute top-0 right-0 rounded-bl-lg bg-purple-100 px-3 py-1 text-xs font-bold text-purple-700">
-                  Exclusive
-                </div>
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-md">
-                  <GitCompare className="h-6 w-6" />
-                </div>
-                <h3 className="text-lg font-bold text-gray-900">AI-Powered Comparison</h3>
-                <p className="mt-2 text-sm text-gray-600">
-                  Compare multiple chat analyses side-by-side. AI detects trends, escalation patterns, and provides comparative insights—unique to Blue Drum AI.
-                </p>
-                <ul className="mt-4 space-y-2 text-sm text-gray-700">
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="mt-0.5 h-4 w-4 text-green-600 shrink-0" />
-                    <span>Trend analysis over time</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="mt-0.5 h-4 w-4 text-green-600 shrink-0" />
-                    <span>Escalation detection</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="mt-0.5 h-4 w-4 text-green-600 shrink-0" />
-                    <span>Common pattern identification</span>
-                  </li>
-                </ul>
-              </Card>
-
-              {/* Interactive Learning */}
-              <Card className="relative overflow-hidden border-2 border-green-200 bg-white p-6 shadow-lg">
-                <div className="absolute top-0 right-0 rounded-bl-lg bg-green-100 px-3 py-1 text-xs font-bold text-green-700">
-                  Educational
-                </div>
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 text-white shadow-md">
-                  <BookOpen className="h-6 w-6" />
-                </div>
-                <h3 className="text-lg font-bold text-gray-900">Red Flag Experience</h3>
-                <p className="mt-2 text-sm text-gray-600">
-                  Learn to recognize red flags through AI-powered interactive conversations. Practice identifying manipulation in a safe environment.
-                </p>
-                <ul className="mt-4 space-y-2 text-sm text-gray-700">
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="mt-0.5 h-4 w-4 text-green-600 shrink-0" />
-                    <span>AI simulates manipulative behavior</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="mt-0.5 h-4 w-4 text-green-600 shrink-0" />
-                    <span>Real-time red flag detection</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="mt-0.5 h-4 w-4 text-green-600 shrink-0" />
-                    <span>Educational notes and lessons</span>
-                  </li>
-                </ul>
-              </Card>
-
-              {/* Demo Red Flag */}
-              <Card className="relative overflow-hidden border-2 border-pink-200 bg-white p-6 shadow-lg">
-                <div className="absolute top-0 right-0 rounded-bl-lg bg-pink-100 px-3 py-1 text-xs font-bold text-pink-700">
-                  For Women
-                </div>
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-pink-500 to-rose-500 text-white shadow-md">
-                  <Bot className="h-6 w-6" />
-                </div>
-                <h3 className="text-lg font-bold text-gray-900">Demo Red Flag Chat</h3>
-                <p className="mt-2 text-sm text-gray-600">
-                  Chat with an AI that demonstrates red flag behaviors. Experience manipulation patterns firsthand to build recognition skills.
-                </p>
-                <ul className="mt-4 space-y-2 text-sm text-gray-700">
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="mt-0.5 h-4 w-4 text-green-600 shrink-0" />
-                    <span>Interactive AI conversations</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="mt-0.5 h-4 w-4 text-green-600 shrink-0" />
-                    <span>Adaptive responses based on your input</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="mt-0.5 h-4 w-4 text-green-600 shrink-0" />
-                    <span>Safe learning environment</span>
-                  </li>
-                </ul>
-              </Card>
-
-              {/* Real-time Detection */}
-              <Card className="relative overflow-hidden border-2 border-orange-200 bg-white p-6 shadow-lg">
-                <div className="absolute top-0 right-0 rounded-bl-lg bg-orange-100 px-3 py-1 text-xs font-bold text-orange-700">
-                  Real-time
-                </div>
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 text-white shadow-md">
-                  <Zap className="h-6 w-6" />
-                </div>
-                <h3 className="text-lg font-bold text-gray-900">Instant Insights</h3>
-                <p className="mt-2 text-sm text-gray-600">
-                  Get immediate analysis with detailed breakdowns. See red flags, patterns, and recommendations as soon as you upload.
-                </p>
-                <ul className="mt-4 space-y-2 text-sm text-gray-700">
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="mt-0.5 h-4 w-4 text-green-600 shrink-0" />
-                    <span>Detailed risk breakdown</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="mt-0.5 h-4 w-4 text-green-600 shrink-0" />
-                    <span>Pattern examples with quotes</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="mt-0.5 h-4 w-4 text-green-600 shrink-0" />
-                    <span>PDF export for lawyers</span>
-                  </li>
-                </ul>
-              </Card>
-            </div>
-
-            {/* CTA */}
-            <div className="mt-12 text-center">
-              <p className="text-lg font-semibold text-gray-700 mb-4">
-                Ready to protect yourself with AI-powered analysis?
-              </p>
-              <button
-                onClick={() => setShowForm(true)}
-                className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-red-600 to-orange-600 px-8 py-4 text-lg font-bold text-white shadow-lg hover:from-red-700 hover:to-orange-700 transition-all transform hover:scale-105"
+            <div className="fade-in-up visible mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
+              <Link
+                to="/sign-up"
+                className="group relative inline-flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-xl bg-primary-600 px-8 py-4 text-base font-bold text-white shadow-xl shadow-primary-600/25 transition-all duration-300 hover:bg-primary-700 hover:shadow-2xl sm:w-auto"
               >
-                <Sparkles className="h-5 w-5" />
-                Join Waitlist for Early Access
-                <ArrowRight className="h-5 w-5" />
+                Get Started Free
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </Link>
+              <button
+                onClick={() => scrollTo('how-it-works')}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-8 py-4 text-base font-semibold text-gray-700 shadow-sm transition-all hover:border-gray-300 hover:shadow-md sm:w-auto"
+              >
+                See How It Works
               </button>
             </div>
+
+            <p className="fade-in-up visible mt-4 text-xs text-gray-400">
+              No credit card &middot; Free plan includes all core features &middot; Not legal advice
+            </p>
+          </div>
+
+          {/* Dashboard screenshot */}
+          <div className="fade-in-up visible relative mx-auto mt-14 max-w-5xl sm:mt-18">
+            <div className="rounded-2xl border border-gray-200/70 bg-gradient-to-b from-gray-50 to-white p-1.5 shadow-2xl shadow-gray-300/30">
+              <div className="overflow-hidden rounded-xl border border-gray-100 bg-gray-900">
+                <img
+                  src="/screenshots/dashboard.jpg"
+                  alt="Blue Drum AI Dashboard"
+                  className="w-full"
+                  loading="eager"
+                  onError={(e) => {
+                    const el = e.target as HTMLImageElement
+                    el.style.minHeight = '340px'
+                    el.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="1200" height="680" fill="none"%3E%3Crect width="1200" height="680" rx="12" fill="%23111827"/%3E%3Ctext x="600" y="320" text-anchor="middle" fill="%234B5563" font-family="system-ui" font-size="28" font-weight="700"%3EBlue Drum AI Dashboard%3C/text%3E%3Ctext x="600" y="365" text-anchor="middle" fill="%236B7280" font-family="system-ui" font-size="16"%3EEvidence Vault • AI Analysis • Income Tracker • PDF Export%3C/text%3E%3C/svg%3E'
+                  }}
+                />
+              </div>
+            </div>
+
+            <div className="animate-float absolute -left-4 top-16 hidden rounded-2xl border border-white/80 bg-white/90 px-5 py-3.5 shadow-xl backdrop-blur lg:block">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 shadow-md">
+                  <Lock className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <div className="text-sm font-bold text-gray-900">AES-256 Encrypted</div>
+                  <div className="text-xs text-gray-400">Client-side, before upload</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="animate-float-delayed absolute -right-4 bottom-20 hidden rounded-2xl border border-white/80 bg-white/90 px-5 py-3.5 shadow-xl backdrop-blur lg:block">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 shadow-md">
+                  <Brain className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <div className="text-sm font-bold text-gray-900">AI-Powered Analysis</div>
+                  <div className="text-xs text-gray-400">Red flags detected instantly</div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Features */}
-      <section id="features" className="container mx-auto px-4 py-16">
-        <SectionTitle
-          kicker="Designed for real-world disputes"
-          title="Everything you need to stay prepared"
-          subtitle="Secure documentation, clear organization, and exports that lawyers actually want."
-        />
-
-        <div className="mx-auto mt-12 grid max-w-6xl grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {features.map((f) => (
-            <Card key={f.title} className="p-6">
-              <div className="flex items-start gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary-50 text-primary-700">
-                  <f.icon className="h-5 w-5" />
-                </div>
-                <div>
-                  <div className="text-lg font-bold text-gray-900">{f.title}</div>
-                  <div className="mt-2 text-sm leading-relaxed text-gray-600">{f.desc}</div>
-                </div>
-              </div>
-            </Card>
+      {/* ──────────────────────── TRUST STRIP ────────────────────────────── */}
+      <section className="border-y border-gray-100 bg-gray-50/60 py-6">
+        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-x-10 gap-y-3 px-5 text-sm text-gray-500">
+          {[
+            { icon: Scale, text: 'Rajnesh v. Neha compliant' },
+            { icon: Lock, text: 'AES-256 encryption' },
+            { icon: Shield, text: 'Row Level Security' },
+            { icon: Fingerprint, text: 'SHA-256 integrity hashing' },
+          ].map(({ icon: Icon, text }) => (
+            <span key={text} className="flex items-center gap-2 font-medium">
+              <Icon className="h-4 w-4 text-primary-500" />
+              {text}
+            </span>
           ))}
         </div>
       </section>
 
-      {/* Feature Previews - Screenshots */}
-      <section className="bg-white py-16">
-        <div className="container mx-auto px-4">
-          <SectionTitle
-            kicker="See it in action"
-            title="A glimpse of what's coming"
-            subtitle="Here's what the platform looks like. Join the waitlist to get early access."
-          />
+      {/* ──────────────── THE PROBLEM → SOLUTION ─────────────────────────── */}
+      <section className="py-20 sm:py-24">
+        <div className="mx-auto max-w-7xl px-5">
+          <div className="mx-auto max-w-3xl text-center">
+            <SectionLabel>The Problem</SectionLabel>
+            <h2 className="fade-in-up text-3xl font-bold tracking-tight sm:text-4xl">
+              Disputes don&apos;t wait for you to get organized
+            </h2>
+            <p className="fade-in-up mt-5 text-base leading-relaxed text-gray-500 sm:text-lg">
+              When a relationship turns into a legal battle, most people realize too late that their
+              evidence is scattered across phones, emails, and memory.
+              <strong className="text-gray-700"> Your lawyer needs structured facts — not a mess.</strong>
+            </p>
+          </div>
 
-          <div className="mx-auto mt-12 max-w-7xl space-y-16">
-            {/* Dashboard Preview */}
-            <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:items-center">
-              <div>
-                <div className="inline-flex items-center gap-2 rounded-full bg-blue-100 px-4 py-2 text-xs font-semibold text-blue-700">
-                  <Shield className="h-4 w-4" />
-                  Smart Dashboard
-                </div>
-                <h3 className="mt-4 text-2xl font-bold text-gray-900">Track your legal readiness at a glance</h3>
-                <p className="mt-3 text-gray-600">
-                  Get a comprehensive overview of your evidence collection, risk scores, and legal preparedness. See what's missing and what's strong.
-                </p>
-                <ul className="mt-6 space-y-3 text-gray-700">
-                  {[
-                    'Overall readiness score (0-100)',
-                    'Evidence completeness tracking',
-                    'Recent activity feed',
-                    'Quick stats and insights',
-                  ].map((x) => (
-                    <li key={x} className="flex items-start gap-2">
-                      <CheckCircle2 className="mt-0.5 h-5 w-5 text-green-600" />
-                      <span>{x}</span>
-                    </li>
-                  ))}
-                </ul>
+          <div className="fade-in-up mx-auto mt-12 grid max-w-4xl grid-cols-1 gap-5 sm:grid-cols-3">
+            {[
+              { emoji: '📱', title: 'Scattered evidence',   desc: 'Screenshots across 5 apps, deleted messages, no timeline.' },
+              { emoji: '⏰', title: 'No time to organize',  desc: "You're already stressed. Sorting files is the last thing you want." },
+              { emoji: '⚖️', title: 'Lawyers need structure', desc: 'Unorganized evidence = weak case. Structured files = faster resolution.' },
+            ].map((p) => (
+              <div key={p.title} className="rounded-2xl border border-gray-100 bg-gray-50/50 p-6 text-center transition-all hover:border-gray-200 hover:shadow-sm">
+                <div className="mb-3 text-3xl">{p.emoji}</div>
+                <h3 className="text-base font-bold text-gray-900">{p.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-gray-500">{p.desc}</p>
               </div>
-              <div className="relative">
-                <div className="overflow-hidden rounded-2xl border-4 border-gray-200 shadow-2xl">
-                  <img
-                    src="/screenshots/dashboard.png"
-                    alt="Dashboard preview showing readiness score, stats, and activity feed"
-                    className="w-full"
-                    onError={(e) => {
-                      ;(e.target as HTMLImageElement).src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600"%3E%3Crect fill="%23f3f4f6" width="800" height="600"/%3E%3Ctext x="400" y="300" text-anchor="middle" fill="%239ca3af" font-family="Arial" font-size="24"%3EDashboard Screenshot%3C/text%3E%3C/svg%3E'
-                    }}
-                  />
-                </div>
-                <div className="absolute -bottom-4 -right-4 rounded-xl bg-white px-4 py-2 shadow-lg ring-1 ring-gray-200">
-                  <div className="text-xs font-semibold text-gray-500">Coming Soon</div>
-                </div>
-              </div>
-            </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
-            {/* Consent Vault Preview */}
-            <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:items-center">
-              <div className="order-2 lg:order-1">
-                <div className="overflow-hidden rounded-2xl border-4 border-gray-200 shadow-2xl">
-                  <img
-                    src="/screenshots/vault-timeline.png"
-                    alt="Consent Vault timeline view showing organized evidence entries"
-                    className="w-full"
-                    onError={(e) => {
-                      ;(e.target as HTMLImageElement).src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600"%3E%3Crect fill="%23f3f4f6" width="800" height="600"/%3E%3Ctext x="400" y="300" text-anchor="middle" fill="%239ca3af" font-family="Arial" font-size="24"%3EVault Timeline Screenshot%3C/text%3E%3C/svg%3E'
-                    }}
-                  />
-                </div>
-              </div>
-              <div className="order-1 lg:order-2">
-                <div className="inline-flex items-center gap-2 rounded-full bg-primary-100 px-4 py-2 text-xs font-semibold text-primary-700">
-                  <FileText className="h-4 w-4" />
-                  Consent Vault
-                </div>
-                <h3 className="mt-4 text-2xl font-bold text-gray-900">Organize evidence in a secure timeline</h3>
-                <p className="mt-3 text-gray-600">
-                  Upload photos, documents, tickets, and receipts. Everything is automatically organized chronologically with timestamps and metadata.
-                </p>
-                <ul className="mt-6 space-y-3 text-gray-700">
-                  {[
-                    'Automatic timestamp extraction',
-                    'Location metadata from photos',
-                    'Search and filter capabilities',
-                    'Export to PDF for lawyers',
-                  ].map((x) => (
-                    <li key={x} className="flex items-start gap-2">
-                      <CheckCircle2 className="mt-0.5 h-5 w-5 text-green-600" />
-                      <span>{x}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
+      {/* ──────────────────────── FEATURES ────────────────────────────────── */}
+      <section id="features" className="border-t border-gray-100 bg-gray-50/40 py-20 sm:py-24">
+        <div className="mx-auto max-w-7xl px-5">
+          <div className="mx-auto max-w-2xl text-center">
+            <SectionLabel>Platform Features</SectionLabel>
+            <h2 className="fade-in-up text-3xl font-bold tracking-tight sm:text-4xl">
+              Everything you need, in one secure place
+            </h2>
+            <p className="fade-in-up mt-4 text-base text-gray-500 sm:text-lg">
+              Six powerful features working together to build your case.
+            </p>
+          </div>
 
-            {/* AI Chat Analyzer Preview - Enhanced */}
-            <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:items-center">
-              <div>
-                <div className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-red-100 to-orange-100 px-4 py-2 text-xs font-bold text-red-800">
-                  <Zap className="h-4 w-4" />
-                  Red Flag Radar - AI-Powered
+          <div className="stagger-children mx-auto mt-14 grid max-w-6xl grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {features.map((f) => (
+              <div key={f.title} className="fade-in-up group relative overflow-hidden rounded-2xl border border-gray-100 bg-white p-7 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-gray-200 hover:shadow-lg">
+                <div className={`mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${f.accent} shadow-md`}>
+                  <f.icon className="h-6 w-6 text-white" />
                 </div>
-                <h3 className="mt-4 text-2xl font-bold text-gray-900">The most advanced chat analysis tool</h3>
-                <p className="mt-3 text-gray-600">
-                  Upload WhatsApp, SMS, or email conversations. Our advanced AI doesn't just scan for keywords—it understands context, detects manipulation patterns, and identifies subtle red flags.
-                </p>
-                <ul className="mt-6 space-y-3 text-gray-700">
-                  {[
-                    'AI-powered context analysis (not keyword matching)',
-                    'Risk score (0-100) with detailed breakdown',
-                    'Pattern detection with real message examples',
-                    'AI comparison of multiple analyses',
-                    'Interactive learning with Red Flag Experience',
-                    'Lawyer-ready PDF analysis report',
-                  ].map((x) => (
-                    <li key={x} className="flex items-start gap-2">
-                      <CheckCircle2 className="mt-0.5 h-5 w-5 text-green-600 shrink-0" />
-                      <span>{x}</span>
-                    </li>
-                  ))}
-                </ul>
-                <div className="mt-6 rounded-lg border-2 border-red-200 bg-red-50 p-4">
-                  <div className="flex items-start gap-2">
-                    <Sparkles className="h-5 w-5 text-red-600 mt-0.5 shrink-0" />
-                    <div>
-                      <div className="text-sm font-bold text-red-900">What makes us unique:</div>
-                      <div className="mt-1 text-sm text-red-800">
-                        Only platform with AI-powered comparison, interactive learning, and multi-platform universal parsing. Most tools just scan for keywords—we understand manipulation.
-                      </div>
+                <h3 className="text-base font-bold text-gray-900">{f.title}</h3>
+                <p className="mt-2.5 text-sm leading-relaxed text-gray-500">{f.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ──────────────────────── HOW IT WORKS ────────────────────────────── */}
+      <section id="how-it-works" className="py-20 sm:py-24">
+        <div className="mx-auto max-w-7xl px-5">
+          <div className="mx-auto max-w-2xl text-center">
+            <SectionLabel>How It Works</SectionLabel>
+            <h2 className="fade-in-up text-3xl font-bold tracking-tight sm:text-4xl">
+              From chaos to case file in 3 steps
+            </h2>
+            <p className="fade-in-up mt-4 text-base text-gray-500 sm:text-lg">
+              No learning curve. Upload evidence, let AI organize, export for your lawyer.
+            </p>
+          </div>
+
+          <div className="mx-auto mt-14 max-w-5xl">
+            <div className="stagger-children grid grid-cols-1 gap-8 md:grid-cols-3">
+              {steps.map((s, i) => (
+                <div key={s.num} className="fade-in-up relative">
+                  {i < steps.length - 1 && (
+                    <div className="absolute left-[calc(50%+40px)] right-[calc(-50%+40px)] top-10 hidden h-px bg-gradient-to-r from-primary-300 to-primary-100 md:block" />
+                  )}
+                  <div className="relative text-center">
+                    <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-2xl border border-gray-100 bg-white shadow-lg shadow-gray-200/50">
+                      <s.icon className="h-8 w-8 text-primary-600" />
                     </div>
+                    <Badge className="mb-3 border border-primary-100 bg-primary-50 text-primary-600">Step {s.num}</Badge>
+                    <h3 className="text-lg font-bold text-gray-900">{s.title}</h3>
+                    <p className="mx-auto mt-2 max-w-xs text-sm leading-relaxed text-gray-500">{s.desc}</p>
                   </div>
                 </div>
-              </div>
-              <div className="relative">
-                <div className="overflow-hidden rounded-2xl border-4 border-red-200 shadow-2xl">
-                  <img
-                    src="/screenshots/chat-analyzer.png"
-                    alt="AI Chat Analyzer showing risk score and red flags analysis"
-                    className="w-full"
-                    onError={(e) => {
-                      ;(e.target as HTMLImageElement).src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600"%3E%3Crect fill="%23f3f4f6" width="800" height="600"/%3E%3Ctext x="400" y="300" text-anchor="middle" fill="%239ca3af" font-family="Arial" font-size="24"%3EChat Analyzer Screenshot%3C/text%3E%3C/svg%3E'
-                    }}
-                  />
-                </div>
-                <div className="absolute -bottom-4 -right-4 rounded-xl bg-gradient-to-r from-red-600 to-orange-600 px-4 py-2 shadow-lg ring-2 ring-white">
-                  <div className="text-xs font-bold text-white">AI-Powered</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Income Tracker Preview */}
-            <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:items-center">
-              <div className="order-2 lg:order-1">
-                <div className="overflow-hidden rounded-2xl border-4 border-gray-200 shadow-2xl">
-                  <img
-                    src="/screenshots/income-tracker.png"
-                    alt="Income Tracker showing monthly income, expenses, and disposable income calculation"
-                    className="w-full"
-                    onError={(e) => {
-                      ;(e.target as HTMLImageElement).src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600"%3E%3Crect fill="%23f3f4f6" width="800" height="600"/%3E%3Ctext x="400" y="300" text-anchor="middle" fill="%239ca3af" font-family="Arial" font-size="24"%3EIncome Tracker Screenshot%3C/text%3E%3C/svg%3E'
-                    }}
-                  />
-                </div>
-              </div>
-              <div className="order-1 lg:order-2">
-                <div className="inline-flex items-center gap-2 rounded-full bg-green-100 px-4 py-2 text-xs font-semibold text-green-700">
-                  <TrendingUp className="h-4 w-4" />
-                  Income Tracker
-                </div>
-                <h3 className="mt-4 text-2xl font-bold text-gray-900">Track income and expenses for alimony cases</h3>
-                <p className="mt-3 text-gray-600">
-                  Log monthly income, deductions, and expenses. Automatically calculate disposable income with Rajnesh v. Neha compliance.
-                </p>
-                <ul className="mt-6 space-y-3 text-gray-700">
-                  {[
-                    'Monthly income and expense logging',
-                    'Automatic disposable income calculation',
-                    'Visual charts and trends',
-                    'Generate lawyer-ready affidavits',
-                  ].map((x) => (
-                    <li key={x} className="flex items-start gap-2">
-                      <CheckCircle2 className="mt-0.5 h-5 w-5 text-green-600" />
-                      <span>{x}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              ))}
             </div>
           </div>
 
-          {/* CTA after previews */}
-          <div className="mx-auto mt-16 max-w-3xl text-center">
-            <h3 className="text-2xl font-bold text-gray-900">Ready to see it for yourself?</h3>
-            <p className="mt-3 text-gray-600">Join the waitlist to get early access when we launch.</p>
-            <div className="mt-8">
-              <button onClick={() => setShowForm(true)} className="btn-primary inline-flex items-center gap-2">
-                Join waitlist for early access
-                <ArrowRight className="h-4 w-4" />
-              </button>
+          <div className="fade-in-up mt-12 text-center">
+            <Link to="/sign-up" className="group inline-flex items-center gap-2.5 rounded-xl bg-gray-900 px-8 py-4 text-base font-bold text-white shadow-xl transition-all duration-300 hover:bg-gray-800 hover:shadow-2xl">
+              Start in Under 2 Minutes <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ──────────────────────── MODULES ─────────────────────────────────── */}
+      <section className="border-t border-gray-100 bg-gray-50/40 py-20 sm:py-24">
+        <div className="mx-auto max-w-7xl px-5">
+          <div className="mx-auto max-w-2xl text-center">
+            <SectionLabel>Modules</SectionLabel>
+            <h2 className="fade-in-up text-3xl font-bold tracking-tight sm:text-4xl">
+              Built for both sides of the table
+            </h2>
+            <p className="fade-in-up mt-4 text-base text-gray-500 sm:text-lg">
+              Dedicated modules for men and women — because fair outcomes require documented truth from everyone.
+            </p>
+          </div>
+
+          <div className="fade-in-up mx-auto mt-14 grid max-w-5xl grid-cols-1 gap-6 md:grid-cols-2">
+            {/* Men */}
+            <div className="rounded-2xl border border-gray-200 bg-white p-8 shadow-sm transition-all hover:shadow-md">
+              <div className="mb-5 flex items-center gap-3">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-cyan-600 shadow-md">
+                  <Shield className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold">For Men</h3>
+                  <p className="text-xs text-gray-400">Alimony clarity & false case protection</p>
+                </div>
+              </div>
+              <ul className="space-y-3">
+                {['Evidence vault with encrypted timeline', 'Income & expense tracker with affidavits', 'AI chat analysis and risk scoring', 'Breakup message generator (legally safe)', 'Lawyer-ready PDF case file export'].map((x) => (
+                  <li key={x} className="flex items-center gap-2.5 text-sm text-gray-600"><CheckCircle2 className="h-4 w-4 shrink-0 text-blue-500" />{x}</li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Women */}
+            <div className="rounded-2xl border border-gray-200 bg-white p-8 shadow-sm transition-all hover:shadow-md">
+              <div className="mb-5 flex items-center gap-3">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 shadow-md">
+                  <Users className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold">For Women</h3>
+                  <p className="text-xs text-gray-400">DV documentation & maintenance rights</p>
+                </div>
+              </div>
+              <ul className="space-y-3">
+                {['Dowry documentation (gifts, receipts, transfers)', 'DV incident log with evidence attachments', 'Maintenance calculator with legal factors', 'Medical report organizer', 'Lawyer-ready PDF case file export'].map((x) => (
+                  <li key={x} className="flex items-center gap-2.5 text-sm text-gray-600"><CheckCircle2 className="h-4 w-4 shrink-0 text-purple-500" />{x}</li>
+                ))}
+              </ul>
             </div>
           </div>
         </div>
       </section>
 
-      {/* How it works */}
-      <section id="how" className="bg-white py-16">
-        <div className="container mx-auto px-4">
-          <SectionTitle title="How it works" subtitle="Three steps. Clean output. Stronger preparedness." />
+      {/* ──────────────────────── SECURITY ────────────────────────────────── */}
+      <section id="security" className="relative overflow-hidden bg-gray-900 py-20 sm:py-24 text-white">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(37,99,235,0.15),transparent_70%)]" />
 
-          <div className="mx-auto mt-12 grid max-w-6xl grid-cols-1 gap-6 md:grid-cols-3">
+        <div className="relative mx-auto max-w-7xl px-5">
+          <div className="mx-auto max-w-2xl text-center">
+            <p className="mb-4 text-sm font-bold uppercase tracking-[0.15em] text-primary-400">Security</p>
+            <h2 className="fade-in-up text-3xl font-bold tracking-tight sm:text-4xl">Your data is yours. Period.</h2>
+            <p className="fade-in-up mt-4 text-base text-gray-400 sm:text-lg">
+              Zero-trust architecture. Even we cannot read your files.
+            </p>
+          </div>
+
+          <div className="stagger-children mx-auto mt-14 grid max-w-5xl grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {[
-              {
-                step: '01',
-                title: 'Upload & document',
-                desc: 'Add files, notes, and exports as they happen. Keep the record consistent.',
-              },
-              {
-                step: '02',
-                title: 'Organize & analyze',
-                desc: 'We help structure evidence into a timeline and highlight key risk signals.',
-              },
-              {
-                step: '03',
-                title: 'Export & share',
-                desc: 'Generate a lawyer-ready PDF so your case file is readable in minutes.',
-              },
+              { icon: KeyRound,    title: 'AES-256 Encryption', desc: 'Files encrypted in your browser before upload.' },
+              { icon: Fingerprint, title: 'SHA-256 Hashing',    desc: 'Tamper-proof integrity verification for every file.' },
+              { icon: Lock,        title: 'PBKDF2 Key Derivation', desc: 'Your key comes from your account. We never see it.' },
+              { icon: Server,      title: 'Row Level Security',    desc: 'Database policies ensure you only access your data.' },
             ].map((s) => (
-              <Card key={s.step} className="p-6">
-                <div className="text-sm font-bold text-primary-700">{s.step}</div>
-                <div className="mt-2 text-xl font-bold text-gray-900">{s.title}</div>
-                <div className="mt-3 text-sm leading-relaxed text-gray-600">{s.desc}</div>
-              </Card>
+              <div key={s.title} className="fade-in-up rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur transition-all hover:bg-white/10">
+                <s.icon className="mb-4 h-7 w-7 text-primary-400" />
+                <h3 className="text-sm font-bold text-white">{s.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-gray-400">{s.desc}</p>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Modules */}
-      <section className="container mx-auto px-4 py-16">
-        <SectionTitle title="Two modules, one mission" subtitle="Truth and evidence—so outcomes are fair." />
-
-        <div className="mx-auto mt-12 grid max-w-6xl grid-cols-1 gap-6 md:grid-cols-2">
-          <Card className="p-8">
-            <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-700">
-                <Shield className="h-5 w-5" />
-              </div>
-              <div className="text-2xl font-bold text-gray-900">For men</div>
-            </div>
-            <p className="mt-3 text-gray-600">Evidence capture + expense clarity + organized exports.</p>
-            <ul className="mt-6 space-y-3 text-gray-700">
-              {[
-                'Consent/evidence vault and timeline',
-                'Income + expenses tracker (for clarity)',
-                'Chat export organization and risk signals',
-                'Lawyer-ready case file export',
-              ].map((x) => (
-                <li key={x} className="flex items-start gap-2">
-                  <CheckCircle2 className="mt-0.5 h-5 w-5 text-green-600" />
-                  <span>{x}</span>
-                </li>
-              ))}
-            </ul>
-          </Card>
-
-          <Card className="p-8">
-            <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-purple-50 text-purple-700">
-                <AlertTriangle className="h-5 w-5" />
-              </div>
-              <div className="text-2xl font-bold text-gray-900">For women</div>
-            </div>
-            <p className="mt-3 text-gray-600">Dowry/DV documentation + structured incident logs.</p>
-            <ul className="mt-6 space-y-3 text-gray-700">
-              {[
-                'Dowry documentation (gifts, receipts, transfers)',
-                'Incident log with attachments and notes',
-                'Organized evidence timeline',
-                'Lawyer-ready case file export',
-              ].map((x) => (
-                <li key={x} className="flex items-start gap-2">
-                  <CheckCircle2 className="mt-0.5 h-5 w-5 text-green-600" />
-                  <span>{x}</span>
-                </li>
-              ))}
-            </ul>
-          </Card>
-        </div>
-      </section>
-
-      {/* Use cases */}
-      <section id="usecases" className="bg-white py-16">
-        <div className="container mx-auto px-4">
-          <SectionTitle title="Use cases" subtitle="Practical scenarios where documentation changes outcomes." />
-
-          <div className="mx-auto mt-12 grid max-w-6xl grid-cols-1 gap-6 md:grid-cols-2">
-            {[
-              {
-                title: 'Dating & live-in documentation',
-                desc: 'Maintain a factual timeline that can support consensual relationship history.',
-              },
-              {
-                title: 'Alimony & maintenance clarity',
-                desc: 'Track legitimate expenses and keep records organized for faster review.',
-              },
-              {
-                title: 'Dowry documentation',
-                desc: 'Record gifts, receipts, transfers, and demands in one structured place.',
-              },
-              {
-                title: 'Domestic violence incident log',
-                desc: 'Maintain timestamped notes and evidence attachments for safer escalation.',
-              },
-            ].map((u) => (
-              <Card key={u.title} className="p-6">
-                <div className="text-xl font-bold text-gray-900">{u.title}</div>
-                <div className="mt-2 text-sm leading-relaxed text-gray-600">{u.desc}</div>
-              </Card>
-            ))}
+      {/* ──────────────────────── PRICING ─────────────────────────────────── */}
+      <section id="pricing" className="py-20 sm:py-24">
+        <div className="mx-auto max-w-7xl px-5">
+          <div className="mx-auto max-w-2xl text-center">
+            <SectionLabel>Pricing</SectionLabel>
+            <h2 className="fade-in-up text-3xl font-bold tracking-tight sm:text-4xl">Start free, no strings attached</h2>
+            <p className="fade-in-up mt-4 text-base text-gray-500 sm:text-lg">
+              All core features included. No credit card needed.
+            </p>
           </div>
-        </div>
-      </section>
 
-      {/* For lawyers */}
-      <section className="container mx-auto px-4 py-16">
-        <div className="mx-auto max-w-6xl">
-          <Card className="overflow-hidden">
-            <div className="grid grid-cols-1 gap-0 md:grid-cols-2">
-              <div className="p-8">
-                <div className="inline-flex items-center gap-2 rounded-full bg-primary-100 px-4 py-2 text-xs font-semibold text-primary-700">
-                  <Scale className="h-4 w-4" />
-                  Lawyer-friendly
-                </div>
-                <h3 className="mt-4 text-2xl font-bold text-gray-900">Clean case files in one click</h3>
-                <p className="mt-3 text-gray-600">
-                  Lawyers hate scattered screenshots. Export a structured PDF with timeline, labels, and summaries.
-                </p>
-                <ul className="mt-6 space-y-3 text-gray-700">
-                  {[
-                    'Timeline + evidence index',
-                    'Metadata and notes included',
-                    'Chat export summaries',
-                    'Download and share securely',
-                  ].map((x) => (
-                    <li key={x} className="flex items-start gap-2">
-                      <CheckCircle2 className="mt-0.5 h-5 w-5 text-green-600" />
-                      <span>{x}</span>
-                    </li>
-                  ))}
-                </ul>
-                <div className="mt-8">
-                  <button onClick={() => setShowForm(true)} className="btn-primary flex items-center gap-2">
-                    Join waitlist
-                    <ArrowRight className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
-              <div className="bg-gradient-to-br from-primary-600 to-primary-700 p-8 text-white">
-                <div className="text-sm font-semibold text-white/80">What you get</div>
-                <div className="mt-2 text-3xl font-bold">Readable in 5 minutes</div>
-                <div className="mt-4 text-white/80">
-                  A standardized case file format that reduces lawyer time and increases your confidence.
-                </div>
-                <div className="mt-8 grid grid-cols-1 gap-3">
-                  {[
-                    { k: 'Sections', v: 'Timeline, files, summaries' },
-                    { k: 'Format', v: 'PDF export' },
-                    { k: 'Goal', v: 'Clarity and fairness' },
-                  ].map((r) => (
-                    <div key={r.k} className="rounded-xl bg-white/10 p-4">
-                      <div className="text-xs text-white/70">{r.k}</div>
-                      <div className="mt-1 font-semibold">{r.v}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </Card>
-        </div>
-      </section>
-
-      {/* Pricing */}
-      <section id="pricing" className="bg-white py-16">
-        <div className="container mx-auto px-4">
-          <SectionTitle title="Pricing" subtitle="Start free. Upgrade when you need more." />
-
-          <div className="mx-auto mt-12 grid max-w-5xl grid-cols-1 gap-6 md:grid-cols-2">
-            <Card className="p-8">
+          <div className="fade-in-up mx-auto mt-14 grid max-w-4xl grid-cols-1 gap-6 md:grid-cols-2">
+            {/* Free */}
+            <div className="rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
               <div className="text-sm font-semibold text-gray-500">Free</div>
-              <div className="mt-2 text-4xl font-bold text-gray-900">₹0</div>
-              <div className="mt-1 text-sm text-gray-600">Basic documentation and early access updates.</div>
-              <ul className="mt-6 space-y-3 text-gray-700">
-                {['Limited evidence uploads', 'Basic structure', 'Email updates'].map((x) => (
-                  <li key={x} className="flex items-start gap-2">
-                    <CheckCircle2 className="mt-0.5 h-5 w-5 text-green-600" />
-                    <span>{x}</span>
-                  </li>
+              <div className="mt-3 flex items-baseline gap-1">
+                <span className="text-5xl font-extrabold tracking-tight text-gray-900">&#8377;0</span>
+                <span className="text-sm text-gray-400">/ forever</span>
+              </div>
+              <p className="mt-3 text-sm text-gray-500">Everything you need to get started.</p>
+              <hr className="my-6 border-gray-100" />
+              <ul className="space-y-3">
+                {['Encrypted vault — 50 files, 100 MB', '5 AI analyses / month', '3 PDF exports / month', '3 Breakup Generator uses / month', 'Red Flag Experience — 3 sessions / month'].map((x) => (
+                  <li key={x} className="flex items-center gap-2.5 text-sm text-gray-600"><CheckCircle2 className="h-4 w-4 shrink-0 text-primary-500" />{x}</li>
                 ))}
               </ul>
-              <div className="mt-8">
-                <button onClick={() => setShowForm(true)} className="btn-secondary w-full flex items-center justify-center">
-                  Join waitlist
-                </button>
-              </div>
-            </Card>
+              <Link to="/sign-up" className="mt-8 flex w-full items-center justify-center rounded-xl border border-gray-200 bg-white py-3.5 text-sm font-bold text-gray-700 shadow-sm transition-all hover:border-gray-300 hover:shadow">
+                Sign Up Free
+              </Link>
+            </div>
 
-            <Card className="p-8 ring-1 ring-primary-200">
-              <div className="inline-flex items-center rounded-full bg-primary-100 px-3 py-1 text-xs font-semibold text-primary-700">
-                Recommended
+            {/* Premium */}
+            <div className="relative rounded-2xl border-2 border-primary-500 bg-white p-8 shadow-lg shadow-primary-500/10">
+              <Badge className="absolute -top-3 left-6 border border-primary-200 bg-primary-600 text-white shadow-md">Recommended</Badge>
+              <div className="text-sm font-semibold text-gray-500">Premium</div>
+              <div className="mt-3 flex items-baseline gap-1">
+                <span className="text-5xl font-extrabold tracking-tight text-gray-900">&#8377;199</span>
+                <span className="text-sm text-gray-400">/ month</span>
               </div>
-              <div className="mt-3 text-sm font-semibold text-gray-500">Premium (planned)</div>
-              <div className="mt-2 text-4xl font-bold text-gray-900">₹199</div>
-              <div className="mt-1 text-sm text-gray-600">Per month. Includes export and advanced organization.</div>
-              <ul className="mt-6 space-y-3 text-gray-700">
-                {['Unlimited evidence vault', 'Advanced organization', 'Lawyer-ready PDF export'].map((x) => (
-                  <li key={x} className="flex items-start gap-2">
-                    <CheckCircle2 className="mt-0.5 h-5 w-5 text-green-600" />
-                    <span>{x}</span>
-                  </li>
+              <p className="mt-3 text-sm text-gray-500">Unlimited everything. Priority support.</p>
+              <hr className="my-6 border-gray-100" />
+              <ul className="space-y-3">
+                {['Everything in Free', 'Unlimited vault storage — 5 GB', 'Unlimited AI analyses', 'Unlimited PDF exports', 'Unlimited Breakup Generator', 'Unlimited Red Flag sessions', 'Priority support'].map((x) => (
+                  <li key={x} className="flex items-center gap-2.5 text-sm text-gray-600"><CheckCircle2 className="h-4 w-4 shrink-0 text-primary-500" />{x}</li>
                 ))}
               </ul>
-              <div className="mt-8">
-                <button onClick={() => setShowForm(true)} className="btn-primary w-full flex items-center justify-center">
-                  Get early access
-                </button>
-              </div>
-            </Card>
+              <Link
+                to={user ? '/dashboard/subscription' : '/sign-up'}
+                className="mt-8 flex w-full items-center justify-center rounded-xl bg-primary-600 py-3.5 text-sm font-bold text-white shadow-md shadow-primary-600/20 transition-all hover:bg-primary-700 hover:shadow-lg"
+              >
+                {user ? 'Upgrade Now' : 'Get Started'}
+              </Link>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* FAQ */}
-      <section id="faq" className="container mx-auto px-4 py-16">
-        <SectionTitle title="FAQ" subtitle="Quick answers before you join the waitlist." />
+      {/* ──────────────────────── FAQ ─────────────────────────────────────── */}
+      <section id="faq" className="border-t border-gray-100 bg-gray-50/40 py-20 sm:py-24">
+        <div className="mx-auto max-w-7xl px-5">
+          <div className="mx-auto max-w-2xl text-center">
+            <SectionLabel>FAQ</SectionLabel>
+            <h2 className="fade-in-up text-3xl font-bold tracking-tight sm:text-4xl">Common questions, clear answers</h2>
+          </div>
 
-        <div className="mx-auto mt-10 max-w-3xl space-y-3">
-          {faqs.map((f, idx) => {
-            const isOpen = openFaq === idx
-            return (
-              <Card key={f.q} className="overflow-hidden">
-                <button
-                  type="button"
-                  className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left"
-                  onClick={() => setOpenFaq(isOpen ? null : idx)}
-                >
-                  <div className="text-base font-semibold text-gray-900">{f.q}</div>
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-50 text-gray-700">
-                    {isOpen ? '−' : '+'}
+          <div className="fade-in-up mx-auto mt-14 max-w-2xl divide-y divide-gray-200 rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+            {faqs.map((f, idx) => {
+              const isOpen = openFaq === idx
+              return (
+                <div key={f.q}>
+                  <button type="button" onClick={() => setOpenFaq(isOpen ? null : idx)} className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left transition-colors hover:bg-gray-50/80">
+                    <span className="text-[15px] font-semibold text-gray-900">{f.q}</span>
+                    <ChevronDown className={`h-5 w-5 shrink-0 text-gray-400 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
+                  </button>
+                  <div className={`grid transition-all duration-300 ease-in-out ${isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
+                    <div className="overflow-hidden">
+                      <p className="px-6 pb-5 text-sm leading-relaxed text-gray-500">{f.a}</p>
+                    </div>
                   </div>
-                </button>
-                {isOpen ? <div className="px-6 pb-6 text-sm leading-relaxed text-gray-600">{f.a}</div> : null}
-              </Card>
-            )
-          })}
-        </div>
-      </section>
-
-      {/* Final CTA */}
-      <section className="container mx-auto px-4 pb-16">
-        <div className="mx-auto max-w-6xl rounded-3xl bg-gradient-to-r from-primary-600 to-primary-700 p-10 text-center text-white md:p-14">
-          <h3 className="text-3xl font-bold md:text-4xl">Get early access to Blue Drum AI</h3>
-          <p className="mx-auto mt-3 max-w-2xl text-white/85">
-            Join the waitlist to receive private beta access and launch updates.
-          </p>
-          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <button onClick={() => setShowForm(true)} className="rounded-xl bg-white px-8 py-4 font-semibold text-primary-700 shadow-sm hover:bg-gray-100">
-              Join waitlist
-            </button>
-            <button onClick={() => scrollTo('features')} className="rounded-xl border border-white/30 px-8 py-4 font-semibold text-white hover:bg-white/10">
-              Explore features
-            </button>
+                </div>
+              )
+            })}
           </div>
-          <div className="mt-6 text-xs text-white/70">This is an information tool, not legal advice.</div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-gray-200 bg-white/60">
-        <div className="container mx-auto px-4 py-10">
-          <div className="flex flex-col justify-between gap-6 md:flex-row md:items-center">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-600">
-                <Shield className="h-5 w-5 text-white" />
+      {/* ──────────────────────── FINAL CTA ──────────────────────────────── */}
+      <section className="py-20 sm:py-24">
+        <div className="mx-auto max-w-7xl px-5">
+          <div className="fade-in-up relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary-600 via-blue-600 to-indigo-700 px-8 py-20 text-center text-white shadow-2xl shadow-primary-900/25 md:px-16">
+            <div className="pointer-events-none absolute -left-24 -top-24 h-80 w-80 rounded-full bg-white/10 blur-3xl" />
+            <div className="pointer-events-none absolute -bottom-24 -right-24 h-80 w-80 rounded-full bg-white/10 blur-3xl" />
+
+            <h2 className="relative text-3xl font-extrabold tracking-tight sm:text-4xl md:text-5xl">
+              Don&apos;t wait until it&apos;s too late.
+              <br className="hidden sm:block" />
+              <span className="mt-2 block text-white/80 sm:mt-3">Start documenting today.</span>
+            </h2>
+            <p className="relative mx-auto mt-5 max-w-xl text-base text-white/60 sm:text-lg">
+              Sign up in under 2 minutes. Upload your first evidence.
+              Generate your first case file. Free forever on the core plan.
+            </p>
+            <div className="relative mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
+              <Link to="/sign-up" className="group inline-flex w-full items-center justify-center gap-2.5 rounded-xl bg-white px-8 py-4 text-base font-bold text-primary-700 shadow-xl transition-all duration-300 hover:shadow-2xl sm:w-auto">
+                Create Free Account <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </Link>
+              <Link to="/sign-in" className="inline-flex w-full items-center justify-center rounded-xl border border-white/20 px-8 py-4 text-base font-semibold text-white transition-all hover:bg-white/10 sm:w-auto">
+                Sign In
+              </Link>
+            </div>
+            <p className="relative mt-8 text-xs text-white/40">
+              No credit card required &middot; Not legal advice &middot; For documentation purposes only
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ──────────────────────── FOOTER ──────────────────────────────────── */}
+      <footer className="border-t border-gray-100 bg-white py-14">
+        <div className="mx-auto max-w-7xl px-5">
+          <div className="flex flex-col items-start justify-between gap-8 md:flex-row md:items-center">
+            <Link to="/" className="flex items-center gap-2.5">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-primary-600 to-blue-700">
+                <Shield className="h-[18px] w-[18px] text-white" />
               </div>
               <div>
-                <div className="text-lg font-bold text-gray-900">Blue Drum AI</div>
-                <div className="text-sm text-gray-600">Truth. Evidence. Fair outcomes.</div>
+                <div className="text-base font-bold">Blue Drum AI</div>
+                <div className="text-xs text-gray-400">Truth. Evidence. Fair outcomes.</div>
               </div>
-            </div>
+            </Link>
 
-            <div className="flex flex-wrap gap-3 text-sm text-gray-600">
-              <button onClick={() => scrollTo('features')} className="hover:text-gray-900">
-                Features
-              </button>
-              <button onClick={() => scrollTo('how')} className="hover:text-gray-900">
-                How it works
-              </button>
-              <button onClick={() => scrollTo('pricing')} className="hover:text-gray-900">
-                Pricing
-              </button>
-              <button onClick={() => scrollTo('faq')} className="hover:text-gray-900">
-                FAQ
-              </button>
-            </div>
+            <nav className="flex flex-wrap gap-6 text-sm text-gray-500">
+              {navLinks.map((l) => (
+                <button key={l.id} onClick={() => scrollTo(l.id)} className="transition-colors hover:text-gray-900">{l.label}</button>
+              ))}
+              <Link to="/sign-up" className="font-semibold text-primary-600 hover:text-primary-700">Get Started</Link>
+            </nav>
           </div>
 
-          <div className="mt-8 flex flex-col gap-2 border-t border-gray-200 pt-6 text-xs text-gray-500 md:flex-row md:items-center md:justify-between">
-            <div>© {new Date().getFullYear()} Blue Drum AI. All rights reserved.</div>
-            <div>Not legal advice. For information and documentation only.</div>
+          <div className="mt-10 flex flex-col gap-3 border-t border-gray-100 pt-8 text-xs text-gray-400 md:flex-row md:items-center md:justify-between">
+            <span>&copy; {new Date().getFullYear()} Blue Drum AI. All rights reserved.</span>
+            <span>Not legal advice. For information and documentation purposes only.</span>
           </div>
         </div>
       </footer>
-
-      {showForm ? <SignupForm onClose={() => setShowForm(false)} /> : null}
-      {showRisk ? <RiskCalculator onClose={() => setShowRisk(false)} /> : null}
-
-      {/* Blue Drum bubble - Enhanced */}
-      <button
-        type="button"
-        onClick={() => setShowRisk(true)}
-        className="group fixed bottom-5 right-5 z-40 flex items-center gap-3 rounded-full bg-gradient-to-r from-orange-500 to-red-500 px-4 py-3 shadow-2xl ring-4 ring-orange-200/50 hover:shadow-2xl hover:ring-orange-300/70 transition-all transform hover:scale-110 animate-pulse sm:px-6 sm:py-4"
-        aria-label="Open safety & documentation check"
-      >
-        <div className="relative">
-          <img src="/drum.svg" alt="Blue Drum risk check" className="h-10 w-10 sm:h-12 sm:w-12 bd-drum-animate filter brightness-0 invert" />
-          <div className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-white text-xs font-bold text-orange-600 shadow-md">
-            !
-          </div>
-        </div>
-        <div className="flex flex-col items-start">
-          <span className="text-sm font-bold text-white sm:text-base">Free Risk Check</span>
-          <span className="text-xs text-white/90">Try it now</span>
-        </div>
-        <ArrowRight className="h-5 w-5 text-white group-hover:translate-x-1 transition-transform" />
-      </button>
     </div>
   )
 }
-
-export default LandingPage
-

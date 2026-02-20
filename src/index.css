@@ -22,19 +22,70 @@
   }
 }
 
-@keyframes bdFloat {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-3px) rotate(-2deg); }
+/* ── animated gradient text ── */
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+.animate-gradient-text {
+  background-size: 200% auto;
+  animation: gradient-shift 4s ease-in-out infinite;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-@keyframes bdPulseGlow {
-  0%, 100% { filter: drop-shadow(0 6px 10px rgba(37, 99, 235, 0.22)); }
-  50% { filter: drop-shadow(0 10px 18px rgba(37, 99, 235, 0.35)); }
+/* ── scroll-triggered fade-in ── */
+.fade-in-up {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.fade-in-up.visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
-.bd-drum-animate {
-  animation: bdFloat 2.4s ease-in-out infinite, bdPulseGlow 2.4s ease-in-out infinite;
-  transform-origin: 50% 80%;
-  will-change: transform, filter;
+/* staggered children */
+.stagger-children > .fade-in-up:nth-child(1) { transition-delay: 0ms; }
+.stagger-children > .fade-in-up:nth-child(2) { transition-delay: 80ms; }
+.stagger-children > .fade-in-up:nth-child(3) { transition-delay: 160ms; }
+.stagger-children > .fade-in-up:nth-child(4) { transition-delay: 240ms; }
+.stagger-children > .fade-in-up:nth-child(5) { transition-delay: 320ms; }
+.stagger-children > .fade-in-up:nth-child(6) { transition-delay: 400ms; }
+
+/* ── subtle pulse for live dot ── */
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.8); }
+}
+.live-dot::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: inherit;
+  animation: live-pulse 2s ease-in-out infinite;
+}
+
+/* ── floating animation for hero badges ── */
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.animate-float {
+  animation: float-slow 4s ease-in-out infinite;
+}
+.animate-float-delayed {
+  animation: float-slow 4s ease-in-out infinite;
+  animation-delay: 1.5s;
+}
+
+/* ── glass card ── */
+.glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 

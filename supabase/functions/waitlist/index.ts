@@ -1,14 +1,10 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createSupabaseClient } from '../_shared/supabase.ts'
 import { sanitizeEmail } from '../_shared/sanitize.ts'
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-}
+import { getCorsHeaders } from '../_shared/cors.ts'
 
 serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req)
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
@@ -16,7 +12,16 @@ serve(async (req) => {
 
   try {
     const supabase = createSupabaseClient(req)
-    const { email, interest, source, meta } = await req.json()
+    let body
+    try {
+      body = await req.json()
+    } catch (e) {
+      return new Response(
+        JSON.stringify({ ok: false, error: 'Invalid JSON body' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+    const { email, interest, source, meta } = body
 
     // Validation
     if (!email || typeof email !== 'string' || !email.includes('@')) {

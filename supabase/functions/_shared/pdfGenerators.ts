@@ -48,383 +48,238 @@ export async function generateAffidavitPDF(data: AffidavitData): Promise<Uint8Ar
     subject: 'Income and Expense Statement',
   })
 
-  const page = pdfDoc.addPage([595, 842]) // A4 size
-  const helveticaFont = await pdfDoc.embedFont(StandardFonts.Helvetica)
-  const helveticaBoldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold)
-  const helveticaObliqueFont = await pdfDoc.embedFont(StandardFonts.HelveticaOblique)
+  const regularFont = await pdfDoc.embedFont(StandardFonts.Helvetica)
+  const boldFont    = await pdfDoc.embedFont(StandardFonts.HelveticaBold)
+  const italicFont  = await pdfDoc.embedFont(StandardFonts.HelveticaOblique)
 
-  let y = 782 // Start from top
+  // ── Layout constants ──────────────────────────────────────────────────────
+  const PAGE_W   = 595
+  const PAGE_H   = 842
+  const MARGIN_X = 50
+  const CONTENT_W = PAGE_W - MARGIN_X * 2   // 495
+  const MIN_Y    = 80   // footer reserve
 
-  // Header with border
-  page.drawRectangle({
-    x: 60,
-    y: y - 80,
-    width: 475,
-    height: 80,
-    borderColor: rgb(0, 0, 0),
-    borderWidth: 1,
-  })
+  // ── Colour palette ────────────────────────────────────────────────────────
+  const BLUE        = rgb(0.118, 0.251, 0.686)  // #1e40af
+  const LIGHT_BLUE  = rgb(0.859, 0.918, 0.996)  // #dbeafe
+  const DARK        = rgb(0.118, 0.137, 0.165)  // #1e2329
+  const MUTED       = rgb(0.42, 0.45, 0.50)     // #6b7280
+  const GREY_BG     = rgb(0.953, 0.957, 0.961)  // #f3f4f6
+  const BORDER_GREY = rgb(0.80, 0.82, 0.85)
+  const GREEN       = rgb(0.059, 0.541, 0.271)  // #0f8a45
 
-  y = addHeader(page, helveticaFont, helveticaBoldFont, 'AFFIDAVIT', 'Income and Expense Statement')
-  y -= 10
+  // ── Page management ───────────────────────────────────────────────────────
+  let currentPage = pdfDoc.addPage([PAGE_W, PAGE_H])
+  let y = PAGE_H - MARGIN_X
 
-  page.drawText('Rajnesh v. Neha Compliant', {
-    x: 297.5,
-    y: y,
-    size: 10,
-    font: helveticaFont,
-    color: rgb(0.4, 0.4, 0.4),
-  })
-  y -= 30
+  function addNewPage() {
+    addFooter(currentPage, italicFont, 'Blue Drum AI | Income Affidavit | Confidential')
+    currentPage = pdfDoc.addPage([PAGE_W, PAGE_H])
+    y = PAGE_H - MARGIN_X
+  }
 
-  // Date
-  const currentDate = new Date().toLocaleDateString('en-IN', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  })
-  page.drawText(`Date: ${currentDate}`, {
-    x: 475,
-    y: y,
-    size: 10,
-    font: helveticaFont,
-  })
-  y -= 30
+  function checkBreak(needed = 60) {
+    if (y < MIN_Y + needed) addNewPage()
+  }
 
-  // Introduction
-  y = addWrappedText(page, helveticaFont, 11, 'I, the undersigned, hereby solemnly affirm and declare as under:', 60, y, 475)
-  y -= 20
+  // ── Drawing helpers ───────────────────────────────────────────────────────
+  function drawText(text: string, x: number, yPos: number, font: PDFFont, size: number, color = DARK) {
+    currentPage.drawText(text, { x, y: yPos, size, font, color })
+  }
 
-  // Personal Information
-  page.drawText('1. Personal Information:', {
-    x: 60,
-    y: y,
-    size: 11,
-    font: helveticaBoldFont,
-    color: rgb(0.118, 0.251, 0.686),
-  })
-  y -= 20
-  page.drawText(`   Email: ${data.userEmail}`, {
-    x: 60,
-    y: y,
-    size: 11,
-    font: helveticaFont,
-  })
-  y -= 25
+  function drawCenteredText(text: string, yPos: number, font: PDFFont, size: number, color = DARK) {
+    const w = font.widthOfTextAtSize(text, size)
+    drawText(text, (PAGE_W - w) / 2, yPos, font, size, color)
+  }
 
-  // Income Period
-  const monthDate = new Date(data.monthYear + '-01')
-  const monthName = monthDate.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })
-  page.drawText('2. Income Period:', {
-    x: 60,
-    y: y,
-    size: 11,
-    font: helveticaBoldFont,
-    color: rgb(0.118, 0.251, 0.686),
-  })
-  y -= 20
-  page.drawText(`   Month: ${monthName}`, {
-    x: 60,
-    y: y,
-    size: 11,
-    font: helveticaFont,
-  })
-  y -= 25
+  function drawRightText(text: string, yPos: number, font: PDFFont, size: number, color = DARK) {
+    const w = font.widthOfTextAtSize(text, size)
+    drawText(text, PAGE_W - MARGIN_X - w, yPos, font, size, color)
+  }
 
-  // Gross Income
-  page.drawText('3. Gross Monthly Income:', {
-    x: 60,
-    y: y,
-    size: 11,
-    font: helveticaBoldFont,
-    color: rgb(0.118, 0.251, 0.686),
-  })
-  y -= 20
-  page.drawText(`   ${formatCurrency(data.grossIncome)}`, {
-    x: 60,
-    y: y,
-    size: 11,
-    font: helveticaFont,
-  })
-  y -= 25
+  function wrappedText(text: string, x: number, yPos: number, maxW: number, font: PDFFont, size: number, color = DARK, lineH = size * 1.5): number {
+    const words = text.split(' ')
+    const lines: string[] = []
+    let line = ''
+    for (const word of words) {
+      const test = line ? `${line} ${word}` : word
+      if (font.widthOfTextAtSize(test, size) > maxW && line) {
+        lines.push(line); line = word
+      } else {
+        line = test
+      }
+    }
+    if (line) lines.push(line)
+    let cy = yPos
+    for (const l of lines) {
+      drawText(l, x, cy, font, size, color)
+      cy -= lineH
+    }
+    return cy
+  }
 
-  // Deductions
-  page.drawText('4. Statutory Deductions:', {
-    x: 60,
-    y: y,
-    size: 11,
-    font: helveticaBoldFont,
-    color: rgb(0.118, 0.251, 0.686),
-  })
-  y -= 20
+  function drawHRule(yPos: number, color = BORDER_GREY) {
+    currentPage.drawLine({ start: { x: MARGIN_X, y: yPos }, end: { x: PAGE_W - MARGIN_X, y: yPos }, thickness: 0.5, color })
+  }
 
+  function drawRect(x: number, yPos: number, w: number, h: number, fillColor?: { r: number; g: number; b: number }, borderColor?: { r: number; g: number; b: number }, bw = 1) {
+    currentPage.drawRectangle({ x, y: yPos, width: w, height: h, ...(fillColor ? { color: fillColor } : {}), ...(borderColor ? { borderColor, borderWidth: bw } : {}) })
+  }
+
+  function sectionLabel(num: string, label: string) {
+    checkBreak(50)
+    drawRect(MARGIN_X, y - 2, 3, 16, BLUE)
+    drawText(`${num}.  ${label}`, MARGIN_X + 10, y, boldFont, 10, BLUE)
+    y -= 20
+  }
+
+  function dataRow(label: string, value: string, bold = false) {
+    drawText(label, MARGIN_X + 14, y, bold ? boldFont : regularFont, 10, MUTED)
+    drawRightText(value, y, bold ? boldFont : regularFont, 10, bold ? DARK : DARK)
+    y -= 16
+  }
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // HEADER
+  // ──────────────────────────────────────────────────────────────────────────
+  const HEADER_H = 100
+  drawRect(0, PAGE_H - HEADER_H, PAGE_W, HEADER_H, BLUE)
+
+  drawCenteredText('INCOME AFFIDAVIT', y - 12, boldFont, 20, rgb(1, 1, 1))
+  drawCenteredText('Income and Expense Statement', y - 36, regularFont, 11, rgb(0.8, 0.87, 1))
+  drawCenteredText('Rajnesh v. Neha (2021) Compliant', y - 55, italicFont, 9, rgb(0.7, 0.78, 0.95))
+
+  y = PAGE_H - HEADER_H - 20
+
+  // ── Date & Reference row ─────────────────────────────────────────────────
+  const currentDate = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })
+  const monthDate   = new Date(data.monthYear + '-01')
+  const monthName   = monthDate.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })
+
+  drawText(`Period: ${monthName}`, MARGIN_X, y, regularFont, 9, MUTED)
+  drawRightText(`Date: ${currentDate}`, y, regularFont, 9, MUTED)
+  y -= 8
+  drawHRule(y)
+  y -= 18
+
+  // ── Intro ────────────────────────────────────────────────────────────────
+  y = wrappedText(
+    'I, the undersigned, hereby solemnly affirm and declare as under:',
+    MARGIN_X, y, CONTENT_W, italicFont, 10, DARK
+  )
+  y -= 16
+
+  // ── 1. Personal Information ───────────────────────────────────────────────
+  sectionLabel('1', 'Personal Information')
+  dataRow('Email Address', data.userEmail)
+  y -= 8
+
+  // ── 2. Income Period ──────────────────────────────────────────────────────
+  sectionLabel('2', 'Income Period')
+  dataRow('Month', monthName)
+  y -= 8
+
+  // ── 3. Gross Monthly Income ───────────────────────────────────────────────
+  sectionLabel('3', 'Gross Monthly Income')
+  drawText(formatCurrency(data.grossIncome), MARGIN_X + 14, y, boldFont, 14, GREEN)
+  y -= 22
+
+  // ── 4. Statutory Deductions ───────────────────────────────────────────────
   let totalDeductions = 0
   const deductionItems: Array<{ label: string; amount: number }> = []
-  
-  if (data.deductions.income_tax) {
-    deductionItems.push({ label: 'Income Tax', amount: data.deductions.income_tax })
-    totalDeductions += data.deductions.income_tax
-  }
-  if (data.deductions.pf) {
-    deductionItems.push({ label: 'Provident Fund (PF)', amount: data.deductions.pf })
-    totalDeductions += data.deductions.pf
-  }
-  if (data.deductions.professional_tax) {
-    deductionItems.push({ label: 'Professional Tax', amount: data.deductions.professional_tax })
-    totalDeductions += data.deductions.professional_tax
-  }
-  if (data.deductions.other) {
-    deductionItems.push({ label: 'Other Deductions', amount: data.deductions.other })
-    totalDeductions += data.deductions.other
-  }
+  if (data.deductions.income_tax)       { deductionItems.push({ label: 'Income Tax',            amount: data.deductions.income_tax });       totalDeductions += data.deductions.income_tax }
+  if (data.deductions.pf)               { deductionItems.push({ label: 'Provident Fund (PF)',    amount: data.deductions.pf });               totalDeductions += data.deductions.pf }
+  if (data.deductions.professional_tax) { deductionItems.push({ label: 'Professional Tax',       amount: data.deductions.professional_tax }); totalDeductions += data.deductions.professional_tax }
+  if (data.deductions.other)            { deductionItems.push({ label: 'Other Deductions',       amount: data.deductions.other });            totalDeductions += data.deductions.other }
 
+  sectionLabel('4', 'Statutory Deductions')
   if (deductionItems.length === 0) {
-    page.drawText('   None', {
-      x: 60,
-      y: y,
-      size: 11,
-      font: helveticaFont,
-    })
-    y -= 20
+    drawText('None', MARGIN_X + 14, y, italicFont, 10, MUTED); y -= 16
   } else {
-    for (const item of deductionItems) {
-      page.drawText(`   ${item.label}: ${formatCurrency(item.amount)}`, {
-        x: 60,
-        y: y,
-        size: 11,
-        font: helveticaFont,
-      })
-      y -= 18
-    }
-    y -= 5
-    page.drawText(`   Total Deductions: ${formatCurrency(totalDeductions)}`, {
-      x: 60,
-      y: y,
-      size: 11,
-      font: helveticaBoldFont,
-    })
-    y -= 25
+    for (const item of deductionItems) { dataRow(item.label, formatCurrency(item.amount)) }
+    drawHRule(y + 4, BORDER_GREY); y -= 6
+    dataRow('Total Deductions', formatCurrency(totalDeductions), true)
   }
+  y -= 8
 
-  // Expenses
-  page.drawText('5. Necessary Monthly Expenses:', {
-    x: 60,
-    y: y,
-    size: 11,
-    font: helveticaBoldFont,
-    color: rgb(0.118, 0.251, 0.686),
-  })
-  y -= 20
-
+  // ── 5. Necessary Monthly Expenses ────────────────────────────────────────
   let totalExpenses = 0
   const expenseItems: Array<{ label: string; amount: number }> = []
-  
-  if (data.expenses.emi) {
-    expenseItems.push({ label: 'EMI / Loan Payments', amount: data.expenses.emi })
-    totalExpenses += data.expenses.emi
-  }
-  if (data.expenses.medical) {
-    expenseItems.push({ label: 'Medical Expenses', amount: data.expenses.medical })
-    totalExpenses += data.expenses.medical
-  }
-  if (data.expenses.parents) {
-    expenseItems.push({ label: 'Parents Support', amount: data.expenses.parents })
-    totalExpenses += data.expenses.parents
-  }
-  if (data.expenses.rent) {
-    expenseItems.push({ label: 'Rent', amount: data.expenses.rent })
-    totalExpenses += data.expenses.rent
-  }
-  if (data.expenses.utilities) {
-    expenseItems.push({ label: 'Utilities', amount: data.expenses.utilities })
-    totalExpenses += data.expenses.utilities
-  }
-  if (data.expenses.other) {
-    expenseItems.push({ label: 'Other Expenses', amount: data.expenses.other })
-    totalExpenses += data.expenses.other
-  }
+  if (data.expenses.emi)        { expenseItems.push({ label: 'EMI / Loan Payments', amount: data.expenses.emi });      totalExpenses += data.expenses.emi }
+  if (data.expenses.medical)    { expenseItems.push({ label: 'Medical Expenses',     amount: data.expenses.medical });  totalExpenses += data.expenses.medical }
+  if (data.expenses.parents)    { expenseItems.push({ label: 'Parents Support',      amount: data.expenses.parents });  totalExpenses += data.expenses.parents }
+  if (data.expenses.rent)       { expenseItems.push({ label: 'Rent',                 amount: data.expenses.rent });     totalExpenses += data.expenses.rent }
+  if (data.expenses.utilities)  { expenseItems.push({ label: 'Utilities',            amount: data.expenses.utilities }); totalExpenses += data.expenses.utilities }
+  if (data.expenses.other)      { expenseItems.push({ label: 'Other Expenses',       amount: data.expenses.other });    totalExpenses += data.expenses.other }
 
+  sectionLabel('5', 'Necessary Monthly Expenses')
   if (expenseItems.length === 0) {
-    page.drawText('   None', {
-      x: 60,
-      y: y,
-      size: 11,
-      font: helveticaFont,
-    })
-    y -= 20
+    drawText('None', MARGIN_X + 14, y, italicFont, 10, MUTED); y -= 16
   } else {
-    for (const item of expenseItems) {
-      page.drawText(`   ${item.label}: ${formatCurrency(item.amount)}`, {
-        x: 60,
-        y: y,
-        size: 11,
-        font: helveticaFont,
-      })
-      y -= 18
-    }
-    y -= 5
-    page.drawText(`   Total Expenses: ${formatCurrency(totalExpenses)}`, {
-      x: 60,
-      y: y,
-      size: 11,
-      font: helveticaBoldFont,
-    })
-    y -= 30
+    for (const item of expenseItems) { dataRow(item.label, formatCurrency(item.amount)) }
+    drawHRule(y + 4, BORDER_GREY); y -= 6
+    dataRow('Total Expenses', formatCurrency(totalExpenses), true)
   }
+  y -= 12
 
-  // Disposable Income - Highlighted box
-  page.drawRectangle({
-    x: 60,
-    y: y - 50,
-    width: 475,
-    height: 50,
-    color: rgb(0.878, 0.906, 1.0), // #e0e7ff
-    borderColor: rgb(0.231, 0.510, 0.965), // #3b82f6
-    borderWidth: 2,
-  })
-  page.drawText('6. Disposable Income:', {
-    x: 80,
-    y: y - 5,
-    size: 12,
-    font: helveticaBoldFont,
-    color: rgb(0.118, 0.251, 0.686),
-  })
-  page.drawText(formatCurrency(data.disposableIncome), {
-    x: 80,
-    y: y - 25,
-    size: 16,
-    font: helveticaBoldFont,
-    color: rgb(0.118, 0.251, 0.686),
-  })
-  page.drawText('(Gross Income - Statutory Deductions - Necessary Expenses)', {
-    x: 80,
-    y: y - 45,
-    size: 9,
-    font: helveticaFont,
-    color: rgb(0.4, 0.4, 0.4),
-  })
-  y -= 70
+  // ── 6. Disposable Income (highlighted) ───────────────────────────────────
+  checkBreak(80)
+  drawRect(MARGIN_X, y - 68, CONTENT_W, 68, LIGHT_BLUE, BLUE, 1.5)
+  drawText('6.  Disposable Income', MARGIN_X + 12, y - 10, boldFont, 10, BLUE)
+  drawText(formatCurrency(data.disposableIncome), MARGIN_X + 12, y - 32, boldFont, 18, BLUE)
+  drawText(`${formatCurrency(data.grossIncome)} gross  -  ${formatCurrency(totalDeductions)} deductions  -  ${formatCurrency(totalExpenses)} expenses`, MARGIN_X + 12, y - 54, italicFont, 8, MUTED)
+  y -= 80
 
-  // Calculation Formula Box
-  page.drawRectangle({
-    x: 60,
-    y: y - 30,
-    width: 475,
-    height: 30,
-    color: rgb(0.953, 0.957, 0.961), // #f3f4f6
-    borderColor: rgb(0.612, 0.639, 0.686), // #9ca3af
-    borderWidth: 1,
-  })
-  page.drawText('Calculation Formula:', {
-    x: 80,
-    y: y - 5,
-    size: 10,
-    font: helveticaObliqueFont,
-    color: rgb(0.216, 0.255, 0.318), // #374151
-  })
-  page.drawText('Disposable Income = Gross Income - Deductions - Expenses', {
-    x: 80,
-    y: y - 20,
-    size: 10,
-    font: helveticaFont,
-    color: rgb(0.216, 0.255, 0.318),
-  })
-  y -= 50
-
-  // Notes
+  // ── Notes ─────────────────────────────────────────────────────────────────
   if (data.notes && data.notes.trim()) {
-    page.drawText('7. Additional Notes:', {
-      x: 60,
-      y: y,
-      size: 11,
-      font: helveticaBoldFont,
-      color: rgb(0.118, 0.251, 0.686),
-    })
-    y -= 20
-    y = await addWrappedText(page, helveticaFont, 10, data.notes, 60, y, 475)
-    y -= 20
+    checkBreak(60)
+    sectionLabel('7', 'Additional Notes')
+    y = wrappedText(data.notes, MARGIN_X + 14, y, CONTENT_W - 14, regularFont, 10, DARK)
+    y -= 12
   }
 
-  // Legal Compliance Statement
-  y -= 20
-  page.drawRectangle({
-    x: 60,
-    y: y - 60,
-    width: 475,
-    height: 60,
-    color: rgb(0.859, 0.918, 0.996), // #dbeafe
-    borderColor: rgb(0.231, 0.510, 0.965), // #3b82f6
-    borderWidth: 1,
-  })
-  page.drawText('Legal Compliance:', {
-    x: 80,
-    y: y - 5,
-    size: 10,
-    font: helveticaBoldFont,
-    color: rgb(0.118, 0.251, 0.686),
-  })
-  y = addWrappedText(
-    page,
-    helveticaFont,
-    9,
-    'This affidavit is prepared in accordance with the guidelines laid down by the Hon\'ble Supreme Court of India in the case of Rajnesh v. Neha (2021) for calculating disposable income for maintenance purposes.',
-    80,
-    y - 25,
-    435,
-    rgb(0.078, 0.227, 0.541) // #1e3a8a
+  // ── Legal Compliance ──────────────────────────────────────────────────────
+  checkBreak(80)
+  y -= 6
+  drawHRule(y)
+  y -= 14
+  drawText('Legal Compliance', MARGIN_X, y, boldFont, 10, BLUE)
+  y -= 14
+  y = wrappedText(
+    "This affidavit is prepared in accordance with the guidelines laid down by the Hon'ble Supreme Court of India in Rajnesh v. Neha (2021) for calculating disposable income for maintenance purposes under Section 125 CrPC.",
+    MARGIN_X, y, CONTENT_W, regularFont, 9, MUTED
   )
-  y -= 30
-
-  // Declaration
-  page.drawText('DECLARATION:', {
-    x: 60,
-    y: y,
-    size: 11,
-    font: helveticaBoldFont,
-  })
   y -= 20
-  y = addWrappedText(
-    page,
-    helveticaFont,
-    10,
-    'I solemnly affirm that the above statements are true and correct to the best of my knowledge and belief. I understand that any false statement made herein may attract penal consequences under the law.',
-    60,
-    y,
-    475
+
+  // ── Declaration ───────────────────────────────────────────────────────────
+  checkBreak(120)
+  drawRect(MARGIN_X, y - 46, CONTENT_W, 46, GREY_BG, BORDER_GREY)
+  drawText('DECLARATION', MARGIN_X + 10, y - 8, boldFont, 10, DARK)
+  y = wrappedText(
+    'I solemnly affirm that the above statements are true and correct to the best of my knowledge and belief. Any false statement herein may attract penal consequences under law.',
+    MARGIN_X + 10, y - 24, CONTENT_W - 20, regularFont, 9, DARK
   )
-  y -= 40
+  y -= 36
 
-  // Signature Section
-  page.drawText('_________________________', {
-    x: 60,
-    y: y,
-    size: 10,
-    font: helveticaFont,
-  })
-  y -= 15
-  page.drawText('Signature of Deponent', {
-    x: 60,
-    y: y,
-    size: 10,
-    font: helveticaBoldFont,
-  })
-  y -= 15
-  page.drawText(`Date: ${currentDate}`, {
-    x: 60,
-    y: y,
-    size: 10,
-    font: helveticaFont,
-  })
-  y -= 20
-  page.drawText('Place: _________________________', {
-    x: 60,
-    y: y,
-    size: 10,
-    font: helveticaFont,
-  })
+  // ── Signature ─────────────────────────────────────────────────────────────
+  checkBreak(70)
+  drawText('_______________________________', MARGIN_X, y, regularFont, 10, DARK)
+  y -= 14
+  drawText('Signature of Deponent', MARGIN_X, y, boldFont, 10, DARK)
+  y -= 12
+  drawText(`Date: ${currentDate}`, MARGIN_X, y, regularFont, 9, MUTED)
+  y -= 12
+  drawText('Place: _______________________________', MARGIN_X, y, regularFont, 9, MUTED)
 
-  // Footer
-  addFooter(page, helveticaObliqueFont, 'Generated by Blue Drum AI - Evidence-based legal vigilance')
+  // ── Footer on every page ──────────────────────────────────────────────────
+  const pages = pdfDoc.getPages()
+  for (let i = 0; i < pages.length; i++) {
+    const pg = pages[i]
+    const label = `Page ${i + 1} of ${pages.length}  |  Blue Drum AI  |  Income Affidavit  |  Confidential`
+    const lw = italicFont.widthOfTextAtSize(label, 7)
+    pg.drawText(label, { x: (PAGE_W - lw) / 2, y: 28, size: 7, font: italicFont, color: MUTED })
+    pg.drawLine({ start: { x: MARGIN_X, y: 42 }, end: { x: PAGE_W - MARGIN_X, y: 42 }, thickness: 0.5, color: BORDER_GREY })
+  }
 
   const pdfBytes = await pdfDoc.save()
   return pdfBytes

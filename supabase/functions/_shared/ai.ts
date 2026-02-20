@@ -1,5 +1,87 @@
 // AI service for Edge Functions
-// Uses Anthropic Claude or OpenAI
+// Uses OpenRouter as a unified AI gateway
+
+// ============================================================================
+// OPENROUTER CORE
+// ============================================================================
+
+interface OpenRouterMessage {
+  role: 'system' | 'user' | 'assistant'
+  content: string
+}
+
+interface OpenRouterUsage {
+  provider: string
+  model: string
+  inputTokens: number
+  outputTokens: number
+  responseTimeMs: number
+  requestSizeBytes?: number
+  responseSizeBytes?: number
+}
+
+async function callOpenRouter(
+  messages: OpenRouterMessage[],
+  opts?: { model?: string; maxTokens?: number; temperature?: number },
+): Promise<{ text: string; usage: OpenRouterUsage }> {
+  const apiKey = Deno.env.get('OPENROUTER_API_KEY')
+  if (!apiKey) {
+    throw new Error('OPENROUTER_API_KEY not configured')
+  }
+
+  const model = opts?.model || Deno.env.get('AI_MODEL') || 'anthropic/claude-sonnet-4'
+  const startTime = Date.now()
+
+  const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+      'HTTP-Referer': 'https://bluedrumai.com',
+      'X-Title': 'Blue Drum AI',
+    },
+    body: JSON.stringify({
+      model,
+      messages,
+      max_tokens: opts?.maxTokens ?? 2000,
+      temperature: opts?.temperature ?? 0.7,
+    }),
+  })
+
+  if (!response.ok) {
+    const errorText = await response.text()
+    throw new Error(`OpenRouter API error: ${response.status} - ${errorText}`)
+  }
+
+  const data = await response.json()
+  const content = data.choices?.[0]?.message?.content
+  if (!content) {
+    throw new Error('No response content from OpenRouter')
+  }
+
+  return {
+    text: content,
+    usage: {
+      provider: 'openrouter',
+      model: data.model || model,
+      inputTokens: data.usage?.prompt_tokens || 0,
+      outputTokens: data.usage?.completion_tokens || 0,
+      responseTimeMs: Date.now() - startTime,
+      requestSizeBytes: JSON.stringify(messages).length,
+      responseSizeBytes: content.length,
+    },
+  }
+}
+
+function parseJSON<T>(text: string): T {
+  let cleaned = text.trim()
+  cleaned = cleaned.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim()
+  return JSON.parse(cleaned) as T
+}
+
+// ============================================================================
+// RISK CHECK
+// ============================================================================
 
 const MEN_LAWS = [
   'Section 498A IPC - Protection against false harassment cases',
@@ -124,173 +206,22 @@ IMPORTANT:
 - Cite real Indian laws and cases only if relevant`
 }
 
-async function generateWithClaude(input: RiskCheckInput, useKey2: boolean = false): Promise<{ response: RiskCheckResponse; usage: any }> {
-  const anthropicKey1 = Deno.env.get('ANTHROPIC_API_KEY1')
-  const anthropicKey2 = Deno.env.get('ANTHROPIC_API_KEY2')
-  const apiKey = useKey2 ? (anthropicKey2 || anthropicKey1) : (anthropicKey1 || anthropicKey2)
-
-  if (!apiKey) {
-    throw new Error('Anthropic API key not configured')
-  }
-
-  const prompt = buildPrompt(input)
-  const systemPrompt =
-    'You are a helpful documentation readiness advisor for Indian legal context. You provide factual information about evidence gathering and relevant laws. You never provide legal advice or predict outcomes. Always respond in valid JSON format only.'
-
-  const model = Deno.env.get('ANTHROPIC_MODEL') || 'claude-3-5-sonnet-20240620'
-
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-    },
-    body: JSON.stringify({
-      model,
-      max_tokens: 2000,
-      temperature: 0.7,
-      system: systemPrompt,
-      messages: [
-        {
-          role: 'user',
-          content: prompt,
-        },
-      ],
-    }),
-  })
-
-  if (!response.ok) {
-    const errorText = await response.text()
-    throw new Error(`Anthropic API error: ${response.status} - ${errorText}`)
-  }
-
-  const data = await response.json()
-  const content = data.content[0]
-
-  if (content.type !== 'text') {
-    throw new Error('Unexpected response type from Claude')
-  }
-
-  let jsonText = content.text.trim()
-  jsonText = jsonText.replace(/^```json\n?/i, '').replace(/^```\n?/i, '').replace(/\n?```$/i, '').trim()
-
-  const parsed = JSON.parse(jsonText) as RiskCheckResponse
-
-  // Validate and sanitize scores
-  parsed.riskScore = Math.max(0, Math.min(100, Math.round(parsed.riskScore || 0)))
-  parsed.readinessScore = Math.max(0, Math.min(100, Math.round(parsed.readinessScore || 0)))
-
-  return {
-    response: parsed,
-    usage: {
-      provider: 'anthropic',
-      model,
-      inputTokens: data.usage?.input_tokens || 0,
-      outputTokens: data.usage?.output_tokens || 0,
-      responseTimeMs: Date.now() - startTime,
-    },
-  }
-}
-
-async function generateWithOpenAI(input: RiskCheckInput): Promise<{ response: RiskCheckResponse; usage: any }> {
-  const openaiKey = Deno.env.get('OPENAI_API_KEY')
-  if (!openaiKey) {
-    throw new Error('OpenAI API key not configured')
-  }
-
-  const prompt = buildPrompt(input)
-  const systemPrompt =
-    'You are a helpful documentation readiness advisor for Indian legal context. You provide factual information about evidence gathering and relevant laws. You never provide legal advice or predict outcomes. Always respond in valid JSON format only.'
-
-  const model = Deno.env.get('OPENAI_MODEL') || 'gpt-3.5-turbo'
-
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${openaiKey}`,
-    },
-    body: JSON.stringify({
-      model,
-      messages: [
-        {
-          role: 'system',
-          content: systemPrompt,
-        },
-        { role: 'user', content: prompt },
-      ],
-      temperature: 0.7,
-      max_tokens: 2000,
-      response_format: { type: 'json_object' },
-    }),
-  })
-
-  if (!response.ok) {
-    const errorText = await response.text()
-    throw new Error(`OpenAI API error: ${response.status} - ${errorText}`)
-  }
-
-  const data = await response.json()
-  const content = data.choices[0]?.message?.content
-  if (!content) {
-    throw new Error('No response from AI')
-  }
-
-  const parsed = JSON.parse(content) as RiskCheckResponse
-
-  // Validate and sanitize scores
-  parsed.riskScore = Math.max(0, Math.min(100, Math.round(parsed.riskScore || 0)))
-  parsed.readinessScore = Math.max(0, Math.min(100, Math.round(parsed.readinessScore || 0)))
-
-  return {
-    response: parsed,
-    usage: {
-      provider: 'openai',
-      model,
-      inputTokens: data.usage?.prompt_tokens || 0,
-      outputTokens: data.usage?.completion_tokens || 0,
-      responseTimeMs: Date.now() - startTime,
-    },
-  }
-}
-
 export async function generateRiskCheckAdvice(input: RiskCheckInput): Promise<{ response: RiskCheckResponse; usage: any }> {
-  const anthropicKey1 = Deno.env.get('ANTHROPIC_API_KEY1')
-  const anthropicKey2 = Deno.env.get('ANTHROPIC_API_KEY2')
-  const openaiKey = Deno.env.get('OPENAI_API_KEY')
+  const prompt = buildPrompt(input)
+  const systemPrompt =
+    'You are a helpful documentation readiness advisor for Indian legal context. You provide factual information about evidence gathering and relevant laws. You never provide legal advice or predict outcomes. Always respond in valid JSON format only.'
 
-  // Try Anthropic Key 1 first
-  if (anthropicKey1) {
-    try {
-      return await generateWithClaude(input, false)
-    } catch (error: any) {
-      console.warn('Anthropic Key 1 failed, trying Key 2:', error.message)
-      // Fall through to Key 2
-    }
-  }
+  const result = await callOpenRouter([
+    { role: 'system', content: systemPrompt },
+    { role: 'user', content: prompt },
+  ])
 
-  // Try Anthropic Key 2
-  if (anthropicKey2) {
-    try {
-      return await generateWithClaude(input, true)
-    } catch (error: any) {
-      console.warn('Anthropic Key 2 failed, trying OpenAI:', error.message)
-      // Fall through to OpenAI
-    }
-  }
+  const parsed = parseJSON<RiskCheckResponse>(result.text)
 
-  // Fallback to OpenAI
-  if (openaiKey) {
-    try {
-      return await generateWithOpenAI(input)
-    } catch (error: any) {
-      console.error('OpenAI also failed:', error.message)
-      throw new Error('All AI providers failed. Please check API keys.')
-    }
-  }
+  parsed.riskScore = Math.max(0, Math.min(100, Math.round(parsed.riskScore || 0)))
+  parsed.readinessScore = Math.max(0, Math.min(100, Math.round(parsed.readinessScore || 0)))
 
-  throw new Error('No AI provider configured. Please set ANTHROPIC_API_KEY1, ANTHROPIC_API_KEY2, or OPENAI_API_KEY')
+  return { response: parsed, usage: result.usage }
 }
 
 // ============================================================================
@@ -379,168 +310,31 @@ Response format (JSON only):
 CRITICAL: Return ONLY valid JSON, no markdown, no code blocks.`
 }
 
-async function analyzeChatWithClaude(input: ChatAnalysisInput, apiKey: string): Promise<{ response: ChatAnalysisResponse; usage: any }> {
-  const prompt = buildChatAnalysisPrompt(input)
-  const systemPrompt = 'You are an expert communication pattern analyst specializing in identifying potential legal and safety risks in interpersonal communications, particularly in the Indian legal context. Always respond in valid JSON format only.'
-
-  const model = Deno.env.get('ANTHROPIC_MODEL') || 'claude-3-5-sonnet-20240620'
-  const startTime = Date.now()
-
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-    },
-    body: JSON.stringify({
-      model,
-      max_tokens: 4000,
-      temperature: 0.7,
-      system: systemPrompt,
-      messages: [{ role: 'user', content: prompt }],
-    }),
-  })
-
-  if (!response.ok) {
-    const errorText = await response.text()
-    throw new Error(`Anthropic API error: ${response.status} - ${errorText}`)
-  }
-
-  const data = await response.json()
-  const content = data.content[0]
-
-  if (content.type !== 'text') {
-    throw new Error('Unexpected response type from Claude')
-  }
-
-  let jsonText = content.text.trim()
-  jsonText = jsonText.replace(/^```json\n?/i, '').replace(/^```\n?/i, '').replace(/\n?```$/i, '').trim()
-
-  const parsed = JSON.parse(jsonText) as ChatAnalysisResponse
-  parsed.riskScore = Math.max(0, Math.min(100, Math.round(parsed.riskScore || 0)))
-  
-  if (!Array.isArray(parsed.redFlags)) parsed.redFlags = []
-  if (!Array.isArray(parsed.keywordsDetected)) parsed.keywordsDetected = []
-  if (!Array.isArray(parsed.recommendations)) parsed.recommendations = []
-  if (!Array.isArray(parsed.patternsDetected)) parsed.patternsDetected = []
-  
-  if (!parsed.summary || typeof parsed.summary !== 'string') {
-    parsed.summary = 'Analysis completed. Review red flags and recommendations for details.'
-  }
-
-  return {
-    response: parsed,
-    usage: {
-      provider: 'anthropic',
-      inputTokens: data.usage.input_tokens || 0,
-      outputTokens: data.usage.output_tokens || 0,
-      model,
-      responseTimeMs: Date.now() - startTime,
-      requestSizeBytes: JSON.stringify({ prompt, systemPrompt }).length,
-      responseSizeBytes: jsonText.length,
-    },
-  }
-}
-
-async function analyzeChatWithOpenAI(input: ChatAnalysisInput): Promise<{ response: ChatAnalysisResponse; usage: any }> {
-  const openaiKey = Deno.env.get('OPENAI_API_KEY')
-  if (!openaiKey) {
-    throw new Error('OpenAI API key not configured')
-  }
-
-  const prompt = buildChatAnalysisPrompt(input)
-  const systemPrompt = 'You are an expert communication pattern analyst specializing in identifying potential legal and safety risks in interpersonal communications, particularly in the Indian legal context. Always respond in valid JSON format only.'
-
-  const model = Deno.env.get('OPENAI_MODEL') || 'gpt-4'
-  const startTime = Date.now()
-
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${openaiKey}`,
-    },
-    body: JSON.stringify({
-      model,
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: prompt },
-      ],
-      temperature: 0.7,
-      max_tokens: 4000,
-      response_format: { type: 'json_object' },
-    }),
-  })
-
-  if (!response.ok) {
-    const errorText = await response.text()
-    throw new Error(`OpenAI API error: ${response.status} - ${errorText}`)
-  }
-
-  const data = await response.json()
-  const content = data.choices[0]?.message?.content
-  if (!content) {
-    throw new Error('No response from AI')
-  }
-
-  const parsed = JSON.parse(content) as ChatAnalysisResponse
-  parsed.riskScore = Math.max(0, Math.min(100, Math.round(parsed.riskScore || 0)))
-  
-  if (!Array.isArray(parsed.redFlags)) parsed.redFlags = []
-  if (!Array.isArray(parsed.keywordsDetected)) parsed.keywordsDetected = []
-  if (!Array.isArray(parsed.recommendations)) parsed.recommendations = []
-  if (!Array.isArray(parsed.patternsDetected)) parsed.patternsDetected = []
-  
-  if (!parsed.summary || typeof parsed.summary !== 'string') {
-    parsed.summary = 'Analysis completed. Review red flags and recommendations for details.'
-  }
-
-  return {
-    response: parsed,
-    usage: {
-      provider: 'openai',
-      inputTokens: data.usage?.prompt_tokens || 0,
-      outputTokens: data.usage?.completion_tokens || 0,
-      model,
-      responseTimeMs: Date.now() - startTime,
-      requestSizeBytes: JSON.stringify({ prompt, systemPrompt }).length,
-      responseSizeBytes: content.length,
-    },
-  }
-}
-
 export async function analyzeChatWithAI(input: ChatAnalysisInput): Promise<{ response: ChatAnalysisResponse; usage: any }> {
-  const anthropicKey1 = Deno.env.get('ANTHROPIC_API_KEY1')
-  const anthropicKey2 = Deno.env.get('ANTHROPIC_API_KEY2')
-  const openaiKey = Deno.env.get('OPENAI_API_KEY')
+  const prompt = buildChatAnalysisPrompt(input)
+  const systemPrompt = 'You are an expert communication pattern analyst specializing in identifying potential legal and safety risks in interpersonal communications, particularly in the Indian legal context. Always respond in valid JSON format only.'
 
-  if (anthropicKey1) {
-    try {
-      return await analyzeChatWithClaude(input, anthropicKey1)
-    } catch (error: any) {
-      console.warn('Anthropic Key 1 failed, trying Key 2:', error.message)
-    }
+  const result = await callOpenRouter(
+    [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: prompt },
+    ],
+    { maxTokens: 4000 },
+  )
+
+  const parsed = parseJSON<ChatAnalysisResponse>(result.text)
+  parsed.riskScore = Math.max(0, Math.min(100, Math.round(parsed.riskScore || 0)))
+
+  if (!Array.isArray(parsed.redFlags)) parsed.redFlags = []
+  if (!Array.isArray(parsed.keywordsDetected)) parsed.keywordsDetected = []
+  if (!Array.isArray(parsed.recommendations)) parsed.recommendations = []
+  if (!Array.isArray(parsed.patternsDetected)) parsed.patternsDetected = []
+
+  if (!parsed.summary || typeof parsed.summary !== 'string') {
+    parsed.summary = 'Analysis completed. Review red flags and recommendations for details.'
   }
 
-  if (anthropicKey2) {
-    try {
-      return await analyzeChatWithClaude(input, anthropicKey2)
-    } catch (error: any) {
-      console.warn('Anthropic Key 2 failed, trying OpenAI:', error.message)
-    }
-  }
-
-  if (openaiKey) {
-    try {
-      return await analyzeChatWithOpenAI(input)
-    } catch (error: any) {
-      console.error('OpenAI also failed:', error.message)
-      throw new Error('All AI providers failed. Please check API keys.')
-    }
-  }
-
-  throw new Error('No AI provider configured')
+  return { response: parsed, usage: result.usage }
 }
 
 // ============================================================================
@@ -625,79 +419,17 @@ Response format (JSON only):
 CRITICAL: Return ONLY valid JSON, no markdown.`
 }
 
-async function compareAnalysesWithClaude(input: ComparisonAnalysisInput, apiKey: string): Promise<{ response: ComparisonAnalysisResponse; usage: any }> {
+export async function compareAnalysesWithAI(input: ComparisonAnalysisInput): Promise<{ response: ComparisonAnalysisResponse; usage: any }> {
   const prompt = buildComparisonPrompt(input)
   const systemPrompt = 'You are an expert communication pattern analyst specializing in identifying trends and escalation patterns across multiple chat analyses. Always respond in valid JSON format only.'
 
-  const model = Deno.env.get('ANTHROPIC_MODEL') || 'claude-3-5-sonnet-20240620'
-  const startTime = Date.now()
+  const result = await callOpenRouter([
+    { role: 'system', content: systemPrompt },
+    { role: 'user', content: prompt },
+  ])
 
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-    },
-    body: JSON.stringify({
-      model,
-      max_tokens: 2000,
-      system: systemPrompt,
-      messages: [{ role: 'user', content: prompt }],
-    }),
-  })
-
-  if (!response.ok) {
-    const errorText = await response.text()
-    throw new Error(`Anthropic API error: ${response.status} - ${errorText}`)
-  }
-
-  const data = await response.json()
-  const content = data.content[0]
-
-  if (content.type !== 'text') {
-    throw new Error('Unexpected response type from Claude')
-  }
-
-  let jsonText = content.text.trim()
-  jsonText = jsonText.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim()
-  const parsed = JSON.parse(jsonText) as ComparisonAnalysisResponse
-
-  return {
-    response: parsed,
-    usage: {
-      provider: 'anthropic',
-      inputTokens: data.usage.input_tokens || 0,
-      outputTokens: data.usage.output_tokens || 0,
-      model,
-      responseTimeMs: Date.now() - startTime,
-    },
-  }
-}
-
-export async function compareAnalysesWithAI(input: ComparisonAnalysisInput): Promise<{ response: ComparisonAnalysisResponse; usage: any }> {
-  const anthropicKey1 = Deno.env.get('ANTHROPIC_API_KEY1')
-  const anthropicKey2 = Deno.env.get('ANTHROPIC_API_KEY2')
-  const openaiKey = Deno.env.get('OPENAI_API_KEY')
-
-  if (anthropicKey1) {
-    try {
-      return await compareAnalysesWithClaude(input, anthropicKey1)
-    } catch (error: any) {
-      console.warn('Anthropic Key 1 failed for comparison:', error.message)
-    }
-  }
-
-  if (anthropicKey2) {
-    try {
-      return await compareAnalysesWithClaude(input, anthropicKey2)
-    } catch (error: any) {
-      console.warn('Anthropic Key 2 failed for comparison:', error.message)
-    }
-  }
-
-  // OpenAI fallback would go here if needed
-  throw new Error('All AI providers failed for comparison')
+  const parsed = parseJSON<ComparisonAnalysisResponse>(result.text)
+  return { response: parsed, usage: result.usage }
 }
 
 // ============================================================================
@@ -764,76 +496,18 @@ Response format (JSON only):
 CRITICAL: Return ONLY valid JSON, no markdown.`
 }
 
-async function generateRedFlagChatWithClaude(input: RedFlagChatInput, apiKey: string): Promise<{ response: RedFlagChatResponse; usage: any }> {
+export async function generateRedFlagChatResponse(input: RedFlagChatInput): Promise<{ response: RedFlagChatResponse; usage: any }> {
   const prompt = buildRedFlagChatPrompt(input)
   const systemPrompt = 'You are simulating manipulative relationship behavior for educational purposes. Stay in character as a red flag person. Always respond in valid JSON format only.'
 
-  const model = Deno.env.get('ANTHROPIC_MODEL') || 'claude-3-5-sonnet-20240620'
-  const startTime = Date.now()
+  const result = await callOpenRouter(
+    [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: prompt },
+    ],
+    { maxTokens: 500 },
+  )
 
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-    },
-    body: JSON.stringify({
-      model,
-      max_tokens: 500,
-      system: systemPrompt,
-      messages: [{ role: 'user', content: prompt }],
-    }),
-  })
-
-  if (!response.ok) {
-    const errorText = await response.text()
-    throw new Error(`Anthropic API error: ${response.status} - ${errorText}`)
-  }
-
-  const data = await response.json()
-  const content = data.content[0]
-
-  if (content.type !== 'text') {
-    throw new Error('Unexpected response type from Claude')
-  }
-
-  let jsonText = content.text.trim()
-  jsonText = jsonText.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim()
-  const parsed = JSON.parse(jsonText) as RedFlagChatResponse
-
-  return {
-    response: parsed,
-    usage: {
-      provider: 'anthropic',
-      inputTokens: data.usage.input_tokens || 0,
-      outputTokens: data.usage.output_tokens || 0,
-      model,
-      responseTimeMs: Date.now() - startTime,
-    },
-  }
-}
-
-export async function generateRedFlagChatResponse(input: RedFlagChatInput): Promise<{ response: RedFlagChatResponse; usage: any }> {
-  const anthropicKey1 = Deno.env.get('ANTHROPIC_API_KEY1')
-  const anthropicKey2 = Deno.env.get('ANTHROPIC_API_KEY2')
-  const openaiKey = Deno.env.get('OPENAI_API_KEY')
-
-  if (anthropicKey1) {
-    try {
-      return await generateRedFlagChatWithClaude(input, anthropicKey1)
-    } catch (error: any) {
-      console.warn('Anthropic Key 1 failed for red flag chat:', error.message)
-    }
-  }
-
-  if (anthropicKey2) {
-    try {
-      return await generateRedFlagChatWithClaude(input, anthropicKey2)
-    } catch (error: any) {
-      console.warn('Anthropic Key 2 failed for red flag chat:', error.message)
-    }
-  }
-
-  throw new Error('All AI providers failed for red flag chat')
+  const parsed = parseJSON<RedFlagChatResponse>(result.text)
+  return { response: parsed, usage: result.usage }
 }

@@ -1,14 +1,15 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Upload, FileText, AlertTriangle, Loader2, CheckCircle2, Info, X, MessageSquare, Mail, Smartphone, Type, Bot, GitCompare, BookOpen } from 'lucide-react'
 import { useAuth } from '../../../context/AuthContext'
 import { DashboardLayout } from '../../../layouts/DashboardLayout'
 import { getEdgeFunctionUrl, getAuthHeadersWithSession } from '../../../lib/api'
+import UpgradePrompt from '../../../components/UpgradePrompt'
 
 type PlatformType = 'whatsapp' | 'sms' | 'email' | 'manual' | 'auto'
 
 export default function ChatUpload() {
-  const { sessionToken, user } = useAuth()
+  const { sessionToken } = useAuth()
   const navigate = useNavigate()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [platform, setPlatform] = useState<PlatformType>('auto')
@@ -17,34 +18,10 @@ export default function ChatUpload() {
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
+  const [limitInfo, setLimitInfo] = useState<{ feature: string; current: number; limit: number } | null>(null)
   const [preview, setPreview] = useState<string>('')
   const [progress, setProgress] = useState(0)
   const [status, setStatus] = useState('')
-  const [userGender, setUserGender] = useState<string | null>(null)
-
-  // Fetch user gender
-  useEffect(() => {
-    const fetchUserGender = async () => {
-      if (!sessionToken || !user?.id) return
-      try {
-        const headers = await getAuthHeadersWithSession()
-        if (sessionToken) headers['Authorization'] = `Bearer ${sessionToken}`
-        const response = await fetch(`${getEdgeFunctionUrl('auth')}/me`, {
-          headers,
-        })
-        if (response.ok) {
-          const data = await response.json()
-          if (data.ok && data.user) {
-            setUserGender(data.user.gender)
-          }
-        }
-      } catch (err) {
-        console.error('Error fetching user gender:', err)
-      }
-    }
-    fetchUserGender()
-  }, [sessionToken, user?.id])
-
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0]
     if (selectedFile) {
@@ -122,6 +99,10 @@ export default function ChatUpload() {
 
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({ error: 'Failed to analyze text' }))
+          if (errorData.error === 'limit_reached') {
+            setLimitInfo({ feature: errorData.limitKey, current: errorData.current, limit: errorData.limit })
+            throw new Error('Plan limit reached')
+          }
           throw new Error(errorData.error || errorData.details || 'Failed to analyze text')
         }
 
@@ -144,6 +125,8 @@ export default function ChatUpload() {
 
         const headers = await getAuthHeadersWithSession()
         if (sessionToken) headers['Authorization'] = `Bearer ${sessionToken}`
+        // Remove Content-Type so the browser auto-sets multipart/form-data with boundary
+        delete headers['Content-Type']
         
         setStatus('Uploading file...')
         setProgress(20)
@@ -160,6 +143,10 @@ export default function ChatUpload() {
 
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({ error: 'Failed to analyze chat' }))
+          if (errorData.error === 'limit_reached') {
+            setLimitInfo({ feature: errorData.limitKey, current: errorData.current, limit: errorData.limit })
+            throw new Error('Plan limit reached')
+          }
           throw new Error(errorData.error || errorData.details || 'Failed to analyze chat')
         }
 
@@ -199,7 +186,7 @@ export default function ChatUpload() {
   ]
 
   return (
-    <DashboardLayout title="Red Flag Radar" subtitle="Analyze conversations for red flags and threats">
+    <DashboardLayout title="Red Flag Radar" subtitle="Analyze conversations for red flags and threats" backHref="/dashboard">
       <div className="w-full max-w-4xl mx-auto">
         {/* Success Message */}
         {success && (
@@ -259,28 +246,25 @@ export default function ChatUpload() {
             </div>
           </button>
 
-          {/* Demo Red Flag - Only for Women */}
-          {userGender === 'female' && (
-            <button
-              onClick={() => navigate('/dashboard/red-flag-radar/demo-red-flag')}
-              className="group rounded-lg border border-red-200 bg-red-50/50 p-5 text-left transition-all hover:border-red-300 hover:bg-red-100 hover:shadow-md"
-            >
-              <div className="mb-3 flex items-center gap-2">
-                <Bot className="h-5 w-5 text-red-600" />
-                <h3 className="font-semibold text-red-900">Demo Red Flag</h3>
-              </div>
-              <p className="text-sm text-red-800">
-                Chat with an AI that demonstrates red flag behaviors. Learn to recognize manipulation in real-time.
-              </p>
-              <div className="mt-3 text-xs font-medium text-red-700 group-hover:text-red-900">
-                Try it now →
-              </div>
-            </button>
-          )}
+          <button
+            onClick={() => navigate('/dashboard/red-flag-radar/demo-red-flag')}
+            className="group rounded-lg border border-red-200 bg-red-50/50 p-5 text-left transition-all hover:border-red-300 hover:bg-red-100 hover:shadow-md"
+          >
+            <div className="mb-3 flex items-center gap-2">
+              <Bot className="h-5 w-5 text-red-600" />
+              <h3 className="font-semibold text-red-900">Demo Red Flag</h3>
+            </div>
+            <p className="text-sm text-red-800">
+              Chat with an AI that demonstrates red flag behaviors. Learn to recognize manipulation in real-time.
+            </p>
+            <div className="mt-3 text-xs font-medium text-red-700 group-hover:text-red-900">
+              Try it now →
+            </div>
+          </button>
         </div>
 
         {/* Platform Selection */}
-        <div className="mb-6 rounded-lg border border-blue-200 bg-blue-50/50 p-6 shadow-sm">
+        <div className="mb-6 rounded-lg border border-blue-200 bg-blue-50/50 p-4 sm:p-6 shadow-sm">
           <h3 className="mb-4 text-base font-semibold text-blue-900">Select Communication Platform</h3>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
             {platforms.map((p) => {
@@ -290,7 +274,7 @@ export default function ChatUpload() {
                 <button
                   key={p.value}
                   onClick={() => setPlatform(p.value as PlatformType)}
-                  className={`rounded-lg border-2 p-4 text-left transition-all ${
+                  className={`rounded-lg border-2 p-3 sm:p-4 text-left transition-all ${
                     isSelected
                       ? 'border-blue-500 bg-blue-100 shadow-md'
                       : 'border-gray-200 bg-white hover:border-blue-300 hover:bg-blue-50'
@@ -332,7 +316,7 @@ export default function ChatUpload() {
         )}
 
         {platform === 'sms' && (
-          <div className="mb-6 rounded-lg border border-blue-200 bg-blue-50/50 p-6 shadow-sm">
+          <div className="mb-6 rounded-lg border border-blue-200 bg-blue-50/50 p-4 sm:p-6 shadow-sm">
             <div className="flex items-start gap-3">
               <Info className="h-5 w-5 shrink-0 text-blue-600 mt-0.5" />
               <div className="flex-1">
@@ -353,7 +337,7 @@ export default function ChatUpload() {
         )}
 
         {platform === 'email' && (
-          <div className="mb-6 rounded-lg border border-blue-200 bg-blue-50/50 p-6 shadow-sm">
+          <div className="mb-6 rounded-lg border border-blue-200 bg-blue-50/50 p-4 sm:p-6 shadow-sm">
             <div className="flex items-start gap-3">
               <Info className="h-5 w-5 shrink-0 text-blue-600 mt-0.5" />
               <div className="flex-1">
@@ -394,7 +378,7 @@ export default function ChatUpload() {
               </div>
               <div
                 onClick={() => fileInputRef.current?.click()}
-                className="cursor-pointer rounded-lg border-2 border-dashed border-gray-300 bg-gray-50/50 p-8 text-center transition-colors hover:border-primary-400 hover:bg-gray-100/50"
+                className="cursor-pointer rounded-lg border-2 border-dashed border-gray-300 bg-gray-50/50 p-4 sm:p-8 text-center transition-colors hover:border-primary-400 hover:bg-gray-100/50"
               >
                 <Upload className="mx-auto mb-2 h-8 w-8 text-gray-400" />
                 <p className="text-sm text-gray-600">Click to upload a file instead</p>
@@ -476,7 +460,7 @@ export default function ChatUpload() {
             <button
               onClick={handleUpload}
               disabled={uploading}
-              className="mt-4 w-full rounded-lg bg-primary-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 transition-all"
+              className="mt-4 w-full min-h-[44px] rounded-lg bg-primary-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 transition-all"
             >
               {uploading ? (
                 <>
@@ -495,7 +479,7 @@ export default function ChatUpload() {
 
         {/* What We Analyze */}
         <div className="grid gap-4 sm:grid-cols-2">
-          <div className="rounded-lg border border-red-200 bg-red-50/50 p-5">
+          <div className="rounded-lg border border-red-200 bg-red-50/50 p-4 sm:p-5">
             <div className="mb-3 flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-red-600" />
               <h3 className="font-semibold text-red-900">Red Flags Detected</h3>
@@ -510,7 +494,7 @@ export default function ChatUpload() {
             </ul>
           </div>
 
-          <div className="rounded-lg border border-blue-200 bg-blue-50/50 p-5">
+          <div className="rounded-lg border border-blue-200 bg-blue-50/50 p-4 sm:p-5">
             <div className="mb-3 flex items-center gap-2">
               <FileText className="h-5 w-5 text-blue-600" />
               <h3 className="font-semibold text-blue-900">Supported Platforms</h3>
@@ -533,6 +517,10 @@ export default function ChatUpload() {
           </p>
         </div>
       </div>
+
+      {limitInfo && (
+        <UpgradePrompt feature={limitInfo.feature} current={limitInfo.current} limit={limitInfo.limit} onClose={() => setLimitInfo(null)} />
+      )}
     </DashboardLayout>
   )
 }

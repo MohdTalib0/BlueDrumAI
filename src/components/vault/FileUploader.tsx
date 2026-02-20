@@ -15,9 +15,12 @@ import {
   Plus,
 } from 'lucide-react'
 import { getEdgeFunctionUrl, getAuthHeadersWithSession } from '../../lib/api'
+import { encryptFile, computeFileHash } from '../../lib/encryption/clientEncryption'
+import { extractExifData, getImageDimensions, type ExifData } from '../../lib/metadata/exifExtractor'
 
 interface FileUploaderProps {
   onUploadSuccess?: () => void
+  onLimitReached?: (feature: string, current: number, limit: number) => void
   module?: 'male' | 'female'
   multiple?: boolean
 }
@@ -85,8 +88,8 @@ function validateFile(file: File): { valid: boolean; error?: string } {
   return { valid: true }
 }
 
-export default function FileUploader({ onUploadSuccess, module = 'male', multiple = false }: FileUploaderProps) {
-  const { sessionToken } = useAuth()
+export default function FileUploader({ onUploadSuccess, onLimitReached, module = 'male', multiple = false }: FileUploaderProps) {
+  const { sessionToken, user } = useAuth()
   const [files, setFiles] = useState<FileWithPreview[]>([])
   const [type, setType] = useState<'photo' | 'document' | 'ticket' | 'receipt' | 'other'>('photo')
   const [description, setDescription] = useState('')
@@ -196,31 +199,87 @@ export default function FileUploader({ onUploadSuccess, module = 'male', multipl
 
     try {
       const token = sessionToken
-      if (!token) {
+      const userId = user?.id
+      if (!token || !userId) {
         throw new Error('Not authenticated. Please sign in again.')
       }
 
+      // Step 1: Read raw file bytes
+      const rawBytes = await file.arrayBuffer()
+
+      // Step 2: Extract EXIF metadata from images (before encryption)
+      let exifData: ExifData | null = null
+      let imageDimensions: { width: number; height: number } | null = null
+      if (file.type.startsWith('image/')) {
+        exifData = extractExifData(rawBytes)
+        imageDimensions = await getImageDimensions(file)
+      }
+
+      setFiles((prev) =>
+        prev.map((f) => (f.id === id ? { ...f, progress: 20 } : f)),
+      )
+
+      // Step 3: Compute SHA-256 hash of ORIGINAL (unencrypted) file
+      const fileHash = await computeFileHash(rawBytes)
+
+      setFiles((prev) =>
+        prev.map((f) => (f.id === id ? { ...f, progress: 40 } : f)),
+      )
+
+      // Step 4: Encrypt file bytes
+      const { encrypted: encryptedBytes, iv } = await encryptFile(rawBytes, userId)
+
+      setFiles((prev) =>
+        prev.map((f) => (f.id === id ? { ...f, progress: 60 } : f)),
+      )
+
+      // Step 5: Build enhanced metadata
+      const metadata: Record<string, unknown> = {
+        filename: file.name,
+        mimeType: file.type,
+        size: file.size,
+        uploadedAt: new Date().toISOString(),
+        iv, // AES-GCM initialization vector (needed for decryption)
+        originalMimeType: file.type,
+      }
+
+      if (exifData) {
+        metadata.exif = exifData
+      }
+
+      if (imageDimensions) {
+        metadata.imageWidth = imageDimensions.width
+        metadata.imageHeight = imageDimensions.height
+      }
+
+      // Step 6: Build form data with encrypted file
+      const encryptedBlob = new Blob([new Uint8Array(encryptedBytes).buffer as ArrayBuffer], { type: 'application/octet-stream' })
       const formData = new FormData()
-      formData.append('file', file)
+      formData.append('file', encryptedBlob, file.name)
       formData.append('type', type)
       formData.append('module', module)
+      formData.append('file_hash', fileHash)
+      formData.append('encrypted', 'true')
+      formData.append('metadata', JSON.stringify(metadata))
       if (description.trim()) {
         formData.append('description', description.trim())
       }
 
-      // Simulate progress
+      // Step 7: Upload to vault
       const progressInterval = setInterval(() => {
         setFiles((prev) =>
           prev.map((f) =>
             f.id === id
-              ? { ...f, progress: Math.min(f.progress + 10, 90) }
+              ? { ...f, progress: Math.min(f.progress + 5, 95) }
               : f,
           ),
         )
-      }, 200)
+      }, 300)
 
       const headers = await getAuthHeadersWithSession()
       if (token) headers['Authorization'] = `Bearer ${token}`
+      // Remove Content-Type so the browser auto-sets multipart/form-data with boundary
+      delete headers['Content-Type']
 
       const response = await fetch(`${getEdgeFunctionUrl('vault')}/upload`, {
         method: 'POST',
@@ -232,6 +291,9 @@ export default function FileUploader({ onUploadSuccess, module = 'male', multipl
 
       if (!response.ok) {
         const data = await response.json().catch(() => null)
+        if (data?.error === 'limit_reached') {
+          throw new Error(`LIMIT:${data.limitKey}:${data.current}:${data.limit}`)
+        }
         throw new Error(data?.error || `Upload failed: ${response.statusText}`)
       }
 
@@ -242,10 +304,15 @@ export default function FileUploader({ onUploadSuccess, module = 'male', multipl
 
       return true
     } catch (err: any) {
+      const msg: string = err.message || 'Upload failed'
+      if (msg.startsWith('LIMIT:') && onLimitReached) {
+        const [, feature, current, limit] = msg.split(':')
+        onLimitReached(feature, Number(current), Number(limit))
+      }
       setFiles((prev) =>
         prev.map((f) =>
           f.id === id
-            ? { ...f, uploading: false, progress: 0, error: err.message || 'Upload failed' }
+            ? { ...f, uploading: false, progress: 0, error: msg.startsWith('LIMIT:') ? 'Plan limit reached' : msg }
             : f,
         ),
       )
@@ -316,19 +383,19 @@ export default function FileUploader({ onUploadSuccess, module = 'male', multipl
           />
           <label
             htmlFor="file-input"
-            className="flex min-h-[200px] flex-col items-center justify-center gap-4 p-8 text-center"
+            className="flex min-h-[160px] sm:min-h-[200px] flex-col items-center justify-center gap-3 sm:gap-4 p-6 sm:p-8 text-center touch-manipulation"
           >
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
-              <Upload className="h-8 w-8 text-gray-400" />
+            <div className="flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-full bg-gray-100">
+              <Upload className="h-7 w-7 sm:h-8 sm:w-8 text-gray-400" />
             </div>
             <div>
               <p className="text-sm font-semibold text-gray-900">
-                {isDragging ? 'Drop files here' : multiple ? 'Click to upload or drag and drop multiple files' : 'Click to upload or drag and drop'}
+                {isDragging ? 'Drop files here' : multiple ? 'Tap to upload or drag files' : 'Tap to upload'}
               </p>
               <p className="mt-1 text-xs text-gray-500">
                 Images (JPEG, PNG, GIF, WebP) or Documents (PDF, DOC, DOCX, TXT)
               </p>
-              <p className="mt-1 text-xs text-gray-500">Max size: {formatFileSize(MAX_FILE_SIZE)} per file</p>
+              <p className="mt-1 text-xs text-gray-500">Max: {formatFileSize(MAX_FILE_SIZE)} per file</p>
             </div>
           </label>
         </div>
@@ -345,7 +412,7 @@ export default function FileUploader({ onUploadSuccess, module = 'male', multipl
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors min-h-[40px] touch-manipulation"
               >
                 <Plus className="h-3.5 w-3.5" />
                 Add More

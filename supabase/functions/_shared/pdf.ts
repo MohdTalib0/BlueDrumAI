@@ -20,7 +20,9 @@ export async function createPDFDocument(options?: PDFOptions): Promise<PDFDocume
 }
 
 export function formatCurrency(amount: number): string {
-  return `₹${amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+  // Use "Rs." instead of the rupee symbol (₹) — pdf-lib standard fonts only
+  // support WinAnsi (Latin) encoding and cannot render ₹ (U+20B9)
+  return `Rs. ${amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 }
 
 export function formatDate(dateString: string): string {

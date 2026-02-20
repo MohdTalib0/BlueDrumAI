@@ -3,14 +3,12 @@ import { createSupabaseClient } from '../_shared/supabase.ts'
 import { getUserId } from '../_shared/auth.ts'
 import { parseUniversalChat, extractTextContent, PlatformType } from '../_shared/chatParser.ts'
 import { analyzeChatWithAI, compareAnalysesWithAI, generateRedFlagChatResponse } from '../_shared/ai.ts'
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
-}
+import { getCorsHeaders } from '../_shared/cors.ts'
+import { checkRateLimit, rateLimitResponse } from '../_shared/rateLimit.ts'
+import { checkUsageLimit, incrementUsageSimple, limitReachedResponse } from '../_shared/subscription.ts'
 
 serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req)
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
@@ -25,6 +23,23 @@ serve(async (req) => {
     }
 
     const url = new URL(req.url)
+
+    // Rate limit AI-powered endpoints (5 requests per minute)
+    const isAiEndpoint = req.method === 'POST' && (
+      url.pathname.endsWith('/chat') ||
+      url.pathname.endsWith('/text') ||
+      url.pathname.endsWith('/compare') ||
+      url.pathname.endsWith('/red-flag-chat')
+    )
+    if (isAiEndpoint) {
+      const { allowed, retryAfter } = checkRateLimit(userId, 'analyze', 5, 60_000)
+      if (!allowed) return rateLimitResponse(retryAfter!, corsHeaders)
+
+      // Subscription limit check — red-flag-chat uses its own counter
+      const limitKey = url.pathname.endsWith('/red-flag-chat') ? 'red_flag' as const : 'ai_analyses' as const
+      const subLimit = await checkUsageLimit(userId, limitKey)
+      if (!subLimit.allowed) return limitReachedResponse(limitKey, subLimit, corsHeaders)
+    }
     const supabase = createSupabaseClient(req)
 
     // Helper to log AI usage
@@ -139,16 +154,13 @@ serve(async (req) => {
           risk_score: riskAnalysis.riskScore,
           red_flags: riskAnalysis.redFlags,
           keywords_detected: riskAnalysis.keywordsDetected,
-          summary: riskAnalysis.summary,
+          analysis_text: riskAnalysis.summary,
           recommendations: riskAnalysis.recommendations,
           patterns_detected: riskAnalysis.patternsDetected,
           platform: metadata.platform,
-          file_path: filePath,
-          total_messages: parsedChat.totalMessages,
-          participants: parsedChat.participants,
-          date_range: parsedChat.dateRange,
+          chat_export_url: filePath,
         })
-        .select()
+        .select('id, created_at')
         .single()
 
       if (insertError) {
@@ -171,6 +183,8 @@ serve(async (req) => {
         resourceType: 'chat_analysis',
         resourceId: analysisData?.id,
       })
+
+      await incrementUsageSimple(userId, 'ai_analyses').catch(() => {})
 
       return new Response(
         JSON.stringify({
@@ -246,15 +260,12 @@ serve(async (req) => {
           risk_score: riskAnalysis.riskScore,
           red_flags: riskAnalysis.redFlags,
           keywords_detected: riskAnalysis.keywordsDetected,
-          summary: riskAnalysis.summary,
+          analysis_text: riskAnalysis.summary,
           recommendations: riskAnalysis.recommendations,
           patterns_detected: riskAnalysis.patternsDetected,
           platform: metadata.platform,
-          total_messages: parsedChat.totalMessages,
-          participants: parsedChat.participants,
-          date_range: parsedChat.dateRange,
         })
-        .select()
+        .select('id, created_at')
         .single()
 
       if (insertError) {
@@ -278,6 +289,8 @@ serve(async (req) => {
         resourceId: analysisData?.id,
       })
 
+      await incrementUsageSimple(userId, 'ai_analyses').catch(() => {})
+
       return new Response(
         JSON.stringify({
           ok: true,
@@ -292,7 +305,7 @@ serve(async (req) => {
     if (url.pathname.endsWith('/history') && req.method === 'GET') {
       const { data, error } = await supabase
         .from('chat_analyses')
-        .select('*')
+        .select('id, user_id, risk_score, red_flags, keywords_detected, analysis_text, platform, patterns_detected, recommendations, created_at')
         .eq('user_id', userId)
         .order('created_at', { ascending: false })
 
@@ -314,7 +327,7 @@ serve(async (req) => {
       const analysisId = url.pathname.split('/').pop()
       const { data, error } = await supabase
         .from('chat_analyses')
-        .select('*')
+        .select('id, user_id, risk_score, red_flags, keywords_detected, analysis_text, platform, patterns_detected, recommendations, created_at')
         .eq('id', analysisId)
         .eq('user_id', userId)
         .single()
@@ -370,7 +383,7 @@ serve(async (req) => {
       // Fetch the selected analyses
       const { data: analyses, error: fetchError } = await supabase
         .from('chat_analyses')
-        .select('*')
+        .select('id, user_id, risk_score, red_flags, keywords_detected, analysis_text, platform, patterns_detected, recommendations, created_at')
         .in('id', analysisIds)
         .eq('user_id', userId)
 
@@ -388,7 +401,7 @@ serve(async (req) => {
           riskScore: a.risk_score || 0,
           redFlags: (a.red_flags as any[]) || [],
           patternsDetected: (a.patterns_detected as any[]) || [],
-          summary: a.summary || '',
+          summary: a.analysis_text || '',
           recommendations: (a.recommendations as string[]) || [],
           createdAt: a.created_at,
           platform: a.platform || undefined,
@@ -415,6 +428,8 @@ serve(async (req) => {
         serviceType: 'comparison',
         resourceType: 'analysis_comparison',
       })
+
+      await incrementUsageSimple(userId, 'ai_analyses').catch(() => {})
 
       return new Response(
         JSON.stringify({
@@ -481,11 +496,106 @@ serve(async (req) => {
         resourceType: 'red_flag_experience',
       })
 
+      await incrementUsageSimple(userId, 'red_flag').catch(() => {})
+
       return new Response(
         JSON.stringify({
           ok: true,
           response: chatResult.response,
           usage: chatResult.usage,
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // GET /trends - Risk score trends over time
+    if (url.pathname.endsWith('/trends') && req.method === 'GET') {
+      const { data, error } = await supabase
+        .from('chat_analyses')
+        .select('id, risk_score, red_flags, patterns_detected, keywords_detected, platform, created_at')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: true })
+
+      if (error) {
+        return new Response(
+          JSON.stringify({ ok: false, error: error.message }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+
+      const analyses = data || []
+
+      if (analyses.length === 0) {
+        return new Response(
+          JSON.stringify({ ok: true, trends: { dataPoints: [], summary: null } }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+
+      const dataPoints = analyses.map((a) => {
+        const flags = Array.isArray(a.red_flags) ? a.red_flags : []
+        const patterns = Array.isArray(a.patterns_detected) ? a.patterns_detected : []
+        return {
+          id: a.id,
+          date: a.created_at,
+          riskScore: a.risk_score ?? 0,
+          redFlagCount: flags.length,
+          criticalCount: flags.filter((f: any) => f.severity === 'critical').length,
+          highCount: flags.filter((f: any) => f.severity === 'high').length,
+          patternCount: patterns.length,
+          platform: a.platform || 'unknown',
+        }
+      })
+
+      const scores = dataPoints.map((d) => d.riskScore)
+      const avgScore = Math.round(scores.reduce((s, v) => s + v, 0) / scores.length)
+      const maxScore = Math.max(...scores)
+      const minScore = Math.min(...scores)
+      const latestScore = scores[scores.length - 1]
+      const firstScore = scores[0]
+
+      let overallTrend: 'improving' | 'worsening' | 'stable' | 'mixed' = 'stable'
+      if (scores.length >= 2) {
+        const recentHalf = scores.slice(Math.floor(scores.length / 2))
+        const olderHalf = scores.slice(0, Math.floor(scores.length / 2))
+        const recentAvg = recentHalf.reduce((s, v) => s + v, 0) / recentHalf.length
+        const olderAvg = olderHalf.reduce((s, v) => s + v, 0) / olderHalf.length
+        const diff = recentAvg - olderAvg
+        if (diff > 10) overallTrend = 'worsening'
+        else if (diff < -10) overallTrend = 'improving'
+        else overallTrend = 'stable'
+      }
+
+      const patternFrequency: Record<string, number> = {}
+      for (const a of analyses) {
+        const patterns = Array.isArray(a.patterns_detected) ? a.patterns_detected : []
+        for (const p of patterns) {
+          const name = typeof p === 'object' && p.pattern ? p.pattern : String(p)
+          patternFrequency[name] = (patternFrequency[name] || 0) + 1
+        }
+      }
+
+      const topPatterns = Object.entries(patternFrequency)
+        .sort(([, a], [, b]) => b - a)
+        .slice(0, 10)
+        .map(([pattern, count]) => ({ pattern, count, percentage: Math.round((count / analyses.length) * 100) }))
+
+      return new Response(
+        JSON.stringify({
+          ok: true,
+          trends: {
+            dataPoints,
+            summary: {
+              totalAnalyses: analyses.length,
+              avgRiskScore: avgScore,
+              maxRiskScore: maxScore,
+              minRiskScore: minScore,
+              latestRiskScore: latestScore,
+              riskChange: latestScore - firstScore,
+              overallTrend,
+              topPatterns,
+            },
+          },
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )

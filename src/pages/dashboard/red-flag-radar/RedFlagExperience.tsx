@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, AlertTriangle, CheckCircle2, XCircle, Info, Send, Bot, User, Loader2, Sparkles } from 'lucide-react'
+import { ArrowLeft, AlertTriangle, CheckCircle2, XCircle, Send, Bot, User, Loader2, Sparkles } from 'lucide-react'
 import { useAuth } from '../../../context/AuthContext'
 import { DashboardLayout } from '../../../layouts/DashboardLayout'
 import { getEdgeFunctionUrl, getAuthHeadersWithSession } from '../../../lib/api'
@@ -198,7 +198,7 @@ export default function RedFlagExperience() {
     }
   }
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
       handleSend()
@@ -221,6 +221,7 @@ export default function RedFlagExperience() {
       <DashboardLayout
         title="Red Flag Experience"
         subtitle="Learn to recognize red flags through interactive scenarios"
+        backHref="/dashboard/red-flag-radar"
       >
         <div className="w-full">
           {/* Explanation */}
@@ -279,6 +280,7 @@ export default function RedFlagExperience() {
       <DashboardLayout
         title="Red Flag Experience"
         subtitle="Learn to recognize red flags through interactive scenarios"
+        backHref="/dashboard/red-flag-radar"
       >
         <div className="w-full">
           {/* Scenario Info */}
@@ -378,7 +380,7 @@ export default function RedFlagExperience() {
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  onKeyPress={handleKeyPress}
+                  onKeyDown={handleKeyDown}
                   placeholder="Type your response..."
                   className="flex-1 rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none"
                   disabled={sending}
@@ -412,10 +414,11 @@ export default function RedFlagExperience() {
   }
 
   return (
-    <DashboardLayout
-      title="Red Flag Experience"
-      subtitle="Learn to recognize red flags through interactive AI-powered scenarios"
-    >
+      <DashboardLayout
+        title="Red Flag Experience"
+        subtitle="Learn to recognize red flags through interactive AI-powered scenarios"
+        backHref="/dashboard/red-flag-radar"
+      >
       <div className="w-full">
         {/* Info Banner */}
         <div className="mb-6 rounded-lg border border-blue-200 bg-blue-50 p-4">

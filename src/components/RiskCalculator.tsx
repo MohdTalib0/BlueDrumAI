@@ -94,10 +94,8 @@ const WOMEN_QUESTIONS = [
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export default function RiskCalculator({
-  apiBaseUrl,
   onClose,
 }: {
-  apiBaseUrl?: string
   onClose: () => void
 }) {
   const [step, setStep] = useState<1 | 2 | 3 | 4 | 5>(1)

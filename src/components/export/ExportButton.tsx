@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import toast from 'react-hot-toast'
 import { Download, Loader2 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { getEdgeFunctionUrl, getAuthHeadersWithSession } from '../../lib/api'
@@ -17,7 +18,7 @@ export default function ExportButton({ exportType, monthYear, analysisId, classN
 
   const handleExport = async () => {
     if (!sessionToken) {
-      alert('Please sign in to export')
+      toast.error('Please sign in to export')
       return
     }
 
@@ -38,7 +39,7 @@ export default function ExportButton({ exportType, monthYear, analysisId, classN
           break
         case 'affidavit':
           if (!monthYear) {
-            alert('Month and year are required')
+            toast.error('Month and year are required')
             return
           }
           url = `${getEdgeFunctionUrl('export')}/affidavit`
@@ -46,7 +47,7 @@ export default function ExportButton({ exportType, monthYear, analysisId, classN
           break
         case 'analysis':
           if (!analysisId) {
-            alert('Analysis ID is required')
+            toast.error('Analysis ID is required')
             return
           }
           url = `${getEdgeFunctionUrl('export')}/analysis`
@@ -84,7 +85,7 @@ export default function ExportButton({ exportType, monthYear, analysisId, classN
       window.URL.revokeObjectURL(downloadUrl)
     } catch (error: any) {
       console.error('Export error:', error)
-      alert(error.message || 'Failed to export. Please try again.')
+      toast.error(error.message || 'Failed to export. Please try again.')
     } finally {
       setExporting(false)
     }

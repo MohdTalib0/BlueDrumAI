@@ -141,7 +141,7 @@ export default function DemoRedFlag() {
     }
   }
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
       handleSend()
@@ -152,6 +152,7 @@ export default function DemoRedFlag() {
     <DashboardLayout
       title="Demo Red Flag"
       subtitle="Experience red flag behavior patterns in a safe, educational environment"
+      backHref="/dashboard/red-flag-radar"
     >
       <div className="w-full">
         {/* Warning Banner */}
@@ -243,7 +244,7 @@ export default function DemoRedFlag() {
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                onKeyPress={handleKeyPress}
+                onKeyDown={handleKeyDown}
                 placeholder="Type your message..."
                 className="flex-1 rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none"
                 disabled={sending}

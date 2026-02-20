@@ -1,14 +1,11 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createSupabaseClient } from '../_shared/supabase.ts'
 import { getUserId } from '../_shared/auth.ts'
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
-}
+import { getCorsHeaders } from '../_shared/cors.ts'
+import { checkUsageLimit, checkStorageLimit, incrementUsageSimple, limitReachedResponse } from '../_shared/subscription.ts'
 
 serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req)
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
@@ -29,7 +26,7 @@ serve(async (req) => {
     if (url.pathname.endsWith('/entries') && req.method === 'GET') {
       const { data, error } = await supabase
         .from('vault_entries')
-        .select('*')
+        .select('id, user_id, type, module, file_url, file_hash, encrypted, metadata, description, created_at')
         .eq('user_id', userId)
         .order('created_at', { ascending: false })
 
@@ -75,6 +72,9 @@ serve(async (req) => {
       const file = formData.get('file') as File
       const type = formData.get('type') as string
       const module = formData.get('module') as string
+      const description = formData.get('description') as string || null
+      const fileHash = formData.get('file_hash') as string || null
+      const isEncrypted = formData.get('encrypted') === 'true'
       const metadata = formData.get('metadata') ? JSON.parse(formData.get('metadata') as string) : {}
 
       if (!file) {
@@ -84,15 +84,22 @@ serve(async (req) => {
         )
       }
 
-      // Upload to Supabase Storage
-      const fileExt = file.name.split('.').pop()
-      const fileName = `${userId}/${Date.now()}.${fileExt}`
-      const filePath = `vault-files/${fileName}`
+      // Check subscription limits (file count + storage)
+      const uploadLimit = await checkUsageLimit(userId, 'vault_uploads')
+      if (!uploadLimit.allowed) return limitReachedResponse('vault_uploads', uploadLimit, corsHeaders)
 
-      const { data: uploadData, error: uploadError } = await supabase.storage
+      const storageLimit = await checkStorageLimit(userId, file.size)
+      if (!storageLimit.allowed) return limitReachedResponse('storage', storageLimit, corsHeaders)
+
+      // Upload to Supabase Storage
+      // Path inside the bucket: userId/timestamp.ext (bucket name is already 'vault-files')
+      const fileExt = file.name.split('.').pop()
+      const storagePath = `${userId}/${Date.now()}.${fileExt}`
+
+      const { error: uploadError } = await supabase.storage
         .from('vault-files')
-        .upload(filePath, file, {
-          contentType: file.type,
+        .upload(storagePath, file, {
+          contentType: isEncrypted ? 'application/octet-stream' : file.type,
           upsert: false,
         })
 
@@ -104,18 +111,21 @@ serve(async (req) => {
       }
 
       // Get public URL
-      const { data: urlData } = supabase.storage.from('vault-files').getPublicUrl(filePath)
+      const { data: urlData } = supabase.storage.from('vault-files').getPublicUrl(storagePath)
 
-      // Save entry to database
+      // Save entry to database (schema has: file_url, file_hash, encrypted, description, metadata)
       const { data: entryData, error: dbError } = await supabase
         .from('vault_entries')
         .insert({
           user_id: userId,
           type: type || 'document',
-          module: module || 'consent_vault',
+          module: module || 'male',
           file_url: urlData.publicUrl,
-          file_path: filePath,
+          file_hash: fileHash,
+          encrypted: isEncrypted,
+          description: description,
           metadata: metadata,
+          file_size: file.size || null,
         })
         .select()
         .single()
@@ -127,6 +137,8 @@ serve(async (req) => {
         )
       }
 
+      await incrementUsageSimple(userId, 'vault_uploads').catch(() => {})
+
       return new Response(
         JSON.stringify({ ok: true, entry: entryData }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -137,17 +149,22 @@ serve(async (req) => {
     if (url.pathname.includes('/entry/') && req.method === 'DELETE') {
       const entryId = url.pathname.split('/entry/')[1]
 
-      // Get entry first to get file path
+      // Get entry first to get file URL for storage cleanup
       const { data: entry } = await supabase
         .from('vault_entries')
-        .select('file_path')
+        .select('file_url')
         .eq('id', entryId)
         .eq('user_id', userId)
         .single()
 
-      // Delete from storage if exists
-      if (entry?.file_path) {
-        await supabase.storage.from('vault-files').remove([entry.file_path])
+      // Extract storage path from public URL and delete from storage
+      if (entry?.file_url) {
+        // URL format: .../storage/v1/object/public/vault-files/userId/timestamp.ext
+        const urlParts = entry.file_url.split('/vault-files/')
+        if (urlParts.length > 1) {
+          const storagePath = urlParts[urlParts.length - 1]
+          await supabase.storage.from('vault-files').remove([storagePath])
+        }
       }
 
       // Delete from database
