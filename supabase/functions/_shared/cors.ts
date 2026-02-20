@@ -6,6 +6,8 @@ const ALLOWED_ORIGINS = [
   'https://alimonyai.vercel.app',
   'https://alimonyai.netlify.app',
   'https://bluedrumai.netlify.app',
+  'http://beta.bluedrumai.com',
+  'https://beta.bluedrumai.com',
 ]
 
 export function getCorsHeaders(req?: Request): Record<string, string> {
