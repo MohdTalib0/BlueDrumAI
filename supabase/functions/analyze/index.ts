@@ -461,20 +461,14 @@ serve(async (req) => {
       })
 
       // Persist experience
+      const aiResp = chatResult.response
       const conversation = [
         ...conversationHistory,
         { role: 'user', content: userMessage },
-        { role: 'assistant', content: chatResult.response },
+        { role: 'assistant', content: aiResp.response },
       ]
-      const redFlags =
-        chatResult.response?.redFlagsDetected ||
-        chatResult.responseDetails?.redFlagsDetected ||
-        chatResult.redFlagsDetected ||
-        null
-      const educationalNote =
-        chatResult.response?.educationalNote ||
-        chatResult.responseDetails?.educationalNote ||
-        null
+      const redFlags = aiResp.redFlagsDetected || null
+      const educationalNote = aiResp.educationalNote || null
 
       await supabase.from('red_flag_experiences').insert({
         user_id: userId,

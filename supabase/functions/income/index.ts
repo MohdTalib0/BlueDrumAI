@@ -97,9 +97,36 @@ serve(async (req) => {
       const entryId = url.pathname.split('/entry/')[1]
       const body = await req.json()
 
+      const ALLOWED_FIELDS = ['month_year', 'gross_income', 'deductions', 'expenses', 'notes'] as const
+      const sanitized: Record<string, unknown> = {}
+      for (const key of ALLOWED_FIELDS) {
+        if (key in body && body[key] !== undefined) sanitized[key] = body[key]
+      }
+
+      if (Object.keys(sanitized).length === 0) {
+        return new Response(
+          JSON.stringify({ ok: false, error: 'No valid fields to update. Allowed: ' + ALLOWED_FIELDS.join(', ') }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+
+      if (sanitized.month_year && (typeof sanitized.month_year !== 'string' || !/^\d{4}-\d{2}(-\d{2})?$/.test(sanitized.month_year as string))) {
+        return new Response(
+          JSON.stringify({ ok: false, error: 'month_year must match YYYY-MM or YYYY-MM-DD' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+
+      if (sanitized.gross_income !== undefined && (typeof sanitized.gross_income !== 'number' || (sanitized.gross_income as number) < 0)) {
+        return new Response(
+          JSON.stringify({ ok: false, error: 'gross_income must be a number >= 0' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+
       const { data, error } = await supabase
         .from('income_tracker')
-        .update(body)
+        .update(sanitized)
         .eq('id', entryId)
         .eq('user_id', userId)
         .select('id, month_year, created_at')

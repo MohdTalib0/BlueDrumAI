@@ -35,7 +35,7 @@ import { format } from 'date-fns'
 import DocumentViewer from '../../../components/vault/DocumentViewer'
 import { DashboardLayout } from '../../../layouts/DashboardLayout'
 import ExportButton from '../../../components/export/ExportButton'
-import { getEdgeFunctionUrl, getAuthHeadersWithSession } from '../../../lib/api'
+import { getEdgeFunctionUrl, authHeaders } from '../../../lib/api'
 import { decryptFile } from '../../../lib/encryption/clientEncryption'
 import ConfirmModal from '../../../components/ui/ConfirmModal'
 import toast from 'react-hot-toast'
@@ -319,10 +319,7 @@ export default function TimelineView() {
         throw new Error('Not authenticated')
       }
 
-      const headers = await getAuthHeadersWithSession()
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`
-      }
+      const headers = authHeaders(token)
 
       const response = await fetch(`${getEdgeFunctionUrl('vault')}/entries`, {
         headers,
@@ -376,10 +373,7 @@ export default function TimelineView() {
         throw new Error('Not authenticated')
       }
 
-      const headers = await getAuthHeadersWithSession()
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`
-      }
+      const headers = authHeaders(token)
 
       const response = await fetch(`${getEdgeFunctionUrl('vault')}/entry/${id}`, {
         method: 'DELETE',
@@ -409,11 +403,8 @@ export default function TimelineView() {
         const token = sessionToken
         if (!token) continue
 
-        const { getEdgeFunctionUrl, getAuthHeadersWithSession } = await import('../../../lib/api.ts')
-        const headers = await getAuthHeadersWithSession()
-        if (token) {
-          headers['Authorization'] = `Bearer ${token}`
-        }
+        const { getEdgeFunctionUrl, authHeaders } = await import('../../../lib/api.ts')
+        const headers = authHeaders(token)
         const response = await fetch(`${getEdgeFunctionUrl('vault')}/entry/${id}`, {
           method: 'DELETE',
           headers,

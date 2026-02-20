@@ -21,7 +21,7 @@ import { useAuth } from '../../../context/AuthContext'
 import { DashboardLayout } from '../../../layouts/DashboardLayout'
 import { format } from 'date-fns'
 import toast from 'react-hot-toast'
-import { getEdgeFunctionUrl, getAuthHeadersWithSession } from '../../../lib/api'
+import { getEdgeFunctionUrl, authHeaders } from '../../../lib/api'
 import ConfirmModal from '../../../components/ui/ConfirmModal'
 import { AreaChart, Area, ResponsiveContainer } from 'recharts'
 
@@ -87,8 +87,7 @@ export default function AnalysisHistory() {
         throw new Error('Not authenticated')
       }
 
-      const headers = await getAuthHeadersWithSession()
-      if (sessionToken) headers['Authorization'] = `Bearer ${sessionToken}`
+      const headers = authHeaders(sessionToken!)
       const response = await fetch(`${getEdgeFunctionUrl('analyze')}/history`, {
         headers,
       })
@@ -111,8 +110,7 @@ export default function AnalysisHistory() {
   const loadTrends = async () => {
     try {
       if (!sessionToken) return
-      const headers = await getAuthHeadersWithSession()
-      if (sessionToken) headers['Authorization'] = `Bearer ${sessionToken}`
+      const headers = authHeaders(sessionToken!)
       const response = await fetch(`${getEdgeFunctionUrl('analyze')}/trends`, { headers })
       if (response.ok) {
         const data = await response.json()
@@ -131,8 +129,7 @@ export default function AnalysisHistory() {
         throw new Error('Not authenticated')
       }
 
-      const headers = await getAuthHeadersWithSession()
-      if (sessionToken) headers['Authorization'] = `Bearer ${sessionToken}`
+      const headers = authHeaders(sessionToken!)
       const response = await fetch(`${getEdgeFunctionUrl('analyze')}/${id}`, {
         method: 'DELETE',
         headers,

@@ -19,27 +19,5 @@ export function createSupabaseClient(req: Request) {
   })
 }
 
-// Export verifyAuth for convenience
-export async function verifyAuth(req: Request) {
-  const authHeader = req.headers.get('authorization') || ''
-  const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null
-
-  if (!token) {
-    return { user: null, error: 'Missing authorization token' }
-  }
-
-  const supabase = createSupabaseClient(req)
-  const { data, error } = await supabase.auth.getUser(token)
-
-  if (error || !data?.user) {
-    return { user: null, error: 'Invalid token' }
-  }
-
-  return {
-    user: {
-      id: data.user.id,
-      email: data.user.email,
-    },
-    error: null,
-  }
-}
+// Re-export verifyAuth from the canonical location
+export { verifyAuth } from './auth.ts'

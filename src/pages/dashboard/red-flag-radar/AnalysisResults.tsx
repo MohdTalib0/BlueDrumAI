@@ -20,7 +20,7 @@ import { useAuth } from '../../../context/AuthContext'
 import { DashboardLayout } from '../../../layouts/DashboardLayout'
 import { format } from 'date-fns'
 import toast from 'react-hot-toast'
-import { getEdgeFunctionUrl, getAuthHeadersWithSession } from '../../../lib/api'
+import { getEdgeFunctionUrl, authHeaders } from '../../../lib/api'
 import ConfirmModal from '../../../components/ui/ConfirmModal'
 
 interface RedFlag {
@@ -74,8 +74,7 @@ export default function AnalysisResults() {
         throw new Error('Not authenticated')
       }
 
-      const headers = await getAuthHeadersWithSession()
-      if (sessionToken) headers['Authorization'] = `Bearer ${sessionToken}`
+      const headers = authHeaders(sessionToken!)
       const response = await fetch(`${getEdgeFunctionUrl('analyze')}/${id}`, {
         headers,
       })
@@ -102,8 +101,7 @@ export default function AnalysisResults() {
 
     try {
       setExporting(true)
-      const headers = await getAuthHeadersWithSession()
-      if (sessionToken) headers['Authorization'] = `Bearer ${sessionToken}`
+      const headers = authHeaders(sessionToken!)
       const response = await fetch(`${getEdgeFunctionUrl('export')}/analysis`, {
         method: 'POST',
         headers: {
@@ -141,8 +139,7 @@ export default function AnalysisResults() {
         throw new Error('Not authenticated')
       }
 
-      const headers = await getAuthHeadersWithSession()
-      if (sessionToken) headers['Authorization'] = `Bearer ${sessionToken}`
+      const headers = authHeaders(sessionToken!)
       const response = await fetch(`${getEdgeFunctionUrl('analyze')}/${id}`, {
         method: 'DELETE',
         headers,

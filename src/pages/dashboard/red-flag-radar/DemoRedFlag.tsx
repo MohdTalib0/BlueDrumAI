@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, Send, Bot, User, AlertTriangle, Loader2, Info } from 'lucide-react'
 import { useAuth } from '../../../context/AuthContext'
 import { DashboardLayout } from '../../../layouts/DashboardLayout'
-import { getEdgeFunctionUrl, getAuthHeadersWithSession } from '../../../lib/api'
+import { getEdgeFunctionUrl, authHeaders } from '../../../lib/api'
 
 interface Message {
   id: string
@@ -116,8 +116,7 @@ export default function DemoRedFlag() {
     // Fire-and-forget logging of the demo interaction
     try {
       if (sessionToken && user?.id) {
-        const headers = await getAuthHeadersWithSession()
-        if (sessionToken) headers['Authorization'] = `Bearer ${sessionToken}`
+        const headers = authHeaders(sessionToken!)
         await fetch(`${getEdgeFunctionUrl('analyze')}/demo-red-flag`, {
           method: 'POST',
           headers: {

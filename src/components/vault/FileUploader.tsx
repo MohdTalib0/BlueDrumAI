@@ -14,7 +14,7 @@ import {
   FileCheck,
   Plus,
 } from 'lucide-react'
-import { getEdgeFunctionUrl, getAuthHeadersWithSession } from '../../lib/api'
+import { getEdgeFunctionUrl, authHeaders } from '../../lib/api'
 import { encryptFile, computeFileHash } from '../../lib/encryption/clientEncryption'
 import { extractExifData, getImageDimensions, type ExifData } from '../../lib/metadata/exifExtractor'
 
@@ -276,8 +276,7 @@ export default function FileUploader({ onUploadSuccess, onLimitReached, module =
         )
       }, 300)
 
-      const headers = await getAuthHeadersWithSession()
-      if (token) headers['Authorization'] = `Bearer ${token}`
+      const headers = authHeaders(token)
       // Remove Content-Type so the browser auto-sets multipart/form-data with boundary
       delete headers['Content-Type']
 

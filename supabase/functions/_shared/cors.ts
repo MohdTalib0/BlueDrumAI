@@ -5,6 +5,7 @@ const ALLOWED_ORIGINS = [
   'https://www.bluedrumai.com',
   'https://alimonyai.vercel.app',
   'https://alimonyai.netlify.app',
+  'https://bluedrumai.netlify.app',
 ]
 
 export function getCorsHeaders(req?: Request): Record<string, string> {
@@ -14,7 +15,7 @@ export function getCorsHeaders(req?: Request): Record<string, string> {
   return {
     'Access-Control-Allow-Origin': isAllowed ? origin : '',
     'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
     'Access-Control-Max-Age': '86400',
     ...(isAllowed ? { 'Vary': 'Origin' } : {}),
   }

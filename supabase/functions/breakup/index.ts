@@ -1,6 +1,7 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createSupabaseClient } from '../_shared/supabase.ts'
 import { getUserId } from '../_shared/auth.ts'
+import { callOpenRouter, parseJSON } from '../_shared/ai.ts'
 import { getCorsHeaders } from '../_shared/cors.ts'
 import { checkRateLimit, rateLimitResponse } from '../_shared/rateLimit.ts'
 import { checkUsageLimit, incrementUsageSimple, limitReachedResponse } from '../_shared/subscription.ts'
@@ -123,64 +124,21 @@ Format your response as JSON (no markdown):
 }`
 }
 
-interface AIUsage {
-  provider: string
-  model: string
-  inputTokens: number
-  outputTokens: number
-  responseTimeMs: number
-}
-
-async function generateWithAI(prompt: string): Promise<{ message: string; legalNotes: string; usage: AIUsage }> {
-  const apiKey = Deno.env.get('OPENROUTER_API_KEY')
-  if (!apiKey) throw new Error('OPENROUTER_API_KEY not configured')
-
-  const model = Deno.env.get('AI_MODEL') || 'anthropic/claude-sonnet-4'
-  const startTime = Date.now()
-
-  const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-      'HTTP-Referer': 'https://bluedrumai.com',
-      'X-Title': 'Blue Drum AI',
-    },
-    body: JSON.stringify({
-      model,
-      messages: [{ role: 'user', content: prompt }],
-      max_tokens: 1024,
-      temperature: 0.7,
-    }),
-  })
-
-  if (!response.ok) {
-    const errorText = await response.text()
-    throw new Error(`OpenRouter API error: ${response.status} - ${errorText}`)
-  }
-
-  const data = await response.json()
-  const text = data.choices?.[0]?.message?.content || ''
-  if (!text) throw new Error('No response content from OpenRouter')
-
-  const usage: AIUsage = {
-    provider: 'openrouter',
-    model: data.model || model,
-    inputTokens: data.usage?.prompt_tokens || 0,
-    outputTokens: data.usage?.completion_tokens || 0,
-    responseTimeMs: Date.now() - startTime,
-  }
+async function generateWithAI(prompt: string) {
+  const result = await callOpenRouter(
+    [{ role: 'user', content: prompt }],
+    { maxTokens: 1024 },
+  )
 
   try {
-    const cleaned = text.trim().replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim()
-    const parsed = JSON.parse(cleaned)
+    const parsed = parseJSON<{ message: string; legalNotes: string }>(result.text)
     return {
       message: typeof parsed.message === 'string' ? parsed.message.trim() : '',
       legalNotes: typeof parsed.legalNotes === 'string' ? parsed.legalNotes.trim() : '',
-      usage,
+      usage: result.usage,
     }
   } catch {
-    return { message: text.trim(), legalNotes: '', usage }
+    return { message: result.text.trim(), legalNotes: '', usage: result.usage }
   }
 }
 
@@ -202,7 +160,7 @@ serve(async (req) => {
     const url = new URL(req.url)
     const supabase = createSupabaseClient(req)
 
-    async function logAiUsage(usage: AIUsage, resourceId?: string) {
+    async function logAiUsage(usage: { provider: string; model: string; inputTokens: number; outputTokens: number; responseTimeMs: number }, resourceId?: string) {
       try {
         await supabase.from('ai_usage_logs').insert({
           user_id: userId,
@@ -285,7 +243,7 @@ serve(async (req) => {
         safeKeyPoints,
       )
 
-      let generated: { message: string; legalNotes: string; usage: AIUsage }
+      let generated: Awaited<ReturnType<typeof generateWithAI>>
       try {
         generated = await generateWithAI(prompt)
       } catch (aiErr) {

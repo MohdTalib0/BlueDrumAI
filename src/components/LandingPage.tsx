@@ -57,12 +57,18 @@ function SectionLabel({ children }: { children: ReactNode }) {
    ═══════════════════════════════════════════════════════════════════ */
 
 export default function LandingPage() {
-  const { user, signOut } = useAuth()
+  const { user, profileReady, signOut } = useAuth()
   const navigate = useNavigate()
   const [openFaq, setOpenFaq] = useState<number | null>(null)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   useScrollReveal()
+
+  useEffect(() => {
+    if (user && profileReady) {
+      navigate(user.onboarding_completed ? '/dashboard' : '/onboarding', { replace: true })
+    }
+  }, [user, profileReady, navigate])
 
   const scrollTo = useCallback((id: string) => {
     setMobileMenuOpen(false)

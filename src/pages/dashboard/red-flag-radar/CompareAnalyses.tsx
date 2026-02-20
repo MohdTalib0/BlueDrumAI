@@ -15,7 +15,7 @@ import {
 import { useAuth } from '../../../context/AuthContext'
 import { DashboardLayout } from '../../../layouts/DashboardLayout'
 import { format } from 'date-fns'
-import { getEdgeFunctionUrl, getAuthHeadersWithSession } from '../../../lib/api'
+import { getEdgeFunctionUrl, authHeaders } from '../../../lib/api'
 
 interface ChatAnalysis {
   id: string
@@ -75,8 +75,7 @@ export default function CompareAnalyses() {
         throw new Error('Not authenticated')
       }
 
-      const headers = await getAuthHeadersWithSession()
-      if (sessionToken) headers['Authorization'] = `Bearer ${sessionToken}`
+      const headers = authHeaders(sessionToken!)
       const response = await fetch(`${getEdgeFunctionUrl('analyze')}/history`, {
         headers,
       })
@@ -128,8 +127,7 @@ export default function CompareAnalyses() {
         throw new Error('Not authenticated')
       }
 
-      const headers = await getAuthHeadersWithSession()
-      if (sessionToken) headers['Authorization'] = `Bearer ${sessionToken}`
+      const headers = authHeaders(sessionToken!)
       const response = await fetch(`${getEdgeFunctionUrl('analyze')}/compare`, {
         method: 'POST',
         headers: {

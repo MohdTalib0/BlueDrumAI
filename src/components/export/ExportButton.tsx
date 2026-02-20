@@ -2,7 +2,7 @@ import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { Download, Loader2 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
-import { getEdgeFunctionUrl, getAuthHeadersWithSession } from '../../lib/api'
+import { getEdgeFunctionUrl, authHeaders } from '../../lib/api'
 
 interface ExportButtonProps {
   exportType: 'vault' | 'affidavit' | 'analysis'
@@ -25,10 +25,7 @@ export default function ExportButton({ exportType, monthYear, analysisId, classN
     try {
       setExporting(true)
 
-      const headers = await getAuthHeadersWithSession()
-      if (sessionToken) {
-        headers['Authorization'] = `Bearer ${sessionToken}`
-      }
+      const headers = authHeaders(sessionToken!)
       
       let url = ''
       let body: any = {}

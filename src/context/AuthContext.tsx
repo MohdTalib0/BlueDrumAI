@@ -10,11 +10,13 @@ interface UserProfile {
   gender?: UserGender
   first_name?: string | null
   last_name?: string | null
+  onboarding_completed?: boolean
 }
 
 interface AuthContextValue {
   user: UserProfile | null
   loading: boolean
+  profileReady: boolean
   signIn: (email: string, password: string) => Promise<{ error?: string; emailNotConfirmed?: boolean }>
   signUp: (
     email: string,
@@ -35,6 +37,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthContextValue['user']>(null)
   const [loading, setLoading] = useState(true)
   const [sessionToken, setSessionToken] = useState<string | null>(null)
+  const [profileReady, setProfileReady] = useState(false)
   const profileFetchedRef = useRef(false)
 
   const fetchProfile = useCallback(async (token: string, userId: string, email?: string | null) => {
@@ -51,14 +54,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             gender: data.user.gender ?? null,
             first_name: data.user.first_name ?? null,
             last_name: data.user.last_name ?? null,
+            onboarding_completed: data.user.onboarding_completed ?? false,
           })
+          setProfileReady(true)
           return
         }
       }
+
+      if (res.status === 401) {
+        console.warn('Session token rejected by server — forcing local sign-out')
+        await supabase.auth.signOut({ scope: 'local' })
+        setUser(null)
+        setSessionToken(null)
+        setProfileReady(true)
+        return
+      }
     } catch {
-      // Profile fetch failed — fall back to basic auth data
+      // Network error — fall back to basic auth data
     }
-    setUser({ id: userId, email, gender: null })
+    setUser({ id: userId, email, gender: null, onboarding_completed: false })
+    setProfileReady(true)
   }, [])
 
   useEffect(() => {
@@ -73,10 +88,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setSessionToken(null)
         setLoading(false)
       } else {
-        setSessionToken(data.session.access_token ?? null)
-        await fetchProfile(data.session.access_token, data.session.user.id, data.session.user.email)
-        profileFetchedRef.current = true
-        if (mounted) setLoading(false)
+        const { access_token, user: sessionUser } = data.session
+        setSessionToken(access_token ?? null)
+        setUser({ id: sessionUser.id, email: sessionUser.email, gender: null })
+        setLoading(false)
+        // Enrich with full profile (gender, name) in the background
+        fetchProfile(access_token, sessionUser.id, sessionUser.email).then(() => {
+          profileFetchedRef.current = true
+        })
       }
     }
 
@@ -99,6 +118,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else {
         setUser(null)
         setSessionToken(null)
+        setProfileReady(false)
         profileFetchedRef.current = false
       }
       setLoading(false)
@@ -131,7 +151,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { first_name: firstName, last_name: lastName } },
+      options: {
+        data: { first_name: firstName, last_name: lastName },
+        emailRedirectTo: `${window.location.origin}/verify-email`,
+      },
     })
     if (error) return { error: error.message }
     const emailConfirmationRequired = !data.session
@@ -139,7 +162,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const signOut = useCallback(async () => {
-    await supabase.auth.signOut()
+    const { error } = await supabase.auth.signOut()
+    if (error) {
+      // Server session already gone — clear local state so the user isn't stuck
+      await supabase.auth.signOut({ scope: 'local' })
+    }
   }, [])
 
   const resetPassword = useCallback(async (email: string) => {
@@ -151,14 +178,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const resendEmailVerification = useCallback(async (email: string) => {
-    const { error } = await supabase.auth.resend({ type: 'signup', email })
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email,
+      options: { emailRedirectTo: `${window.location.origin}/verify-email` },
+    })
     if (error) return { error: error.message }
     return { sent: true }
   }, [])
 
   const value = useMemo<AuthContextValue>(
-    () => ({ user, loading, sessionToken, signIn, signUp, signOut, resetPassword, resendEmailVerification, refreshProfile }),
-    [user, loading, sessionToken, signIn, signUp, signOut, resetPassword, resendEmailVerification, refreshProfile],
+    () => ({ user, loading, profileReady, sessionToken, signIn, signUp, signOut, resetPassword, resendEmailVerification, refreshProfile }),
+    [user, loading, profileReady, sessionToken, signIn, signUp, signOut, resetPassword, resendEmailVerification, refreshProfile],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

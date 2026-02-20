@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react'
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import { useAuth } from './context/AuthContext'
 
@@ -7,6 +7,7 @@ import LandingPage from './components/LandingPage'
 import SignInPage from './pages/auth/SignIn'
 import SignUpPage from './pages/auth/SignUp'
 import ForgotPassword from './pages/auth/ForgotPassword'
+import VerifyEmail from './pages/auth/VerifyEmail'
 
 const Dashboard = lazy(() => import('./pages/Dashboard'))
 const Onboarding = lazy(() => import('./pages/Onboarding'))
@@ -50,7 +51,8 @@ function PageLoader() {
 }
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth()
+  const { user, loading, profileReady } = useAuth()
+  const location = useLocation()
 
   if (loading) {
     return <PageLoader />
@@ -60,21 +62,28 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
     return <Navigate to="/" replace />
   }
 
+  const isOnboardingPage = location.pathname === '/onboarding'
+  if (profileReady && !user.onboarding_completed && !isOnboardingPage) {
+    return <Navigate to="/onboarding" replace />
+  }
+
   return <>{children}</>
 }
 
 function MaleRoute({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth()
+  const { user, loading, profileReady } = useAuth()
   if (loading) return <PageLoader />
   if (!user) return <Navigate to="/" replace />
+  if (profileReady && !user.onboarding_completed) return <Navigate to="/onboarding" replace />
   if (user.gender === 'female') return <Navigate to="/dashboard" replace />
   return <>{children}</>
 }
 
 function FemaleRoute({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth()
+  const { user, loading, profileReady } = useAuth()
   if (loading) return <PageLoader />
   if (!user) return <Navigate to="/" replace />
+  if (profileReady && !user.onboarding_completed) return <Navigate to="/onboarding" replace />
   if (user.gender === 'male') return <Navigate to="/dashboard" replace />
   return <>{children}</>
 }
@@ -97,6 +106,7 @@ function App() {
           <Route path="/sign-in/*" element={<SignInPage />} />
           <Route path="/sign-up/*" element={<SignUpPage />} />
           <Route path="/forgot-password/*" element={<ForgotPassword />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
           <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           {/* Shared module routes (Vault + Red Flag Radar) */}

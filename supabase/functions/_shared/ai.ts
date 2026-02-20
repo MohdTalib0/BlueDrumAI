@@ -20,7 +20,7 @@ interface OpenRouterUsage {
   responseSizeBytes?: number
 }
 
-async function callOpenRouter(
+export async function callOpenRouter(
   messages: OpenRouterMessage[],
   opts?: { model?: string; maxTokens?: number; temperature?: number },
 ): Promise<{ text: string; usage: OpenRouterUsage }> {
@@ -73,7 +73,7 @@ async function callOpenRouter(
   }
 }
 
-function parseJSON<T>(text: string): T {
+export function parseJSON<T>(text: string): T {
   let cleaned = text.trim()
   cleaned = cleaned.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim()
   return JSON.parse(cleaned) as T

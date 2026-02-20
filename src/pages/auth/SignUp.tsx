@@ -1,10 +1,10 @@
-import { useState } from 'react'
-import { ArrowLeft, Shield, AlertTriangle, Users, Sparkles, Loader2, MailCheck } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { ArrowLeft, Shield, AlertTriangle, Users, Sparkles, Loader2 } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 
 export default function SignUpPage() {
-  const { signUp } = useAuth()
+  const { signUp, user: currentUser, profileReady } = useAuth()
   const navigate = useNavigate()
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
@@ -12,22 +12,30 @@ export default function SignUpPage() {
   const [password, setPassword] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [info, setInfo] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (currentUser && profileReady) {
+      navigate(currentUser.onboarding_completed ? '/dashboard' : '/onboarding', { replace: true })
+    }
+  }, [currentUser, profileReady, navigate])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
-    setInfo(null)
     setSubmitting(true)
     const result = await signUp(email.trim(), password, firstName.trim(), lastName.trim())
     if (result.error) {
       setError(result.error)
-    } else if (result.emailConfirmationRequired) {
-      setInfo('Check your email to verify your account. After verification, you can sign in.')
-    } else {
-      navigate('/onboarding')
+      setSubmitting(false)
+      return
     }
-    setSubmitting(false)
+    if (result.emailConfirmationRequired) {
+      navigate('/sign-in?verified=pending')
+      return
+    }
+    // No email confirmation needed — session is active.
+    // Keep the spinner; the auto-redirect useEffect will navigate
+    // once AuthContext finishes loading the profile.
   }
 
   return (
@@ -122,13 +130,6 @@ export default function SignUpPage() {
               {error && (
                 <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-3 text-sm text-red-700">
                   {error}
-                </div>
-              )}
-
-              {info && (
-                <div className="flex items-start gap-2 rounded-xl border border-blue-200 bg-blue-50 px-3 py-3 text-sm text-blue-800">
-                  <MailCheck className="mt-0.5 h-4 w-4 shrink-0" />
-                  <span>{info}</span>
                 </div>
               )}
 

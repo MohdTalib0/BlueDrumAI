@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { AlertTriangle, ArrowRight, CheckCircle2, ChevronRight, Loader2, Scale, Shield, X } from 'lucide-react'
-import { getEdgeFunctionUrl, getAuthHeaders } from '../lib/api'
+import { getEdgeFunctionUrl } from '../lib/api'
 
 type Gender = 'male' | 'female' | ''
 
@@ -180,10 +180,7 @@ export default function RiskCalculator({
         .join('\n\n')
 
       const url = getEdgeFunctionUrl('risk-check')
-      const headers = {
-        ...getAuthHeaders(),
-        'Content-Type': 'application/json',
-      }
+      const headers = { 'Content-Type': 'application/json' }
 
       const resp = await fetch(url, {
         method: 'POST',

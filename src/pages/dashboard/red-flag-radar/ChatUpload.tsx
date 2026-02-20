@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Upload, FileText, AlertTriangle, Loader2, CheckCircle2, Info, X, MessageSquare, Mail, Smartphone, Type, Bot, GitCompare, BookOpen } from 'lucide-react'
 import { useAuth } from '../../../context/AuthContext'
 import { DashboardLayout } from '../../../layouts/DashboardLayout'
-import { getEdgeFunctionUrl, getAuthHeadersWithSession } from '../../../lib/api'
+import { getEdgeFunctionUrl, authHeaders } from '../../../lib/api'
 import UpgradePrompt from '../../../components/UpgradePrompt'
 
 type PlatformType = 'whatsapp' | 'sms' | 'email' | 'manual' | 'auto'
@@ -82,8 +82,7 @@ export default function ChatUpload() {
         setStatus('Analyzing text...')
         setProgress(30)
 
-        const headers = await getAuthHeadersWithSession()
-        if (sessionToken) headers['Authorization'] = `Bearer ${sessionToken}`
+        const headers = authHeaders(sessionToken!)
 
         const response = await fetch(`${getEdgeFunctionUrl('analyze')}/text`, {
           method: 'POST',
@@ -123,8 +122,7 @@ export default function ChatUpload() {
           })
         }, 500)
 
-        const headers = await getAuthHeadersWithSession()
-        if (sessionToken) headers['Authorization'] = `Bearer ${sessionToken}`
+        const headers = authHeaders(sessionToken!)
         // Remove Content-Type so the browser auto-sets multipart/form-data with boundary
         delete headers['Content-Type']
         

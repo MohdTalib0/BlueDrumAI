@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { X, CheckCircle2, Loader2, Sparkles } from 'lucide-react'
-import { getEdgeFunctionUrl, getAuthHeaders } from '../lib/api'
+import { getEdgeFunctionUrl } from '../lib/api'
 
 interface SignupFormProps {
   onClose: () => void
@@ -40,10 +40,7 @@ function SignupForm({ onClose }: SignupFormProps) {
 
     try {
       const url = getEdgeFunctionUrl('waitlist')
-      const headers = {
-        ...getAuthHeaders(),
-        'Content-Type': 'application/json',
-      }
+      const headers = { 'Content-Type': 'application/json' }
 
       const resp = await fetch(url, {
         method: 'POST',

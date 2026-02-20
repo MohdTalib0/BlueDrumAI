@@ -19,7 +19,7 @@ import {
   Calculator,
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
-import { getEdgeFunctionUrl, getAuthHeadersWithSession } from '../lib/api'
+import { getEdgeFunctionUrl, authHeaders } from '../lib/api'
 import { DashboardLayout } from '../layouts/DashboardLayout'
 import { format, parseISO } from 'date-fns'
 import { LineChart, Line, BarChart, Bar, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
@@ -98,10 +98,7 @@ export default function Dashboard() {
         setLoadingStats(true)
         setError('')
 
-        const headers = await getAuthHeadersWithSession()
-        if (sessionToken) {
-          headers['Authorization'] = `Bearer ${sessionToken}`
-        }
+        const headers = authHeaders(sessionToken)
         const response = await fetch(`${getEdgeFunctionUrl('dashboard')}/stats`, {
           headers,
           signal: controller.signal,

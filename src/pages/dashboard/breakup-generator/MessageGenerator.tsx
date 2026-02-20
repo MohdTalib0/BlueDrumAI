@@ -14,7 +14,7 @@ import {
 } from 'lucide-react'
 import { DashboardLayout } from '../../../layouts/DashboardLayout'
 import { useAuth } from '../../../context/AuthContext'
-import { getEdgeFunctionUrl, getAuthHeadersWithSession } from '../../../lib/api'
+import { getEdgeFunctionUrl, authHeaders } from '../../../lib/api'
 import { format } from 'date-fns'
 import toast from 'react-hot-toast'
 import ConfirmModal from '../../../components/ui/ConfirmModal'
@@ -91,11 +91,7 @@ export default function MessageGenerator() {
     loadHistory()
   }, [])
 
-  const getHeaders = async () => {
-    const headers = await getAuthHeadersWithSession()
-    if (sessionToken) headers['Authorization'] = `Bearer ${sessionToken}`
-    return headers
-  }
+  const getHeaders = () => authHeaders(sessionToken!)
 
   const loadHistory = async () => {
     try {

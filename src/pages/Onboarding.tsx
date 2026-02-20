@@ -2,55 +2,22 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import { Shield, AlertTriangle, ArrowRight } from 'lucide-react'
-import { getEdgeFunctionUrl, getAuthHeadersWithSession } from '../lib/api'
+import { getEdgeFunctionUrl, authHeaders } from '../lib/api'
+
 
 export default function Onboarding() {
-  const { sessionToken, user, loading: authLoading, refreshProfile } = useAuth()
+  const { sessionToken, user, loading: authLoading, profileReady, refreshProfile } = useAuth()
   const navigate = useNavigate()
   const [gender, setGender] = useState<'male' | 'female' | 'both' | ''>('')
   const [relationshipStatus, setRelationshipStatus] = useState<string>('')
   const [saving, setSaving] = useState(false)
-  const [syncing, setSyncing] = useState(true)
   const [error, setError] = useState('')
 
-  // Check if user has already completed onboarding and redirect if so
   useEffect(() => {
-    const checkOnboardingStatus = async () => {
-      if (authLoading) return
-      if (!sessionToken || !user) {
-        setSyncing(false)
-        return
-      }
-
-      try {
-        // Check user's onboarding status
-        const headers = await getAuthHeadersWithSession()
-        if (sessionToken) {
-          headers['Authorization'] = `Bearer ${sessionToken}`
-        }
-        const response = await fetch(`${getEdgeFunctionUrl('auth')}/me`, {
-          headers,
-        })
-
-        if (response.ok) {
-          const data = await response.json()
-          if (data.ok && data.user?.onboarding_completed) {
-            // User has already completed onboarding, redirect to dashboard
-            navigate('/dashboard')
-            return
-          }
-        }
-
-      } catch (err) {
-        console.error('Failed to check onboarding status:', err)
-        // Continue anyway
-      } finally {
-        setSyncing(false)
-      }
+    if (profileReady && user?.onboarding_completed) {
+      navigate('/dashboard', { replace: true })
     }
-
-    checkOnboardingStatus()
-  }, [authLoading, sessionToken, user, navigate])
+  }, [profileReady, user?.onboarding_completed, navigate])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -69,11 +36,7 @@ export default function Onboarding() {
       }
 
       // Update user profile (user should already be synced from useEffect)
-      const headers = await getAuthHeadersWithSession()
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`
-      }
-      headers['Content-Type'] = 'application/json'
+      const headers = authHeaders(token!)
       const resp = await fetch(`${getEdgeFunctionUrl('auth')}/me`, {
         method: 'PATCH',
         headers,
@@ -97,7 +60,7 @@ export default function Onboarding() {
     }
   }
 
-  if (syncing || authLoading) {
+  if (!profileReady || authLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-50">
         <div className="text-center">

@@ -1,18 +1,38 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { ArrowLeft, Shield, FileText, Lock, Scale, CheckCircle2, Loader2, MailWarning, MailCheck } from 'lucide-react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
-import { getEdgeFunctionUrl, getAuthHeadersWithSession } from '../../lib/api'
 
 export default function SignInPage() {
-  const { signIn, resendEmailVerification, loading } = useAuth()
+  const { signIn, resendEmailVerification, loading, user: currentUser, profileReady } = useAuth()
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [verifyPrompt, setVerifyPrompt] = useState(false)
   const [info, setInfo] = useState<string | null>(null)
+  const [resending, setResending] = useState(false)
+
+  useEffect(() => {
+    if (currentUser && profileReady) {
+      navigate(currentUser.onboarding_completed ? '/dashboard' : '/onboarding', { replace: true })
+    }
+  }, [currentUser, profileReady, navigate])
+
+  useEffect(() => {
+    const v = searchParams.get('verified')
+    if (v === 'pending') {
+      setInfo('We sent a verification link to your email. Please verify, then sign in.')
+    } else if (v === 'success') {
+      setInfo('Email verified successfully! You can now sign in.')
+    }
+    if (v) {
+      searchParams.delete('verified')
+      setSearchParams(searchParams, { replace: true })
+    }
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -28,36 +48,24 @@ export default function SignInPage() {
       } else {
         setError(result.error)
       }
-    } else {
-      setTimeout(async () => {
-        try {
-          const { supabase } = await import('../../lib/supabase')
-          const { data: { session } } = await supabase.auth.getSession()
-          if (session?.access_token) {
-            const headers = await getAuthHeadersWithSession()
-            headers['Authorization'] = `Bearer ${session.access_token}`
-            const response = await fetch(`${getEdgeFunctionUrl('auth')}/me`, { headers })
-            if (response.ok) {
-              const data = await response.json()
-              navigate(data.ok && data.user?.onboarding_completed ? '/dashboard' : '/onboarding')
-            } else {
-              navigate('/onboarding')
-            }
-          } else {
-            navigate('/onboarding')
-          }
-        } catch {
-          navigate('/onboarding')
-        }
-      }, 100)
+      setSubmitting(false)
+      return
     }
-    setSubmitting(false)
+    // signIn succeeded — keep the spinner active.
+    // The auto-redirect useEffect above will navigate once
+    // AuthContext has finished loading the profile.
   }
 
   const handleResend = async () => {
+    if (!email.trim()) {
+      setError('Enter your email address above, then click resend.')
+      return
+    }
+    setResending(true)
     setError(null)
     setInfo(null)
     const res = await resendEmailVerification(email.trim())
+    setResending(false)
     if (res.error) setError(res.error)
     else setInfo('Verification email resent. Please check your inbox.')
   }
@@ -131,14 +139,16 @@ export default function SignInPage() {
               {error && (
                 <div className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 px-3 py-3 text-sm text-red-700">
                   <MailWarning className="mt-0.5 h-4 w-4 shrink-0" />
-                  <div className="flex-1 space-y-1">
+                  <div className="flex-1 space-y-2">
                     <div>{error}</div>
                     {verifyPrompt && (
                       <button
                         type="button"
                         onClick={handleResend}
-                        className="text-xs font-semibold text-red-800 underline underline-offset-2"
+                        disabled={resending}
+                        className="inline-flex items-center gap-1.5 rounded-lg bg-red-100 px-3 py-1.5 text-xs font-semibold text-red-800 hover:bg-red-200 disabled:opacity-60 transition-colors"
                       >
+                        {resending ? <Loader2 className="h-3 w-3 animate-spin" /> : <MailCheck className="h-3 w-3" />}
                         Resend verification email
                       </button>
                     )}
