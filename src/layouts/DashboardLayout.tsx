@@ -87,10 +87,6 @@ export function DashboardLayout({ children, title = 'Dashboard', subtitle, right
     ? `${user.first_name}${user.last_name ? ' ' + user.last_name : ''}`
     : user?.email?.split('@')[0] || 'Account'
 
-  const initials = user?.first_name
-    ? `${user.first_name[0]}${user.last_name ? user.last_name[0] : ''}`.toUpperCase()
-    : (user?.email?.[0] || 'U').toUpperCase()
-
   const allNavItems: { label: string; icon: typeof Home; href: string; access: ModuleAccess }[] = useMemo(
     () => [
       { label: 'Dashboard', icon: Home, href: '/dashboard', access: 'all' },
