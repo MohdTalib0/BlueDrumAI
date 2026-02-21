@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { ArrowLeft, Shield, FileText, Lock, Scale, CheckCircle2, Loader2, MailWarning, MailCheck, Eye, EyeOff } from 'lucide-react'
+import { ArrowLeft, FileText, Lock, Scale, Loader2, MailWarning, MailCheck, Eye, EyeOff } from 'lucide-react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 
@@ -72,38 +72,50 @@ export default function SignInPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col sm:flex-row">
+    <div className="relative flex min-h-screen flex-col sm:flex-row">
+
+      {/* Mobile background — Lady Justice with low opacity */}
+      <div className="absolute inset-0 sm:hidden">
+        <img
+          src="https://images.unsplash.com/photo-1589994965851-a8f479c573a9?auto=format&fit=crop&w=800&q=80"
+          alt=""
+          className="h-full w-full object-cover opacity-[0.06]"
+        />
+      </div>
 
       {/* ── Left column ────────────────────────────────────────────────────── */}
-      <div className="flex flex-col sm:w-1/2">
+      <div className="relative z-10 flex flex-col sm:w-1/2">
 
-        {/* Mobile brand bar — in document flow, no absolute overlap */}
-        <div className="bg-gradient-to-r from-primary-600 to-blue-700 px-5 py-4 sm:hidden">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/20">
-              <Shield className="h-5 w-5 text-white" />
+        {/* Mobile header — matches dashboard style */}
+        <div className="border-b border-blue-100/50 backdrop-blur-sm bg-gradient-to-br from-blue-50/40 via-yellow-50/20 to-white/40 px-4 py-3 sm:hidden">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <img src="/logo.svg" alt="Blue Drum AI" className="h-8 w-8 shrink-0" />
+              <div>
+                <p className="text-sm font-bold text-gray-900 leading-tight">Blue Drum AI</p>
+                <p className="text-[11px] text-gray-500">Evidence-based legal vigilance</p>
+              </div>
             </div>
-            <div>
-              <p className="text-base font-bold text-white leading-tight">Blue Drum AI</p>
-              <p className="text-xs text-primary-100">Evidence-based legal protection</p>
-            </div>
+            <Link to="/" className="text-xs font-semibold text-gray-500 hover:text-gray-900 transition-colors">
+              <ArrowLeft className="h-4 w-4" />
+            </Link>
           </div>
         </div>
 
         {/* Form area */}
-        <div className="flex flex-1 flex-col justify-center px-5 py-8 sm:px-10 lg:px-14 bg-white">
+        <div className="flex flex-1 flex-col justify-center px-5 py-8 sm:px-10 lg:px-14 sm:bg-white">
           <div className="mx-auto w-full max-w-md">
 
             <Link
               to="/"
-              className="mb-6 inline-flex items-center gap-1.5 text-sm font-semibold text-gray-500 hover:text-gray-900 transition-colors"
+              className="mb-6 hidden sm:inline-flex items-center gap-1.5 text-sm font-semibold text-gray-500 hover:text-gray-900 transition-colors"
             >
               <ArrowLeft className="h-4 w-4" />
               Back to home
             </Link>
 
-            <h1 className="text-2xl font-bold text-gray-900 -tracking-[.04em] mb-1">Welcome back</h1>
-            <p className="text-sm text-gray-500 mb-7">Sign in to your Blue Drum AI account</p>
+            <h1 className="text-2xl font-bold text-gray-900 -tracking-[.04em] mb-1 text-center sm:text-left">Welcome back</h1>
+            <p className="text-sm text-gray-500 mb-7 text-center sm:text-left">Sign in to your Blue Drum AI account</p>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
@@ -193,50 +205,36 @@ export default function SignInPage() {
       </div>
 
       {/* ── Right column — desktop only ──────────────────────────────────── */}
-      <div className="hidden sm:flex sm:w-1/2 sm:flex-col sm:justify-center bg-gradient-to-br from-primary-600 via-primary-700 to-blue-700 p-8 lg:p-12">
-        <div className="mx-auto max-w-md text-white">
-          <div className="mb-8 flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20">
-              <Shield className="h-6 w-6 text-white" />
+      <div className="hidden sm:flex sm:w-1/2 relative overflow-hidden">
+        <img
+          src="https://images.unsplash.com/photo-1589994965851-a8f479c573a9?auto=format&fit=crop&w=1200&q=80"
+          alt="Lady Justice"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-gray-900/90 via-gray-900/50 to-gray-900/30" />
+
+        <div className="relative z-10 flex flex-col items-center justify-center p-10 lg:p-16 h-full text-center">
+          <div className="max-w-lg">
+            <div className="mb-8 flex items-center justify-center gap-4">
+              <img src="/logo.svg" alt="Blue Drum AI" className="h-12 w-12" />
+              <span className="text-3xl font-bold text-white tracking-tight">Blue Drum AI</span>
             </div>
-            <div>
-              <p className="text-2xl font-bold">Blue Drum AI</p>
-              <p className="text-sm text-primary-100">Evidence-based legal protection</p>
-            </div>
-          </div>
-
-          <h2 className="mb-4 text-3xl font-bold leading-tight lg:text-4xl">
-            Document your truth. Protect your rights.
-          </h2>
-          <p className="mb-8 text-lg text-primary-100">
-            Secure evidence organization for Indian men and women navigating relationship disputes.
-          </p>
-
-          <div className="space-y-4">
-            {[
-              { icon: FileText, title: 'Evidence Vault',  desc: 'Store documents, photos, and files with timestamps' },
-              { icon: Lock,     title: 'Privacy-First',   desc: 'Encrypted storage with strict access control' },
-              { icon: Scale,    title: 'Lawyer-Ready',    desc: 'Export organized PDF case files instantly' },
-            ].map(({ icon: Icon, title, desc }) => (
-              <div key={title} className="flex items-start gap-3">
-                <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white/20">
-                  <Icon className="h-5 w-5 text-white" />
+            <h2 className="mb-4 text-3xl font-bold leading-snug text-white lg:text-4xl">
+              Document your truth.<br />Protect your rights.
+            </h2>
+            <p className="mb-8 text-base leading-relaxed text-gray-300 max-w-md mx-auto">
+              Securely organize evidence, analyze conversations with AI, and generate lawyer-ready case files — built specifically for Indian family law.
+            </p>
+            <div className="flex flex-wrap justify-center gap-3">
+              {[
+                { icon: FileText, text: 'Evidence Vault' },
+                { icon: Lock, text: 'Encrypted Storage' },
+                { icon: Scale, text: 'Lawyer-Ready Exports' },
+              ].map(({ icon: Icon, text }) => (
+                <div key={text} className="flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-medium text-white backdrop-blur-sm">
+                  <Icon className="h-4 w-4" />
+                  {text}
                 </div>
-                <div>
-                  <p className="font-semibold text-white">{title}</p>
-                  <p className="mt-0.5 text-sm text-primary-100">{desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-8 rounded-xl border border-white/20 bg-white/10 p-4">
-            <p className="mb-2 text-sm font-semibold text-white">Trusted by users across India</p>
-            <div className="flex flex-wrap gap-3 text-xs text-primary-100">
-              {['Secure', 'Private', 'Legal-compliant'].map(t => (
-                <span key={t} className="flex items-center gap-1">
-                  <CheckCircle2 className="h-3 w-3" />{t}
-                </span>
               ))}
             </div>
           </div>
