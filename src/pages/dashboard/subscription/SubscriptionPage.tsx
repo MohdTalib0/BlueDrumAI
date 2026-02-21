@@ -59,12 +59,12 @@ function UsageCard({
     : accentClass
 
   return (
-    <div className="group relative rounded-2xl border border-gray-100 bg-white p-5 shadow-sm hover:shadow-md transition-shadow">
-      <div className="flex items-start justify-between mb-4">
-        <div className={`flex h-9 w-9 items-center justify-center rounded-xl ${accentClass.replace('bg-', 'bg-').replace('-500', '-100')}`}>
-          <Icon className={`h-4.5 w-4.5 ${accentClass.replace('bg-', 'text-')}`} />
+    <div className="group relative rounded-2xl border border-gray-100 bg-white p-3.5 sm:p-5 shadow-sm hover:shadow-md transition-shadow">
+      <div className="flex items-start justify-between mb-3 sm:mb-4">
+        <div className={`flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl ${accentClass.replace('bg-', 'bg-').replace('-500', '-100')}`}>
+          <Icon className={`h-4 w-4 ${accentClass.replace('bg-', 'text-')}`} />
         </div>
-        <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
+        <span className={`text-[11px] sm:text-xs font-semibold px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full ${
           unlimited
             ? 'bg-emerald-50 text-emerald-700'
             : isOver
@@ -73,10 +73,10 @@ function UsageCard({
             ? 'bg-amber-50 text-amber-700'
             : 'bg-gray-50 text-gray-600'
         }`}>
-          {unlimited ? '∞ Unlimited' : isOver ? 'Limit reached' : `${used} / ${limit}`}
+          {unlimited ? '∞' : isOver ? 'Limit' : `${used}/${limit}`}
         </span>
       </div>
-      <p className="text-sm font-semibold text-gray-800 mb-3">{label}</p>
+      <p className="text-xs sm:text-sm font-semibold text-gray-800 mb-2 sm:mb-3">{label}</p>
       <div className="h-1.5 w-full rounded-full bg-gray-100 overflow-hidden">
         <div
           className={`h-full rounded-full transition-all duration-700 ${barClass}`}
@@ -348,18 +348,18 @@ export default function SubscriptionPage() {
         {/* ── Usage Overview ───────────────────────────────────────────── */}
         <div>
           <h3 className="text-base font-semibold text-gray-900 mb-4">Usage This Month</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             {usageCards.map(card => (
               <UsageCard key={card.label} {...card} />
             ))}
 
             {/* Storage card */}
-            <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm hover:shadow-md transition-shadow">
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-100">
+            <div className="rounded-2xl border border-gray-100 bg-white p-3.5 sm:p-5 shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex items-start justify-between mb-3 sm:mb-4">
+                <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-indigo-100">
                   <HardDrive className="h-4 w-4 text-indigo-500" />
                 </div>
-                <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
+                <span className={`text-[11px] sm:text-xs font-semibold px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full ${
                   u?.storage.limit_bytes === -1
                     ? 'bg-emerald-50 text-emerald-700'
                     : storagePct >= 90
@@ -367,11 +367,11 @@ export default function SubscriptionPage() {
                     : 'bg-gray-50 text-gray-600'
                 }`}>
                   {u?.storage.limit_bytes === -1
-                    ? '∞ Unlimited'
+                    ? '∞'
                     : `${formatBytes(u?.storage.used_bytes ?? 0)} / ${formatBytes(u?.storage.limit_bytes ?? 0)}`}
                 </span>
               </div>
-              <p className="text-sm font-semibold text-gray-800 mb-3">Storage</p>
+              <p className="text-xs sm:text-sm font-semibold text-gray-800 mb-2 sm:mb-3">Storage</p>
               <div className="h-1.5 w-full rounded-full bg-gray-100 overflow-hidden">
                 <div
                   className={`h-full rounded-full transition-all duration-700 ${

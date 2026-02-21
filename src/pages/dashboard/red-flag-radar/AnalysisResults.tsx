@@ -235,12 +235,12 @@ export default function AnalysisResults() {
     <DashboardLayout title="Analysis Results" subtitle={`Risk Assessment - ${getRiskLabel(analysis.risk_score)}`} backHref="/dashboard/red-flag-radar/history">
       <div className="w-full max-w-6xl mx-auto">
         {/* Header Actions */}
-        <div className="mb-6 flex flex-wrap items-center justify-end gap-3 no-print">
-          <div className="flex flex-wrap items-center gap-3">
+        <div className="mb-4 sm:mb-6 flex flex-wrap items-center justify-end gap-2 sm:gap-3 no-print">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             <button
               onClick={handleExportPDF}
               disabled={exporting}
-              className="inline-flex items-center gap-2 rounded-lg border border-blue-300 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 shadow-sm hover:bg-blue-100 disabled:opacity-50 transition-colors"
+              className="inline-flex items-center gap-1.5 sm:gap-2 rounded-lg border border-blue-300 bg-blue-50 px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-semibold text-blue-700 shadow-sm hover:bg-blue-100 disabled:opacity-50 transition-colors"
             >
               {exporting ? (
                 <>
@@ -256,9 +256,9 @@ export default function AnalysisResults() {
             </button>
             <button
               onClick={() => window.print()}
-              className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 transition-colors"
+              className="inline-flex items-center gap-1.5 sm:gap-2 rounded-lg border border-gray-300 bg-white px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 transition-colors"
             >
-              <Printer className="h-4 w-4" />
+              <Printer className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               Print
             </button>
             {analysis.chat_export_url && (
@@ -266,16 +266,16 @@ export default function AnalysisResults() {
                 href={analysis.chat_export_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 transition-colors"
+                className="inline-flex items-center gap-1.5 sm:gap-2 rounded-lg border border-gray-300 bg-white px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 transition-colors"
               >
-                <Download className="h-4 w-4" />
+                <Download className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                 Download Chat
               </a>
             )}
             <button
               onClick={() => setShowDeleteConfirm(true)}
               disabled={deleting}
-              className="inline-flex items-center gap-2 rounded-lg border border-red-300 bg-white px-4 py-2 text-sm font-semibold text-red-700 shadow-sm hover:bg-red-50 disabled:opacity-50 transition-colors"
+              className="inline-flex items-center gap-1.5 sm:gap-2 rounded-lg border border-red-300 bg-white px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-semibold text-red-700 shadow-sm hover:bg-red-50 disabled:opacity-50 transition-colors"
             >
               {deleting ? (
                 <>
@@ -293,49 +293,49 @@ export default function AnalysisResults() {
         </div>
 
         {/* Risk Score Card */}
-        <div className={`mb-6 rounded-lg border-2 p-8 shadow-lg ${getRiskColor(analysis.risk_score)}`}>
+        <div className={`mb-4 sm:mb-6 rounded-lg border-2 p-5 sm:p-8 shadow-lg ${getRiskColor(analysis.risk_score)}`}>
           <div className="flex items-center justify-between">
             <div>
-              <p className="mb-2 text-sm font-semibold uppercase tracking-wide opacity-80">Risk Score</p>
-              <p className="mb-2 text-6xl font-bold">{analysis.risk_score}</p>
-              <p className="text-lg font-semibold">{getRiskLabel(analysis.risk_score)}</p>
+              <p className="mb-1 sm:mb-2 text-xs sm:text-sm font-semibold uppercase tracking-wide opacity-80">Risk Score</p>
+              <p className="mb-1 sm:mb-2 text-4xl sm:text-6xl font-bold">{analysis.risk_score}</p>
+              <p className="text-base sm:text-lg font-semibold">{getRiskLabel(analysis.risk_score)}</p>
             </div>
-            <div className="text-right">
+            <div className="text-right shrink-0">
               {analysis.risk_score >= 80 ? (
-                <XCircle className="h-20 w-20 opacity-50" />
+                <XCircle className="h-12 w-12 sm:h-20 sm:w-20 opacity-50" />
               ) : analysis.risk_score >= 60 ? (
-                <AlertTriangle className="h-20 w-20 opacity-50" />
+                <AlertTriangle className="h-12 w-12 sm:h-20 sm:w-20 opacity-50" />
               ) : analysis.risk_score >= 40 ? (
-                <AlertCircle className="h-20 w-20 opacity-50" />
+                <AlertCircle className="h-12 w-12 sm:h-20 sm:w-20 opacity-50" />
               ) : (
-                <CheckCircle2 className="h-20 w-20 opacity-50" />
+                <CheckCircle2 className="h-12 w-12 sm:h-20 sm:w-20 opacity-50" />
               )}
             </div>
           </div>
         </div>
 
         {/* Summary */}
-        <div className="mb-6 rounded-lg border border-gray-200/20 bg-white/50 p-6 shadow-sm">
-          <h3 className="mb-3 flex items-center gap-2 text-base font-semibold text-gray-900">
-            <FileText className="h-5 w-5" />
+        <div className="mb-4 sm:mb-6 rounded-lg border border-gray-200/20 bg-white/50 p-4 sm:p-6 shadow-sm">
+          <h3 className="mb-3 flex items-center gap-2 text-sm sm:text-base font-semibold text-gray-900">
+            <FileText className="h-4 w-4 sm:h-5 sm:w-5 shrink-0" />
             Analysis Summary
           </h3>
-          <p className="text-sm leading-relaxed text-gray-700">{analysis.analysis_text}</p>
-          <div className="mt-4 flex items-center gap-2 text-xs text-gray-500">
-            <Calendar className="h-3.5 w-3.5" />
-            <span>Analyzed on {format(new Date(analysis.created_at), 'MMMM d, yyyy h:mm a')}</span>
+          <p className="text-xs sm:text-sm leading-relaxed text-gray-700">{analysis.analysis_text}</p>
+          <div className="mt-3 sm:mt-4 flex items-center gap-2 text-xs text-gray-500">
+            <Calendar className="h-3.5 w-3.5 shrink-0" />
+            <span>Analyzed on {format(new Date(analysis.created_at), 'MMM d, yyyy h:mm a')}</span>
           </div>
         </div>
 
         {/* Red Flags */}
         {analysis.red_flags && analysis.red_flags.length > 0 && (
-          <div className="mb-6 rounded-lg border border-gray-200/20 bg-white/50 p-6 shadow-sm">
-            <div className="mb-4 flex items-center justify-between">
-              <h3 className="flex items-center gap-2 text-base font-semibold text-gray-900">
-                <AlertTriangle className="h-5 w-5 text-red-600" />
-                Red Flags Detected ({analysis.red_flags.length})
+          <div className="mb-4 sm:mb-6 rounded-lg border border-gray-200/20 bg-white/50 p-4 sm:p-6 shadow-sm">
+            <div className="mb-3 sm:mb-4 flex items-center justify-between gap-2">
+              <h3 className="flex items-center gap-2 text-sm sm:text-base font-semibold text-gray-900">
+                <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5 text-red-600 shrink-0" />
+                Red Flags ({analysis.red_flags.length})
               </h3>
-              <span className="text-xs font-semibold text-gray-500">
+              <span className="text-[11px] sm:text-xs font-semibold text-gray-500 shrink-0">
                 {analysis.red_flags.filter((f) => f.severity === 'critical').length} Critical •{' '}
                 {analysis.red_flags.filter((f) => f.severity === 'high').length} High
               </span>
@@ -344,18 +344,18 @@ export default function AnalysisResults() {
               {analysis.red_flags.map((flag, index) => (
                 <div
                   key={index}
-                  className={`rounded-lg border-2 p-4 ${getSeverityColor(flag.severity)}`}
+                  className={`rounded-lg border-2 p-3 sm:p-4 ${getSeverityColor(flag.severity)}`}
                 >
-                  <div className="flex items-start gap-3">
+                  <div className="flex items-start gap-2 sm:gap-3">
                     <div className="shrink-0">{getSeverityIcon(flag.severity)}</div>
-                    <div className="flex-1">
-                      <div className="mb-2 flex items-center gap-2">
-                        <span className="rounded-lg bg-white px-2 py-1 text-xs font-semibold uppercase tracking-wide">
+                    <div className="flex-1 min-w-0">
+                      <div className="mb-1.5 sm:mb-2 flex flex-wrap items-center gap-1.5 sm:gap-2">
+                        <span className="rounded-lg bg-white px-2 py-0.5 sm:py-1 text-[10px] sm:text-xs font-semibold uppercase tracking-wide">
                           {flag.severity}
                         </span>
-                        <span className="text-sm font-semibold text-gray-900">{flag.type}</span>
+                        <span className="text-xs sm:text-sm font-semibold text-gray-900">{flag.type}</span>
                       </div>
-                      <p className="mb-2 text-sm font-medium text-gray-900">{flag.message}</p>
+                      <p className="mb-1.5 sm:mb-2 text-xs sm:text-sm font-medium text-gray-900">{flag.message}</p>
                       {flag.context && (
                         <div className="rounded-lg bg-white/80 p-2">
                           <p className="text-xs text-gray-600">
@@ -378,10 +378,10 @@ export default function AnalysisResults() {
 
         {/* Keywords Detected */}
         {analysis.keywords_detected && analysis.keywords_detected.length > 0 && (
-          <div className="mb-6 rounded-lg border border-gray-200/20 bg-white/50 p-6 shadow-sm">
-            <h3 className="mb-4 flex items-center gap-2 text-base font-semibold text-gray-900">
-              <MessageSquare className="h-5 w-5" />
-              Keywords Detected ({analysis.keywords_detected.length})
+          <div className="mb-4 sm:mb-6 rounded-lg border border-gray-200/20 bg-white/50 p-4 sm:p-6 shadow-sm">
+            <h3 className="mb-3 sm:mb-4 flex items-center gap-2 text-sm sm:text-base font-semibold text-gray-900">
+              <MessageSquare className="h-4 w-4 sm:h-5 sm:w-5 shrink-0" />
+              Keywords ({analysis.keywords_detected.length})
             </h3>
             <div className="flex flex-wrap gap-2">
               {analysis.keywords_detected.map((keyword, index) => (
@@ -398,9 +398,9 @@ export default function AnalysisResults() {
 
         {/* AI Recommendations */}
         {analysis.recommendations && analysis.recommendations.length > 0 && (
-          <div className="mb-6 rounded-lg border border-blue-200 bg-blue-50/50 p-6 shadow-sm">
-            <h3 className="mb-4 flex items-center gap-2 text-base font-semibold text-blue-900">
-              <Info className="h-5 w-5" />
+          <div className="mb-4 sm:mb-6 rounded-lg border border-blue-200 bg-blue-50/50 p-4 sm:p-6 shadow-sm">
+            <h3 className="mb-3 sm:mb-4 flex items-center gap-2 text-sm sm:text-base font-semibold text-blue-900">
+              <Info className="h-4 w-4 sm:h-5 sm:w-5 shrink-0" />
               AI Recommendations ({analysis.recommendations.length})
             </h3>
             <div className="space-y-3">
@@ -419,10 +419,10 @@ export default function AnalysisResults() {
 
         {/* Detected Patterns */}
         {analysis.patterns_detected && analysis.patterns_detected.length > 0 && (
-          <div className="mb-6 rounded-lg border border-purple-200 bg-purple-50/50 p-6 shadow-sm">
-            <h3 className="mb-4 flex items-center gap-2 text-base font-semibold text-purple-900">
-              <MessageSquare className="h-5 w-5" />
-              Behavioral Patterns Detected ({analysis.patterns_detected.length})
+          <div className="mb-4 sm:mb-6 rounded-lg border border-purple-200 bg-purple-50/50 p-4 sm:p-6 shadow-sm">
+            <h3 className="mb-3 sm:mb-4 flex items-center gap-2 text-sm sm:text-base font-semibold text-purple-900">
+              <MessageSquare className="h-4 w-4 sm:h-5 sm:w-5 shrink-0" />
+              Behavioral Patterns ({analysis.patterns_detected.length})
             </h3>
             <div className="space-y-4">
               {analysis.patterns_detected.map((pattern, index) => (
@@ -449,9 +449,9 @@ export default function AnalysisResults() {
 
         {/* Fallback Recommendations if AI didn't generate any */}
         {(!analysis.recommendations || analysis.recommendations.length === 0) && (
-          <div className="rounded-lg border border-blue-200 bg-blue-50/50 p-6 shadow-sm">
-            <h3 className="mb-4 flex items-center gap-2 text-base font-semibold text-blue-900">
-              <Info className="h-5 w-5" />
+          <div className="rounded-lg border border-blue-200 bg-blue-50/50 p-4 sm:p-6 shadow-sm">
+            <h3 className="mb-3 sm:mb-4 flex items-center gap-2 text-sm sm:text-base font-semibold text-blue-900">
+              <Info className="h-4 w-4 sm:h-5 sm:w-5 shrink-0" />
               General Recommendations
             </h3>
             <div className="space-y-2 text-sm text-blue-800">

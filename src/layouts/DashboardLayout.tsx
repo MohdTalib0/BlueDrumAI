@@ -1,6 +1,6 @@
 import { ReactNode, useMemo, useRef, useState, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { Home, LogOut, Clock4, Menu, X, TrendingUp, AlertTriangle, History, FileText, ArrowLeft, Gift, ShieldAlert, Calculator, MessageSquare, UserCircle, User, MessageCircle, HelpCircle, Bell, Bug, Sparkles, Wrench, AlertCircle, MessageSquarePlus, Send, Crown } from 'lucide-react'
+import { Home, LogOut, Clock4, Menu, X, TrendingUp, AlertTriangle, History, ArrowLeft, Gift, ShieldAlert, Calculator, MessageSquare, UserCircle, User, MessageCircle, HelpCircle, Bug, Sparkles, Wrench, AlertCircle, MessageSquarePlus, Send, Crown, FileText } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuth, type UserGender } from '../context/AuthContext'
 import { getEdgeFunctionUrl } from '../lib/api'
@@ -140,15 +140,6 @@ export function DashboardLayout({ children, title = 'Dashboard', subtitle, right
           </div>
           <div className="flex items-center gap-1 sm:gap-2 shrink-0">
 
-            {/* Icon buttons — same ghost style as reference */}
-            <button
-              onClick={() => navigate('/dashboard/vault')}
-              title="Consent Vault"
-              className="p-1.5 sm:p-2 rounded-lg text-gray-500 hover:text-gray-800 cursor-pointer transition-colors"
-            >
-              <FileText className="h-4 w-4 sm:h-5 sm:w-5" />
-            </button>
-
             <button
               onClick={() => setHelpOpen(true)}
               title="Help"
@@ -156,16 +147,6 @@ export function DashboardLayout({ children, title = 'Dashboard', subtitle, right
             >
               <HelpCircle className="h-4 w-4 sm:h-5 sm:w-5" />
             </button>
-
-            {/* Bell — placeholder for future notifications */}
-            <div className="relative">
-              <button
-                title="Notifications"
-                className="relative p-1.5 sm:p-2 rounded-lg text-gray-500 hover:text-gray-800 cursor-pointer transition-colors"
-              >
-                <Bell className="h-4 w-4 sm:h-5 sm:w-5" />
-              </button>
-            </div>
 
             {/* Subscription / Crown */}
             <button
@@ -255,7 +236,9 @@ export function DashboardLayout({ children, title = 'Dashboard', subtitle, right
            <div className="space-y-2">
              {navItems.map((item) => {
                const Icon = item.icon
-               const active = location.pathname.startsWith(item.href)
+               const active = item.href === '/dashboard'
+                ? location.pathname === '/dashboard' || location.pathname === '/dashboard/'
+                : location.pathname.startsWith(item.href)
                return (
                  <button
                    key={item.href}
@@ -263,18 +246,18 @@ export function DashboardLayout({ children, title = 'Dashboard', subtitle, right
                      navigate(item.href)
                      setNavOpen(false)
                    }}
-                   className={`group flex w-full items-center gap-3 p-3 rounded-xl cursor-pointer transition-all ${
-                     active
-                       ? 'bg-gradient-to-br from-primary-100/40 via-primary-50/20 to-primary-200/30 text-primary-900 shadow-sm border border-primary-200/50'
-                       : 'text-gray-700 hover:bg-gradient-to-tr hover:from-white/20 hover:to-primary-50/40 hover:shadow-sm'
-                   }`}
-                 >
-                   <Icon className={`h-5 w-5 transition-all ${active ? 'font-bold' : 'group-hover:scale-110'}`} />
-                   <span className={`font-medium -tracking-[0.08em] transition-all ${
-                     active 
-                       ? 'font-semibold text-gray-900' 
-                       : 'group-hover:text-gray-900 group-hover:font-semibold'
-                   }`}>
+                  className={`group flex w-full items-center gap-3 p-3 rounded-xl cursor-pointer transition-all ${
+                    active
+                      ? 'bg-gradient-to-br from-primary-100/40 via-primary-50/20 to-primary-200/30 text-primary-900 shadow-sm border border-primary-200/50'
+                      : 'text-gray-900 hover:bg-gradient-to-tr hover:from-white/20 hover:to-primary-50/40 hover:shadow-sm'
+                  }`}
+                >
+                  <Icon className={`h-5 w-5 transition-all ${active ? 'font-bold' : 'group-hover:scale-110'}`} />
+                  <span className={`font-medium -tracking-[0.08em] transition-all ${
+                    active 
+                      ? 'font-semibold' 
+                      : 'group-hover:font-semibold'
+                  }`}>
                      {item.label}
                    </span>
                  </button>

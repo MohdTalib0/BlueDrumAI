@@ -287,6 +287,38 @@ export default function Dashboard() {
           )}
         </div>
 
+      {/* Getting Started — shown when user has no data */}
+      {stats && !loadingStats && stats.vault.total === 0 && stats.chatAnalysis.total === 0 && (!isMale || stats.income.totalEntries === 0) && (
+        <div className="mb-6 sm:mb-8 rounded-xl border border-blue-200/50 bg-gradient-to-br from-blue-50/80 via-white/60 to-yellow-50/30 p-5 sm:p-8 shadow-sm">
+          <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-1">Welcome to Blue Drum AI</h2>
+          <p className="text-sm text-gray-500 mb-5 sm:mb-6">Get started by completing these steps to build your case.</p>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
+            {[
+              { step: '1', title: 'Upload Evidence', desc: 'Add documents, photos, or chat exports to your encrypted vault.', path: '/dashboard/vault/upload', icon: Shield, color: 'text-primary-600', bg: 'bg-primary-50' },
+              { step: '2', title: 'Analyze a Chat', desc: 'Upload a conversation and let AI detect red flags and risks.', path: '/dashboard/red-flag-radar', icon: AlertTriangle, color: 'text-red-600', bg: 'bg-red-50' },
+              ...(isMale
+                ? [{ step: '3', title: 'Log Your Income', desc: 'Track income and expenses for court-ready affidavits.', path: '/dashboard/income-tracker', icon: TrendingUp, color: 'text-emerald-600', bg: 'bg-emerald-50' }]
+                : [{ step: '3', title: 'Document Incidents', desc: 'Log dowry or DV incidents with evidence attachments.', path: gender === 'female' ? '/dashboard/dv-log/add' : '/dashboard/dowry-vault/add', icon: ShieldAlert, color: 'text-purple-600', bg: 'bg-purple-50' }]
+              ),
+            ].map(({ step, title, desc, path, icon: Icon, color, bg }) => (
+              <button
+                key={step}
+                onClick={() => navigate(path)}
+                className="flex items-start gap-3 rounded-xl border border-gray-200/60 bg-white/80 p-4 text-left shadow-sm transition-all hover:shadow-md hover:border-blue-200 touch-manipulation"
+              >
+                <div className={`rounded-lg ${bg} p-2 shrink-0`}>
+                  <Icon className={`h-5 w-5 ${color}`} />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-gray-900">Step {step}: {title}</p>
+                  <p className="mt-0.5 text-xs text-gray-500 leading-relaxed">{desc}</p>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Charts Row */}
       {stats && !loadingStats && (
         <div className="mb-6 sm:mb-8 grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
@@ -423,7 +455,7 @@ export default function Dashboard() {
         {/* Quick Actions — left 3 cols */}
         <div className="lg:col-span-3">
           <h2 className="mb-3 text-sm sm:text-base font-semibold text-gray-900">Quick Actions</h2>
-          <div className="grid grid-cols-3 gap-2 sm:gap-3">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3">
             {[
               { label: 'Upload Evidence', icon: Shield, color: 'text-primary-700', bg: 'bg-primary-600', bgLight: 'bg-primary-50', path: '/dashboard/vault/upload', primary: true, access: 'all' as const },
               { label: 'Analyze Chat', icon: AlertTriangle, color: 'text-red-700', bg: 'bg-white', bgLight: 'bg-white', path: '/dashboard/red-flag-radar', primary: false, access: 'all' as const },
@@ -449,7 +481,7 @@ export default function Dashboard() {
                 <div className={`rounded-md ${primary ? 'bg-white/20' : bgLight} p-1.5 shrink-0`}>
                   <Icon className={`h-4 w-4 ${primary ? 'text-white' : color}`} />
                 </div>
-                <span className="text-xs sm:text-sm font-medium leading-tight truncate">{label}</span>
+                <span className="text-xs sm:text-sm font-medium leading-tight">{label}</span>
               </button>
             ))}
           </div>

@@ -246,7 +246,7 @@ export default function MessageGenerator() {
                   </select>
                   <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                 </div>
-                <p className="mt-1 text-[10px] text-gray-500">
+                <p className="mt-1 text-xs text-gray-500">
                   {TEMPLATE_OPTIONS.find((o) => o.value === templateType)?.description}
                 </p>
               </div>
@@ -321,7 +321,7 @@ export default function MessageGenerator() {
                   rows={3}
                   className="w-full resize-none rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm shadow-sm placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                 />
-                <p className="mt-0.5 text-right text-[10px] text-gray-400">{keyPoints.length}/1000</p>
+                <p className="mt-0.5 text-right text-xs text-gray-400">{keyPoints.length}/1000</p>
               </div>
 
               <button
@@ -373,8 +373,8 @@ export default function MessageGenerator() {
                   <div className="flex items-start gap-2 rounded-lg border border-blue-100 bg-blue-50/60 p-3">
                     <Info className="mt-0.5 h-4 w-4 shrink-0 text-blue-500" />
                     <div>
-                      <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-blue-700">Legal Notes</p>
-                      <p className="whitespace-pre-wrap text-xs text-blue-800">{generated.legalNotes}</p>
+                      <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-blue-700">Legal Notes</p>
+                      <p className="whitespace-pre-wrap text-xs leading-relaxed text-blue-800">{generated.legalNotes}</p>
                     </div>
                   </div>
                 )}
@@ -407,7 +407,7 @@ export default function MessageGenerator() {
                   </button>
                 </div>
 
-                <p className="text-[10px] text-gray-400">
+                <p className="text-xs text-gray-400">
                   This message does not constitute legal advice. Review with a qualified attorney before sending.
                 </p>
               </div>
@@ -421,7 +421,7 @@ export default function MessageGenerator() {
             <Clock className="h-4 w-4 text-gray-500" />
             Saved Messages
             {savedMessages.length > 0 && (
-              <span className="ml-1 rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-600">
+              <span className="ml-1 rounded-full bg-gray-100 px-2 py-0.5 text-xs font-semibold text-gray-600">
                 {savedMessages.length}
               </span>
             )}
@@ -448,15 +448,15 @@ export default function MessageGenerator() {
                   <div className="flex items-center justify-between gap-3 p-3 sm:p-4">
                     <div className="flex min-w-0 flex-1 items-center gap-3">
                       <div className="flex min-w-0 flex-col">
-                        <span className="text-xs font-semibold text-gray-900">
+                        <span className="text-sm font-semibold text-gray-900">
                           {TEMPLATE_LABELS[msg.template_type]}
                         </span>
-                        <span className="text-[10px] text-gray-400">
+                        <span className="text-xs text-gray-400">
                           {format(new Date(msg.created_at), 'MMM d, yyyy h:mm a')}
                           {msg.relationship_duration && ` · ${msg.relationship_duration}`}
                         </span>
                       </div>
-                      <span className="shrink-0 rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-medium text-blue-700 capitalize">
+                      <span className="shrink-0 rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 capitalize">
                         {msg.tone}
                       </span>
                     </div>
@@ -498,13 +498,16 @@ export default function MessageGenerator() {
                   {/* Expanded view */}
                   {expandedId === msg.id && (
                     <div className="border-t border-gray-100 p-3 sm:p-4">
-                      <p className="whitespace-pre-wrap text-xs leading-relaxed text-gray-700">
+                      <p className="whitespace-pre-wrap text-sm leading-relaxed text-gray-700">
                         {msg.generated_message}
                       </p>
                       {msg.legal_notes && (
-                        <div className="mt-3 flex items-start gap-2 rounded-lg border border-blue-100 bg-blue-50/60 p-2.5">
-                          <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-blue-500" />
-                          <p className="whitespace-pre-wrap text-[10px] text-blue-800">{msg.legal_notes}</p>
+                        <div className="mt-3 flex items-start gap-2 rounded-lg border border-blue-100 bg-blue-50/60 p-3">
+                          <Info className="mt-0.5 h-4 w-4 shrink-0 text-blue-500" />
+                          <div>
+                            <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-blue-700">Legal Notes</p>
+                            <p className="whitespace-pre-wrap text-xs leading-relaxed text-blue-800">{msg.legal_notes}</p>
+                          </div>
                         </div>
                       )}
                     </div>
