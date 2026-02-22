@@ -4,7 +4,7 @@
 
 @layer base {
   body {
-    @apply bg-gray-50 text-gray-900;
+    @apply bg-gray-50 text-gray-900 dark:bg-black dark:text-gray-100;
   }
 }
 
@@ -14,11 +14,11 @@
   }
   
   .btn-secondary {
-    @apply bg-white text-primary-600 px-6 py-3 rounded-lg font-semibold border-2 border-primary-600 hover:bg-primary-50 transition-colors duration-200;
+    @apply bg-white text-primary-600 px-6 py-3 rounded-lg font-semibold border-2 border-primary-600 hover:bg-primary-50 transition-colors duration-200 dark:bg-black dark:text-primary-400 dark:border-primary-500 dark:hover:bg-gray-900;
   }
   
   .input-field {
-    @apply w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200;
+    @apply w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 dark:bg-black dark:border-gray-600 dark:text-gray-100;
   }
 }
 
@@ -54,6 +54,8 @@
 .stagger-children > .fade-in-up:nth-child(4) { transition-delay: 240ms; }
 .stagger-children > .fade-in-up:nth-child(5) { transition-delay: 320ms; }
 .stagger-children > .fade-in-up:nth-child(6) { transition-delay: 400ms; }
+.stagger-children > .fade-in-up:nth-child(7) { transition-delay: 480ms; }
+.stagger-children > .fade-in-up:nth-child(8) { transition-delay: 560ms; }
 
 /* ── subtle pulse for live dot ── */
 @keyframes live-pulse {
@@ -87,5 +89,60 @@
   background: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+}
+
+/* ── Magic UI: shimmer button slide ── */
+@keyframes shimmer-slide {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+.shimmer-slide {
+  background: linear-gradient(
+    120deg,
+    transparent 25%,
+    var(--shimmer-color, rgba(255,255,255,0.15)) 50%,
+    transparent 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer-slide 2.5s ease-in-out infinite;
+}
+
+/* ── Magic UI: marquee ── */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(calc(-100% - var(--gap, 1rem))); }
+}
+@keyframes marquee-reverse {
+  from { transform: translateX(calc(-100% - var(--gap, 1rem))); }
+  to { transform: translateX(0); }
+}
+.animate-marquee {
+  animation: marquee var(--duration, 40s) linear infinite;
+}
+.animate-marquee-reverse {
+  animation: marquee-reverse var(--duration, 40s) linear infinite;
+}
+
+/* ── Magic UI: animated gradient border ── */
+@keyframes border-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.animate-border-spin {
+  animation: border-spin 4s linear infinite;
+}
+
+/* ── Magic UI: dot pattern ── */
+.dot-pattern {
+  background-image: radial-gradient(circle, rgba(37,99,235,0.08) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* ── Magic UI: grid pattern ── */
+.grid-pattern {
+  background-image:
+    linear-gradient(to right, rgba(37,99,235,0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(37,99,235,0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
 }
 

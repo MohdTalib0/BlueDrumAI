@@ -115,7 +115,7 @@ export default function MaintenanceCalculator() {
     <DashboardLayout title="Calculate Maintenance" subtitle="Estimate your monthly maintenance entitlement" backHref="/dashboard/maintenance">
       <div className="w-full max-w-3xl mx-auto space-y-6">
         {error && (
-          <div className="flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 p-4 text-red-800 shadow-sm">
+          <div className="flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 p-4 text-red-800 shadow-sm dark:bg-black dark:border-red-700/40 dark:text-red-300">
             <AlertCircle className="h-5 w-5 shrink-0" />
             <span>{error}</span>
           </div>
@@ -123,44 +123,44 @@ export default function MaintenanceCalculator() {
 
         {/* Result Card */}
         {result && (
-          <div className="rounded-xl border-2 border-teal-300 bg-gradient-to-br from-teal-50 to-teal-100/50 p-5 sm:p-6 shadow-md animate-in slide-in-from-top-5">
+          <div className="rounded-xl border-2 border-teal-300 bg-gradient-to-br from-teal-50 to-teal-100/50 p-5 sm:p-6 shadow-md animate-in slide-in-from-top-5 dark:from-black dark:to-black dark:border-teal-700">
             <div className="flex items-center gap-2 mb-4">
               <CheckCircle2 className="h-5 w-5 text-teal-600" />
-              <h3 className="font-semibold text-teal-900">Calculation Result</h3>
+              <h3 className="font-semibold text-teal-900 dark:text-teal-300">Calculation Result</h3>
             </div>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-              <div className="rounded-lg bg-white/80 p-3">
-                <p className="text-[10px] sm:text-xs text-gray-500 font-medium">Husband Net Income</p>
-                <p className="mt-0.5 text-base sm:text-lg font-bold text-gray-900">{formatCurrency(result.husband_net_income)}</p>
+              <div className="rounded-lg bg-white/80 p-3 dark:bg-black dark:border dark:border-gray-700">
+                <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 font-medium">Husband Net Income</p>
+                <p className="mt-0.5 text-base sm:text-lg font-bold text-gray-900 dark:text-white">{formatCurrency(result.husband_net_income)}</p>
               </div>
-              <div className="rounded-lg bg-white/80 p-3">
-                <p className="text-[10px] sm:text-xs text-gray-500 font-medium">Wife Maintenance</p>
-                <p className="mt-0.5 text-base sm:text-lg font-bold text-teal-700">{formatCurrency(result.maintenance_for_wife)}</p>
+              <div className="rounded-lg bg-white/80 p-3 dark:bg-black dark:border dark:border-gray-700">
+                <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 font-medium">Wife Maintenance</p>
+                <p className="mt-0.5 text-base sm:text-lg font-bold text-teal-700 dark:text-teal-300">{formatCurrency(result.maintenance_for_wife)}</p>
               </div>
               {numChildren > 0 && (
-                <div className="rounded-lg bg-white/80 p-3">
-                  <p className="text-[10px] sm:text-xs text-gray-500 font-medium">Per Child</p>
-                  <p className="mt-0.5 text-base sm:text-lg font-bold text-blue-700">{formatCurrency(result.maintenance_per_child)}</p>
+                <div className="rounded-lg bg-white/80 p-3 dark:bg-black dark:border dark:border-gray-700">
+                  <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 font-medium">Per Child</p>
+                  <p className="mt-0.5 text-base sm:text-lg font-bold text-blue-700 dark:text-blue-300">{formatCurrency(result.maintenance_per_child)}</p>
                 </div>
               )}
-              <div className="rounded-lg bg-teal-200/60 p-3">
-                <p className="text-[10px] sm:text-xs text-teal-700 font-medium">Total Monthly</p>
-                <p className="mt-0.5 text-base sm:text-lg font-bold text-teal-900">{formatCurrency(result.total_maintenance)}</p>
-                <p className="text-[10px] text-teal-600">{result.percentage_applied}% of net income</p>
+              <div className="rounded-lg bg-teal-200/60 p-3 dark:bg-black dark:border dark:border-teal-700">
+                <p className="text-[10px] sm:text-xs text-teal-700 dark:text-teal-400 font-medium">Total Monthly</p>
+                <p className="mt-0.5 text-base sm:text-lg font-bold text-teal-900 dark:text-teal-300">{formatCurrency(result.total_maintenance)}</p>
+                <p className="text-[10px] text-teal-600 dark:text-teal-400">{result.percentage_applied}% of net income</p>
               </div>
             </div>
-            <p className="mt-3 text-xs text-teal-700">
+            <p className="mt-3 text-xs text-teal-700 dark:text-teal-400">
               Saved! You can view past calculations from the dashboard.
             </p>
           </div>
         )}
 
         {/* Husband's Income */}
-        <div className="rounded-lg border border-gray-200/20 bg-white/50 p-4 sm:p-6 shadow-sm">
-          <h3 className="mb-4 text-base font-semibold text-gray-900">Husband's Income Details</h3>
+        <div className="rounded-lg border border-gray-200/20 bg-white/50 p-4 sm:p-6 shadow-sm dark:bg-black dark:border-gray-700">
+          <h3 className="mb-4 text-base font-semibold text-gray-900 dark:text-white">Husband's Income Details</h3>
           <div className="space-y-4">
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">Gross Monthly Income</label>
+              <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Gross Monthly Income</label>
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">₹</span>
                 <input
@@ -169,13 +169,13 @@ export default function MaintenanceCalculator() {
                   value={husbandGross || ''}
                   onChange={(e) => setHusbandGross(Math.max(0, parseFloat(e.target.value) || 0))}
                   placeholder="e.g. 100000"
-                  className="w-full rounded-lg border border-gray-300 py-2.5 pl-7 pr-3 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-none"
+                  className="w-full rounded-lg border border-gray-300 py-2.5 pl-7 pr-3 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-none dark:bg-black dark:border-gray-600 dark:text-gray-100"
                 />
               </div>
             </div>
 
             <div>
-              <h4 className="mb-2 text-sm font-medium text-gray-700">Monthly Deductions</h4>
+              <h4 className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Monthly Deductions</h4>
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                 {[
                   { key: 'income_tax', label: 'Income Tax (TDS)' },
@@ -185,7 +185,7 @@ export default function MaintenanceCalculator() {
                   { key: 'other', label: 'Other Deductions' },
                 ].map(({ key, label }) => (
                   <div key={key}>
-                    <label className="mb-1 block text-xs text-gray-500">{label}</label>
+                    <label className="mb-1 block text-xs text-gray-500 dark:text-gray-400">{label}</label>
                     <div className="relative">
                       <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs">₹</span>
                       <input
@@ -195,15 +195,15 @@ export default function MaintenanceCalculator() {
                         onChange={(e) =>
                           setDeductions((prev) => ({ ...prev, [key]: Math.max(0, parseFloat(e.target.value) || 0) }))
                         }
-                        className="w-full rounded-lg border border-gray-300 py-2 pl-6 pr-2 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-none"
+                        className="w-full rounded-lg border border-gray-300 py-2 pl-6 pr-2 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-none dark:bg-black dark:border-gray-600 dark:text-gray-100"
                       />
                     </div>
                   </div>
                 ))}
               </div>
               {totalDeductions > 0 && (
-                <p className="mt-2 text-xs text-gray-500">
-                  Net income: <span className="font-semibold text-gray-900">{formatCurrency(netIncome)}</span>
+                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                  Net income: <span className="font-semibold text-gray-900 dark:text-white">{formatCurrency(netIncome)}</span>
                 </p>
               )}
             </div>
@@ -211,11 +211,11 @@ export default function MaintenanceCalculator() {
         </div>
 
         {/* Wife & Children */}
-        <div className="rounded-lg border border-gray-200/20 bg-white/50 p-4 sm:p-6 shadow-sm">
-          <h3 className="mb-4 text-base font-semibold text-gray-900">Your Details</h3>
+        <div className="rounded-lg border border-gray-200/20 bg-white/50 p-4 sm:p-6 shadow-sm dark:bg-black dark:border-gray-700">
+          <h3 className="mb-4 text-base font-semibold text-gray-900 dark:text-white">Your Details</h3>
           <div className="space-y-4">
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">Your Monthly Income (if any)</label>
+              <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Your Monthly Income (if any)</label>
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">₹</span>
                 <input
@@ -224,7 +224,7 @@ export default function MaintenanceCalculator() {
                   value={wifeIncome || ''}
                   onChange={(e) => setWifeIncome(Math.max(0, parseFloat(e.target.value) || 0))}
                   placeholder="0 if no income"
-                  className="w-full rounded-lg border border-gray-300 py-2.5 pl-7 pr-3 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-none"
+                  className="w-full rounded-lg border border-gray-300 py-2.5 pl-7 pr-3 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-none dark:bg-black dark:border-gray-600 dark:text-gray-100"
                 />
               </div>
               <p className="mt-1 text-xs text-gray-400">Leave blank or 0 if you have no independent income</p>
@@ -232,22 +232,22 @@ export default function MaintenanceCalculator() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">Number of Children</label>
+                <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Number of Children</label>
                 <input
                   type="number"
                   min={0}
                   max={20}
                   value={numChildren}
                   onChange={(e) => handleChildrenChange(parseInt(e.target.value) || 0)}
-                  className="w-full rounded-lg border border-gray-300 py-2.5 px-3 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-none"
+                  className="w-full rounded-lg border border-gray-300 py-2.5 px-3 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-none dark:bg-black dark:border-gray-600 dark:text-gray-100"
                 />
               </div>
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">Legal Basis</label>
+                <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Legal Basis</label>
                 <select
                   value={legalBasis}
                   onChange={(e) => setLegalBasis(e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 py-2.5 px-3 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-none"
+                  className="w-full rounded-lg border border-gray-300 py-2.5 px-3 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-none dark:bg-black dark:border-gray-600 dark:text-gray-100"
                 >
                   {LEGAL_BASES.map((b) => (
                     <option key={b.value} value={b.value}>{b.label}</option>
@@ -258,7 +258,7 @@ export default function MaintenanceCalculator() {
 
             {numChildren > 0 && (
               <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700">Children's Ages</label>
+                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Children's Ages</label>
                 <div className="flex flex-wrap gap-2">
                   {childrenAges.map((age, i) => (
                     <div key={i} className="flex items-center gap-1">
@@ -269,7 +269,7 @@ export default function MaintenanceCalculator() {
                         max={25}
                         value={age}
                         onChange={(e) => handleChildAgeChange(i, parseInt(e.target.value) || 0)}
-                        className="w-16 rounded border border-gray-300 py-1 px-2 text-sm text-center focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-none"
+                        className="w-16 rounded border border-gray-300 py-1 px-2 text-sm text-center focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-none dark:bg-black dark:border-gray-600 dark:text-gray-100"
                       />
                     </div>
                   ))}
@@ -278,14 +278,14 @@ export default function MaintenanceCalculator() {
             )}
 
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">Notes (optional)</label>
+              <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Notes (optional)</label>
               <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Any additional details..."
                 rows={2}
                 maxLength={2000}
-                className="w-full rounded-lg border border-gray-300 py-2.5 px-3 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-none resize-none"
+                className="w-full rounded-lg border border-gray-300 py-2.5 px-3 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-none resize-none dark:bg-black dark:border-gray-600 dark:text-gray-100"
               />
             </div>
           </div>
@@ -311,12 +311,12 @@ export default function MaintenanceCalculator() {
         </button>
 
         {/* Disclaimer */}
-        <div className="rounded-lg border border-amber-200 bg-amber-50/50 p-4">
+        <div className="rounded-lg border border-amber-200 bg-amber-50/50 p-4 dark:bg-black dark:border-yellow-700/40">
           <div className="flex items-start gap-3">
             <Info className="h-5 w-5 text-amber-600 mt-0.5 shrink-0" />
             <div>
-              <h4 className="text-sm font-semibold text-amber-900">Disclaimer</h4>
-              <p className="mt-1 text-xs text-amber-800">
+              <h4 className="text-sm font-semibold text-amber-900 dark:text-yellow-300">Disclaimer</h4>
+              <p className="mt-1 text-xs text-amber-800 dark:text-yellow-300">
                 This calculator provides an estimate based on general Indian court guidelines (Rajnesh v. Neha, 2020).
                 Actual maintenance amounts vary based on specific circumstances, court jurisdiction, and judicial discretion.
                 Always consult a qualified family law attorney for legal advice.

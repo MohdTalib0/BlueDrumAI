@@ -212,7 +212,7 @@ export default function AnnualSummary() {
         <div className="flex min-h-[400px] items-center justify-center">
           <div className="text-center">
             <Loader2 className="mb-4 inline-block h-8 w-8 animate-spin text-primary-600" />
-            <p className="text-gray-600">Loading annual summary...</p>
+            <p className="text-gray-600 dark:text-gray-400">Loading annual summary...</p>
           </div>
         </div>
       </DashboardLayout>
@@ -228,7 +228,7 @@ export default function AnnualSummary() {
             <select
               value={selectedYear}
               onChange={(e) => setSelectedYear(Number(e.target.value))}
-              className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 focus:border-primary-500 focus:outline-none"
+              className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 focus:border-primary-500 focus:outline-none dark:bg-black dark:border-gray-600 dark:text-gray-100"
             >
               {availableYears.map((year) => (
                 <option key={year} value={year}>
@@ -260,7 +260,7 @@ export default function AnnualSummary() {
 
         {/* Error Message */}
         {error && (
-          <div className="mb-6 flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 p-4 text-red-800">
+          <div className="mb-6 flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 p-4 text-red-800 dark:bg-black dark:border-red-700/40 dark:text-red-300">
             <AlertCircle className="h-5 w-5 shrink-0" />
             <span>{error}</span>
           </div>
@@ -268,10 +268,10 @@ export default function AnnualSummary() {
 
         {/* No Data */}
         {!summary && (
-          <div className="rounded-lg border border-gray-200/20 bg-white/50 p-6 sm:p-12 text-center shadow-sm">
+          <div className="rounded-lg border border-gray-200/20 bg-white/50 p-6 sm:p-12 text-center shadow-sm dark:border-gray-700 dark:bg-black">
             <Calendar className="mx-auto mb-4 h-16 w-16 text-gray-400" />
-            <h3 className="mb-2 text-lg font-semibold text-gray-900">No data for {selectedYear}</h3>
-            <p className="mb-6 text-gray-600">Start tracking your income to see annual summaries.</p>
+            <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-white">No data for {selectedYear}</h3>
+            <p className="mb-6 text-gray-600 dark:text-gray-400">Start tracking your income to see annual summaries.</p>
             <button
               onClick={() => navigate('/dashboard/income-tracker')}
               className="inline-flex items-center gap-2 rounded-lg bg-primary-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-primary-700"
@@ -285,36 +285,36 @@ export default function AnnualSummary() {
         {summary && (
           <>
             <div className="mb-6 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-              <div className="rounded-lg border border-blue-200 bg-blue-50/50 p-3 sm:p-6 shadow-sm">
-                <p className="text-xs font-semibold uppercase tracking-wide text-blue-600">Total Gross Income</p>
+              <div className="rounded-lg border border-blue-200 bg-blue-50/50 p-3 sm:p-6 shadow-sm dark:bg-black dark:border-blue-700/30">
+                <p className="text-xs font-semibold uppercase tracking-wide text-blue-600 dark:text-blue-400">Total Gross Income</p>
                 <p className="mt-2 text-xl sm:text-3xl font-bold text-blue-700">{formatCurrency(summary.totalGross)}</p>
-                <p className="mt-1 text-xs text-blue-600">Avg: {formatCurrency(summary.avgGross)}/month</p>
+                <p className="mt-1 text-xs text-blue-600 dark:text-blue-400">Avg: {formatCurrency(summary.avgGross)}/month</p>
               </div>
-              <div className="rounded-lg border border-red-200 bg-red-50/50 p-3 sm:p-6 shadow-sm">
+              <div className="rounded-lg border border-red-200 bg-red-50/50 p-3 sm:p-6 shadow-sm dark:bg-black dark:border-red-700/30">
                 <p className="text-xs font-semibold uppercase tracking-wide text-red-600">Total Deductions</p>
                 <p className="mt-2 text-xl sm:text-3xl font-bold text-red-700">{formatCurrency(summary.totalDeductions)}</p>
                 <p className="mt-1 text-xs text-red-600">
                   {((summary.totalDeductions / summary.totalGross) * 100).toFixed(1)}% of gross
                 </p>
               </div>
-              <div className="rounded-lg border border-orange-200 bg-orange-50/50 p-3 sm:p-6 shadow-sm">
+              <div className="rounded-lg border border-orange-200 bg-orange-50/50 p-3 sm:p-6 shadow-sm dark:bg-black dark:border-orange-700/30">
                 <p className="text-xs font-semibold uppercase tracking-wide text-orange-600">Total Expenses</p>
                 <p className="mt-2 text-xl sm:text-3xl font-bold text-orange-700">{formatCurrency(summary.totalExpenses)}</p>
                 <p className="mt-1 text-xs text-orange-600">
                   {((summary.totalExpenses / summary.totalGross) * 100).toFixed(1)}% of gross
                 </p>
               </div>
-              <div className="rounded-lg border border-primary-200 bg-primary-50/50 p-3 sm:p-6 shadow-sm">
+              <div className="rounded-lg border border-primary-200 bg-primary-50/50 p-3 sm:p-6 shadow-sm dark:bg-black dark:border-primary-500/30">
                 <p className="text-xs font-semibold uppercase tracking-wide text-primary-600">Total Disposable</p>
                 <p className="mt-2 text-xl sm:text-3xl font-bold text-primary-700">{formatCurrency(summary.totalDisposable)}</p>
-                <p className="mt-1 text-xs text-primary-600">Avg: {formatCurrency(summary.avgDisposable)}/month</p>
+                <p className="mt-1 text-xs text-primary-600 dark:text-primary-400">Avg: {formatCurrency(summary.avgDisposable)}/month</p>
               </div>
             </div>
 
             {/* Monthly Trend Chart */}
             {summary.monthlyData.length > 0 && (
-              <div className="mb-6 rounded-lg border border-gray-200/20 bg-white/50 p-4 sm:p-6 shadow-sm">
-                <h3 className="mb-4 text-base font-semibold text-gray-900">Monthly Trend - {selectedYear}</h3>
+              <div className="mb-6 rounded-lg border border-gray-200/20 bg-white/50 p-4 sm:p-6 shadow-sm dark:border-gray-700 dark:bg-black">
+                <h3 className="mb-4 text-base font-semibold text-gray-900 dark:text-white">Monthly Trend - {selectedYear}</h3>
                 <div className="overflow-x-auto">
                   <div className="min-w-[320px]" style={{ height: 280 }}>
                     <ResponsiveContainer width="100%" height="100%">
@@ -340,21 +340,21 @@ export default function AnnualSummary() {
 
             {/* Expense Categories */}
             {summary.expenseCategories.length > 0 && (
-              <div className="mb-6 rounded-lg border border-gray-200/20 bg-white/50 p-4 sm:p-6 shadow-sm">
-                <h3 className="mb-4 text-base font-semibold text-gray-900">Expense Categories Breakdown</h3>
+              <div className="mb-6 rounded-lg border border-gray-200/20 bg-white/50 p-4 sm:p-6 shadow-sm dark:border-gray-700 dark:bg-black">
+                <h3 className="mb-4 text-base font-semibold text-gray-900 dark:text-white">Expense Categories Breakdown</h3>
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                   <div className="space-y-3">
                     {summary.expenseCategories.map((item, index) => {
                       const percentage = ((item.value / summary.totalExpenses) * 100).toFixed(1)
                       return (
-                        <div key={item.name} className="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 p-3">
+                        <div key={item.name} className="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 p-3 dark:bg-gray-900 dark:border-gray-700">
                           <div className="flex items-center gap-3">
                             <div className="h-4 w-4 rounded" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
-                            <span className="text-sm font-medium text-gray-700">{item.name}</span>
+                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{item.name}</span>
                           </div>
                           <div className="text-right">
-                            <p className="text-sm font-semibold text-gray-900">{formatCurrency(item.value)}</p>
-                            <p className="text-xs text-gray-500">{percentage}%</p>
+                            <p className="text-sm font-semibold text-gray-900 dark:text-white">{formatCurrency(item.value)}</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">{percentage}%</p>
                           </div>
                         </div>
                       )
@@ -387,13 +387,13 @@ export default function AnnualSummary() {
 
             {/* Deduction Categories */}
             {summary.deductionCategories.length > 0 && (
-              <div className="mb-6 rounded-lg border border-gray-200/20 bg-white/50 p-4 sm:p-6 shadow-sm">
-                <h3 className="mb-4 text-base font-semibold text-gray-900">Deduction Categories Breakdown</h3>
+              <div className="mb-6 rounded-lg border border-gray-200/20 bg-white/50 p-4 sm:p-6 shadow-sm dark:border-gray-700 dark:bg-black">
+                <h3 className="mb-4 text-base font-semibold text-gray-900 dark:text-white">Deduction Categories Breakdown</h3>
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
                   {summary.deductionCategories.map((item) => {
                     const percentage = ((item.value / summary.totalDeductions) * 100).toFixed(1)
                     return (
-                      <div key={item.name} className="rounded-lg border border-red-100 bg-red-50/30 p-3 sm:p-4">
+                      <div key={item.name} className="rounded-lg border border-red-100 bg-red-50/30 p-3 sm:p-4 dark:bg-black dark:border-red-700/30">
                         <p className="text-xs font-semibold text-red-600">{item.name}</p>
                         <p className="mt-1 text-lg sm:text-xl font-bold text-red-700">{formatCurrency(item.value)}</p>
                         <p className="mt-1 text-xs text-red-600">{percentage}%</p>
@@ -405,12 +405,12 @@ export default function AnnualSummary() {
             )}
 
             {/* Key Insights */}
-            <div className="rounded-lg border border-blue-200 bg-blue-50/50 p-4 sm:p-6 shadow-sm">
-              <h3 className="mb-4 flex items-center gap-2 text-base font-semibold text-blue-900">
+            <div className="rounded-lg border border-blue-200 bg-blue-50/50 p-4 sm:p-6 shadow-sm dark:bg-black dark:border-blue-700/30">
+              <h3 className="mb-4 flex items-center gap-2 text-base font-semibold text-blue-900 dark:text-blue-300">
                 <TrendingUp className="h-5 w-5" />
                 Key Insights for {selectedYear}
               </h3>
-              <ul className="space-y-2 text-sm text-blue-800">
+              <ul className="space-y-2 text-sm text-blue-800 dark:text-blue-300">
                 <li className="flex items-start gap-2">
                   <span className="mt-0.5">•</span>
                   <span>

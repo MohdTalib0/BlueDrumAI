@@ -87,53 +87,53 @@ export default function SignInPage() {
       <div className="relative z-10 flex flex-col sm:w-1/2">
 
         {/* Mobile header — matches dashboard style */}
-        <div className="border-b border-blue-100/50 backdrop-blur-sm bg-gradient-to-br from-blue-50/40 via-yellow-50/20 to-white/40 px-4 py-3 sm:hidden">
+        <div className="border-b border-blue-100/50 dark:border-gray-700 backdrop-blur-sm bg-gradient-to-br from-blue-50/40 via-yellow-50/20 to-white/40 dark:from-black dark:via-black dark:to-black px-4 py-3 sm:hidden">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
               <img src="/logo.svg" alt="Blue Drum AI" className="h-8 w-8 shrink-0" />
               <div>
-                <p className="text-sm font-bold text-gray-900 leading-tight">Blue Drum AI</p>
-                <p className="text-[11px] text-gray-500">Evidence-based legal vigilance</p>
+                <p className="text-sm font-bold text-gray-900 dark:text-white leading-tight">Blue Drum AI</p>
+                <p className="text-[11px] text-gray-500 dark:text-gray-400">Evidence-based legal vigilance</p>
               </div>
             </div>
-            <Link to="/" className="text-xs font-semibold text-gray-500 hover:text-gray-900 transition-colors">
+            <Link to="/" className="text-xs font-semibold text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
               <ArrowLeft className="h-4 w-4" />
             </Link>
           </div>
         </div>
 
         {/* Form area */}
-        <div className="flex flex-1 flex-col justify-center px-5 py-8 sm:px-10 lg:px-14 sm:bg-white">
+        <div className="flex flex-1 flex-col justify-center px-5 py-8 sm:px-10 lg:px-14 sm:bg-white dark:sm:bg-black">
           <div className="mx-auto w-full max-w-md">
 
             <Link
               to="/"
-              className="mb-6 hidden sm:inline-flex items-center gap-1.5 text-sm font-semibold text-gray-500 hover:text-gray-900 transition-colors"
+              className="mb-6 hidden sm:inline-flex items-center gap-1.5 text-sm font-semibold text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
             >
               <ArrowLeft className="h-4 w-4" />
               Back to home
             </Link>
 
-            <h1 className="text-2xl font-bold text-gray-900 -tracking-[.04em] mb-1 text-center sm:text-left">Welcome back</h1>
-            <p className="text-sm text-gray-500 mb-7 text-center sm:text-left">Sign in to your Blue Drum AI account</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white -tracking-[.04em] mb-1 text-center sm:text-left">Welcome back</h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-7 text-center sm:text-left">Sign in to your Blue Drum AI account</p>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
                 <input
                   type="email"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
                   required
                   autoComplete="email"
-                  className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-100 focus:outline-none transition-colors"
+                  className="w-full rounded-xl border border-gray-300 dark:bg-black dark:border-gray-600 dark:text-gray-100 px-4 py-3 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-100 focus:outline-none transition-colors"
                   placeholder="you@example.com"
                 />
               </div>
 
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <label className="block text-sm font-medium text-gray-700">Password</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
                   <Link to="/forgot-password" className="text-xs font-semibold text-primary-600 hover:text-primary-700">
                     Forgot password?
                   </Link>
@@ -145,13 +145,13 @@ export default function SignInPage() {
                     onChange={e => setPassword(e.target.value)}
                     required
                     autoComplete="current-password"
-                    className="w-full rounded-xl border border-gray-300 px-4 py-3 pr-10 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-100 focus:outline-none transition-colors"
+                    className="w-full rounded-xl border border-gray-300 dark:bg-black dark:border-gray-600 dark:text-gray-100 px-4 py-3 pr-10 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-100 focus:outline-none transition-colors"
                     placeholder="••••••••"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(v => !v)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
@@ -159,7 +159,7 @@ export default function SignInPage() {
               </div>
 
               {error && (
-                <div className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 px-3 py-3 text-sm text-red-700">
+                <div className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 dark:bg-black dark:border-red-700/40 dark:text-red-300 px-3 py-3 text-sm text-red-700">
                   <MailWarning className="mt-0.5 h-4 w-4 shrink-0" />
                   <div className="flex-1 space-y-2">
                     <div>{error}</div>
@@ -168,7 +168,7 @@ export default function SignInPage() {
                         type="button"
                         onClick={handleResend}
                         disabled={resending}
-                        className="inline-flex items-center gap-1.5 rounded-lg bg-red-100 px-3 py-1.5 text-xs font-semibold text-red-800 hover:bg-red-200 disabled:opacity-60 transition-colors"
+                        className="inline-flex items-center gap-1.5 rounded-lg bg-red-100 dark:bg-red-900/30 px-3 py-1.5 text-xs font-semibold text-red-800 dark:text-red-300 hover:bg-red-200 dark:hover:bg-red-900/50 disabled:opacity-60 transition-colors"
                       >
                         {resending ? <Loader2 className="h-3 w-3 animate-spin" /> : <MailCheck className="h-3 w-3" />}
                         Resend verification email
@@ -179,7 +179,7 @@ export default function SignInPage() {
               )}
 
               {info && (
-                <div className="flex items-start gap-2 rounded-xl border border-blue-200 bg-blue-50 px-3 py-3 text-sm text-blue-800">
+                <div className="flex items-start gap-2 rounded-xl border border-blue-200 bg-blue-50 dark:bg-black dark:border-blue-700/40 px-3 py-3 text-sm text-blue-800 dark:text-blue-300">
                   <MailCheck className="mt-0.5 h-4 w-4 shrink-0" />
                   <span>{info}</span>
                 </div>
@@ -194,7 +194,7 @@ export default function SignInPage() {
               </button>
             </form>
 
-            <p className="mt-6 text-center text-sm text-gray-500">
+            <p className="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
               Don't have an account?{' '}
               <Link to="/sign-up" className="font-semibold text-primary-600 hover:text-primary-700">
                 Sign up

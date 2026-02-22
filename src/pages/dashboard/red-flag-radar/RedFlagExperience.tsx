@@ -225,14 +225,14 @@ export default function RedFlagExperience() {
         <div className="w-full">
           {/* Explanation */}
           <div className="mb-6 space-y-4">
-            <div className="rounded-lg border border-red-200 bg-red-50 p-6">
-              <h3 className="mb-3 flex items-center gap-2 text-lg font-semibold text-red-900">
+            <div className="rounded-lg border border-red-200 bg-red-50 dark:bg-black dark:border-red-700/40 p-6">
+              <h3 className="mb-3 flex items-center gap-2 text-lg font-semibold text-red-900 dark:text-red-300">
                 <AlertTriangle className="h-5 w-5" />
                 Red Flags Detected
               </h3>
               <ul className="space-y-2">
                 {selectedScenario.redFlags.map((flag, index) => (
-                  <li key={index} className="flex items-start gap-2 text-sm text-red-800">
+                  <li key={index} className="flex items-start gap-2 text-sm text-red-800 dark:text-red-300">
                     <XCircle className="h-4 w-4 mt-0.5 shrink-0" />
                     <span>{flag}</span>
                   </li>
@@ -240,17 +240,17 @@ export default function RedFlagExperience() {
               </ul>
             </div>
 
-            <div className="rounded-lg border border-blue-200 bg-blue-50 p-6">
-              <h3 className="mb-3 text-lg font-semibold text-blue-900">What Happened?</h3>
-              <p className="text-sm leading-relaxed text-blue-800">{selectedScenario.explanation}</p>
+            <div className="rounded-lg border border-blue-200 bg-blue-50 dark:bg-black dark:border-blue-700/40 p-6">
+              <h3 className="mb-3 text-lg font-semibold text-blue-900 dark:text-blue-300">What Happened?</h3>
+              <p className="text-sm leading-relaxed text-blue-800 dark:text-blue-300">{selectedScenario.explanation}</p>
             </div>
 
-            <div className="rounded-lg border border-green-200 bg-green-50 p-6">
-              <h3 className="mb-3 flex items-center gap-2 text-lg font-semibold text-green-900">
+            <div className="rounded-lg border border-green-200 bg-green-50 dark:bg-black dark:border-green-700/40 p-6">
+              <h3 className="mb-3 flex items-center gap-2 text-lg font-semibold text-green-900 dark:text-green-300">
                 <CheckCircle2 className="h-5 w-5" />
                 Key Lesson
               </h3>
-              <p className="text-sm leading-relaxed text-green-800">{selectedScenario.lesson}</p>
+              <p className="text-sm leading-relaxed text-green-800 dark:text-green-300">{selectedScenario.lesson}</p>
             </div>
           </div>
 
@@ -258,7 +258,7 @@ export default function RedFlagExperience() {
           <div className="flex gap-3">
             <button
               onClick={resetExperience}
-              className="flex-1 rounded-lg border border-gray-300 bg-white px-6 py-3 font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+              className="flex-1 rounded-lg border border-gray-300 bg-white dark:bg-black dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-900 px-6 py-3 font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
             >
               Try Another Scenario
             </button>
@@ -283,15 +283,15 @@ export default function RedFlagExperience() {
       >
         <div className="w-full">
           {/* Scenario Info */}
-          <div className="mb-6 rounded-lg border border-gray-200 bg-white p-4">
+          <div className="mb-6 rounded-lg border border-gray-200 bg-white dark:bg-black dark:border-gray-700 p-4">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-xl font-bold text-gray-900">{selectedScenario.title}</h2>
-                <p className="mt-1 text-sm text-gray-600">{selectedScenario.description}</p>
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">{selectedScenario.title}</h2>
+                <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">{selectedScenario.description}</p>
               </div>
               <button
                 onClick={showLesson}
-                className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+                className="rounded-lg border border-gray-300 bg-white dark:bg-black dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-900 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
               >
                 See Explanation
               </button>
@@ -299,26 +299,26 @@ export default function RedFlagExperience() {
           </div>
 
           {/* Chat Container */}
-          <div className="mb-6 rounded-lg border border-gray-200 bg-white shadow-sm">
+          <div className="mb-6 rounded-lg border border-gray-200 bg-white dark:bg-black dark:border-gray-700 shadow-sm">
             {/* Chat Header */}
-            <div className="border-b border-gray-200 bg-red-50 px-4 py-3">
+            <div className="border-b border-gray-200 bg-red-50 dark:bg-black dark:border-gray-700 px-4 py-3">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-100">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-100 dark:bg-gray-800">
                   <Bot className="h-5 w-5 text-red-600" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">AI Red Flag Simulator</h3>
-                  <p className="text-xs text-gray-600">Powered by AI - Educational tool</p>
+                  <h3 className="font-semibold text-gray-900 dark:text-white">AI Red Flag Simulator</h3>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">Powered by AI - Educational tool</p>
                 </div>
               </div>
             </div>
 
             {/* Messages */}
-            <div className="h-[500px] overflow-y-auto p-4 space-y-4 bg-gray-50">
+            <div className="h-[500px] overflow-y-auto p-4 space-y-4 bg-gray-50 dark:bg-gray-900">
               {messages.map((message) => (
                 <div key={message.id} className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                   {message.role === 'assistant' && (
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-red-100">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-red-100 dark:bg-gray-800">
                       <Bot className="h-4 w-4 text-red-600" />
                     </div>
                   )}
@@ -327,33 +327,33 @@ export default function RedFlagExperience() {
                       className={`rounded-lg px-4 py-2 ${
                         message.role === 'user'
                           ? 'bg-primary-600 text-white'
-                          : 'bg-white border border-red-200 text-gray-900'
+                          : 'bg-white dark:bg-black border border-red-200 dark:border-red-700/40 text-gray-900 dark:text-white'
                       }`}
                     >
                       <p className="text-sm leading-relaxed">{message.content}</p>
-                      <p className={`mt-1 text-xs ${message.role === 'user' ? 'text-primary-100' : 'text-gray-500'}`}>
+                      <p className={`mt-1 text-xs ${message.role === 'user' ? 'text-primary-100' : 'text-gray-500 dark:text-gray-400'}`}>
                         {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </p>
                     </div>
                     {message.redFlagsDetected && message.redFlagsDetected.length > 0 && (
-                      <div className="mt-2 rounded-lg border border-red-200 bg-red-50 p-2">
-                        <div className="text-xs font-semibold text-red-800 mb-1">Red Flags Detected:</div>
+                      <div className="mt-2 rounded-lg border border-red-200 bg-red-50 dark:bg-black dark:border-red-700/40 p-2">
+                        <div className="text-xs font-semibold text-red-800 dark:text-red-300 mb-1">Red Flags Detected:</div>
                         {message.redFlagsDetected.map((flag, idx) => (
-                          <div key={idx} className="text-xs text-red-700">
+                          <div key={idx} className="text-xs text-red-700 dark:text-red-300">
                             • {flag.type} ({flag.severity})
                           </div>
                         ))}
                       </div>
                     )}
                     {message.educationalNote && (
-                      <div className="mt-2 rounded-lg border border-blue-200 bg-blue-50 p-2">
-                        <div className="text-xs font-semibold text-blue-800 mb-1">💡 Educational Note:</div>
-                        <div className="text-xs text-blue-700">{message.educationalNote}</div>
+                      <div className="mt-2 rounded-lg border border-blue-200 bg-blue-50 dark:bg-black dark:border-blue-700/40 p-2">
+                        <div className="text-xs font-semibold text-blue-800 dark:text-blue-300 mb-1">💡 Educational Note:</div>
+                        <div className="text-xs text-blue-700 dark:text-blue-300">{message.educationalNote}</div>
                       </div>
                     )}
                   </div>
                   {message.role === 'user' && (
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-100">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-100 dark:bg-gray-800">
                       <User className="h-4 w-4 text-primary-600" />
                     </div>
                   )}
@@ -361,10 +361,10 @@ export default function RedFlagExperience() {
               ))}
               {sending && (
                 <div className="flex gap-3 justify-start">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-red-100">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-red-100 dark:bg-gray-800">
                     <Bot className="h-4 w-4 text-red-600" />
                   </div>
-                  <div className="bg-white border border-red-200 rounded-lg px-4 py-2">
+                  <div className="bg-white dark:bg-black border border-red-200 dark:border-red-700/40 rounded-lg px-4 py-2">
                     <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
                   </div>
                 </div>
@@ -373,7 +373,7 @@ export default function RedFlagExperience() {
             </div>
 
             {/* Input */}
-            <div className="border-t border-gray-200 bg-white p-4">
+            <div className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-black p-4">
               <div className="flex gap-2">
                 <input
                   type="text"
@@ -381,7 +381,7 @@ export default function RedFlagExperience() {
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}
                   placeholder="Type your response..."
-                  className="flex-1 rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none"
+                  className="flex-1 rounded-lg border border-gray-300 dark:bg-black dark:border-gray-600 dark:text-gray-100 px-4 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none"
                   disabled={sending}
                 />
                 <button
@@ -393,7 +393,7 @@ export default function RedFlagExperience() {
                   Send
                 </button>
               </div>
-              <p className="mt-2 text-xs text-gray-500">
+              <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
                 💡 Try responses like: "I'm busy with work", "I need some space", "I can't afford that", "No, I can't do that"
               </p>
             </div>
@@ -402,7 +402,7 @@ export default function RedFlagExperience() {
           {/* Back Button */}
           <button
             onClick={resetExperience}
-            className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+            className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white dark:bg-black dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-900 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
             Choose Different Scenario
@@ -420,12 +420,12 @@ export default function RedFlagExperience() {
       >
       <div className="w-full">
         {/* Info Banner */}
-        <div className="mb-6 rounded-lg border border-blue-200 bg-blue-50 p-4">
+        <div className="mb-6 rounded-lg border border-blue-200 bg-blue-50 dark:bg-black dark:border-blue-700/40 p-4">
           <div className="flex items-start gap-3">
             <Sparkles className="h-5 w-5 text-blue-600 mt-0.5" />
             <div className="flex-1">
-              <h3 className="text-sm font-semibold text-blue-900">AI-Powered Interactive Learning</h3>
-              <p className="mt-1 text-sm text-blue-800">
+              <h3 className="text-sm font-semibold text-blue-900 dark:text-blue-300">AI-Powered Interactive Learning</h3>
+              <p className="mt-1 text-sm text-blue-800 dark:text-blue-300">
                 Experience simulated conversations with red flag behaviors powered by AI. Learn to recognize manipulation,
                 gaslighting, and controlling patterns in a safe, educational environment. The AI will adapt its responses
                 based on your messages, making each conversation unique and realistic.
@@ -439,27 +439,27 @@ export default function RedFlagExperience() {
           {scenarios.map((scenario) => (
             <div
               key={scenario.id}
-              className="group cursor-pointer rounded-lg border border-gray-200 bg-white p-6 shadow-sm transition-all hover:border-primary-300 hover:shadow-md"
+              className="group cursor-pointer rounded-lg border border-gray-200 bg-white dark:bg-black dark:border-gray-700 p-6 shadow-sm transition-all hover:border-primary-300 hover:shadow-md"
               onClick={() => startScenario(scenario)}
             >
               <div className="mb-3 flex items-center gap-2">
                 <AlertTriangle className="h-5 w-5 text-red-600" />
-                <h3 className="text-lg font-semibold text-gray-900">{scenario.title}</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{scenario.title}</h3>
               </div>
-              <p className="mb-4 text-sm text-gray-600">{scenario.description}</p>
-              <div className="mb-4 rounded-lg border border-gray-100 bg-gray-50 p-3">
-                <p className="text-xs font-medium text-gray-500 mb-1">Opening Message:</p>
-                <p className="text-sm text-gray-700 italic">"{scenario.initialMessage}"</p>
+              <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">{scenario.description}</p>
+              <div className="mb-4 rounded-lg border border-gray-100 bg-gray-50 dark:bg-gray-900 dark:border-gray-700 p-3">
+                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Opening Message:</p>
+                <p className="text-sm text-gray-700 dark:text-gray-300 italic">"{scenario.initialMessage}"</p>
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex flex-wrap gap-2">
                   {scenario.redFlags.slice(0, 2).map((flag, index) => (
-                    <span key={index} className="rounded-full bg-red-50 px-2 py-1 text-xs font-medium text-red-700">
+                    <span key={index} className="rounded-full bg-red-50 dark:bg-red-900/30 px-2 py-1 text-xs font-medium text-red-700 dark:text-red-300">
                       {flag}
                     </span>
                   ))}
                   {scenario.redFlags.length > 2 && (
-                    <span className="rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600">
+                    <span className="rounded-full bg-gray-100 dark:bg-gray-800 px-2 py-1 text-xs font-medium text-gray-600 dark:text-gray-400">
                       +{scenario.redFlags.length - 2} more
                     </span>
                   )}
@@ -477,7 +477,7 @@ export default function RedFlagExperience() {
         <div className="mt-6">
           <button
             onClick={() => navigate('/dashboard/red-flag-radar')}
-            className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+            className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white dark:bg-black dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-900 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Red Flag Radar

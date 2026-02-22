@@ -103,28 +103,28 @@ export default function ForgotPassword() {
       </div>
 
       {/* Centered card */}
-      <div className="flex flex-1 items-center justify-center bg-gray-50 px-5 py-10">
+      <div className="flex flex-1 items-center justify-center bg-gray-50 dark:bg-black px-5 py-10">
         <div className="w-full max-w-md">
 
           <Link
             to="/sign-in"
-            className="mb-6 inline-flex items-center gap-1.5 text-sm font-semibold text-gray-500 hover:text-gray-900 transition-colors"
+            className="mb-6 inline-flex items-center gap-1.5 text-sm font-semibold text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to sign in
           </Link>
 
-          <div className="rounded-2xl bg-white shadow-lg border border-gray-100 overflow-hidden">
+          <div className="rounded-2xl bg-white dark:bg-black shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden">
             {/* Card header */}
-            <div className="bg-gradient-to-br from-primary-50 to-blue-50 border-b border-gray-100 px-6 py-5 flex items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary-600/10 border border-primary-100">
+            <div className="bg-gradient-to-br from-primary-50 to-blue-50 dark:from-black dark:to-black border-b border-gray-100 dark:border-gray-700 px-6 py-5 flex items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary-600/10 dark:bg-gray-800 border border-primary-100 dark:border-gray-700">
                 <KeyRound className="h-5 w-5 text-primary-600" />
               </div>
               <div>
-                <h1 className="text-lg font-bold text-gray-900 -tracking-[.03em]">
+                <h1 className="text-lg font-bold text-gray-900 dark:text-white -tracking-[.03em]">
                   {mode === 'request' ? 'Reset your password' : 'Set new password'}
                 </h1>
-                <p className="text-xs text-gray-500 mt-0.5">
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                   {mode === 'request' ? "We'll email you a reset link" : 'Choose a strong new password'}
                 </p>
               </div>
@@ -134,26 +134,26 @@ export default function ForgotPassword() {
             {mode === 'request' && (
               <form onSubmit={handleRequestSubmit} className="px-6 py-6 space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Email address</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email address</label>
                   <input
                     type="email"
                     value={email}
                     onChange={e => setEmail(e.target.value)}
                     required
                     autoComplete="email"
-                    className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-100 focus:outline-none transition-colors"
+                    className="w-full rounded-xl border border-gray-300 dark:bg-black dark:border-gray-600 dark:text-gray-100 px-4 py-3 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-100 focus:outline-none transition-colors"
                     placeholder="you@example.com"
                   />
                 </div>
 
                 {error && (
-                  <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-3 text-sm text-red-700">
+                  <div className="rounded-xl border border-red-200 bg-red-50 dark:bg-black dark:border-red-700/40 dark:text-red-300 px-3 py-3 text-sm text-red-700">
                     {error}
                   </div>
                 )}
 
                 {message && (
-                  <div className="flex items-start gap-2 rounded-xl border border-green-200 bg-green-50 px-3 py-3 text-sm text-green-800">
+                  <div className="flex items-start gap-2 rounded-xl border border-green-200 bg-green-50 dark:bg-black dark:border-green-700/40 dark:text-green-300 px-3 py-3 text-sm text-green-800">
                     <MailCheck className="mt-0.5 h-4 w-4 shrink-0" />
                     <span>{message}</span>
                   </div>
@@ -167,7 +167,7 @@ export default function ForgotPassword() {
                   {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Send reset link'}
                 </button>
 
-                <p className="text-center text-sm text-gray-500">
+                <p className="text-center text-sm text-gray-500 dark:text-gray-400">
                   Remembered your password?{' '}
                   <Link to="/sign-in" className="font-semibold text-primary-600 hover:text-primary-700">
                     Sign in
@@ -180,7 +180,7 @@ export default function ForgotPassword() {
             {mode === 'reset' && !resetDone && (
               <form onSubmit={handleResetSubmit} className="px-6 py-6 space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">New password</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">New password</label>
                   <div className="relative">
                     <input
                       type={showPassword ? 'text' : 'password'}
@@ -189,13 +189,13 @@ export default function ForgotPassword() {
                       required
                       minLength={8}
                       autoComplete="new-password"
-                      className="w-full rounded-xl border border-gray-300 px-4 py-3 pr-10 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-100 focus:outline-none transition-colors"
+                      className="w-full rounded-xl border border-gray-300 dark:bg-black dark:border-gray-600 dark:text-gray-100 px-4 py-3 pr-10 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-100 focus:outline-none transition-colors"
                       placeholder="At least 8 characters"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(v => !v)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
                     >
                       {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
@@ -203,7 +203,7 @@ export default function ForgotPassword() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Confirm password</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Confirm password</label>
                   <input
                     type={showPassword ? 'text' : 'password'}
                     value={confirmPassword}
@@ -211,13 +211,13 @@ export default function ForgotPassword() {
                     required
                     minLength={8}
                     autoComplete="new-password"
-                    className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-100 focus:outline-none transition-colors"
+                    className="w-full rounded-xl border border-gray-300 dark:bg-black dark:border-gray-600 dark:text-gray-100 px-4 py-3 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-100 focus:outline-none transition-colors"
                     placeholder="Re-enter new password"
                   />
                 </div>
 
                 {error && (
-                  <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-3 text-sm text-red-700">
+                  <div className="rounded-xl border border-red-200 bg-red-50 dark:bg-black dark:border-red-700/40 dark:text-red-300 px-3 py-3 text-sm text-red-700">
                     {error}
                   </div>
                 )}
@@ -236,8 +236,8 @@ export default function ForgotPassword() {
             {mode === 'reset' && resetDone && (
               <div className="px-6 py-8 text-center">
                 <CheckCircle2 className="mx-auto mb-3 h-10 w-10 text-emerald-500" />
-                <h2 className="text-lg font-bold text-gray-900 mb-1">Password updated!</h2>
-                <p className="text-sm text-gray-500">Redirecting you to sign in...</p>
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-1">Password updated!</h2>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Redirecting you to sign in...</p>
               </div>
             )}
           </div>

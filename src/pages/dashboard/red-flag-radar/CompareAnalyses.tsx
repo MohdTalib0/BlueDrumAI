@@ -155,11 +155,11 @@ export default function CompareAnalyses() {
   }
 
   const getRiskColor = (score: number) => {
-    if (score >= 80) return 'text-red-700 bg-red-50 border-red-200'
-    if (score >= 60) return 'text-orange-700 bg-orange-50 border-orange-200'
-    if (score >= 40) return 'text-yellow-700 bg-yellow-50 border-yellow-200'
-    if (score >= 20) return 'text-blue-700 bg-blue-50 border-blue-200'
-    return 'text-green-700 bg-green-50 border-green-200'
+    if (score >= 80) return 'text-red-700 bg-red-50 border-red-200 dark:bg-black dark:border-red-700/40 dark:text-red-300'
+    if (score >= 60) return 'text-orange-700 bg-orange-50 border-orange-200 dark:bg-black dark:border-orange-700/40 dark:text-orange-300'
+    if (score >= 40) return 'text-yellow-700 bg-yellow-50 border-yellow-200 dark:bg-black dark:border-yellow-700/40 dark:text-yellow-300'
+    if (score >= 20) return 'text-blue-700 bg-blue-50 border-blue-200 dark:bg-black dark:border-blue-700/40 dark:text-blue-300'
+    return 'text-green-700 bg-green-50 border-green-200 dark:bg-black dark:border-green-700/40 dark:text-green-300'
   }
 
   const getRiskLabel = (score: number) => {
@@ -181,17 +181,17 @@ export default function CompareAnalyses() {
       <div className="w-full">
         {/* Selection Summary */}
         {selectedIds.size > 0 && (
-          <div className="mb-6 rounded-lg border border-primary-200 bg-primary-50 p-4">
+          <div className="mb-6 rounded-lg border border-primary-200 bg-primary-50 p-4 dark:bg-black dark:border-primary-500/20">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <CheckCircle2 className="h-5 w-5 text-primary-600" />
-                <span className="font-semibold text-primary-900">
+                <span className="font-semibold text-primary-900 dark:text-white">
                   {selectedIds.size} analysis{selectedIds.size > 1 ? 'es' : ''} selected
                 </span>
               </div>
               <button
                 onClick={clearSelection}
-                className="rounded-lg px-3 py-1.5 text-sm font-medium text-primary-700 hover:bg-primary-100 transition-colors"
+                className="rounded-lg px-3 py-1.5 text-sm font-medium text-primary-700 hover:bg-primary-100 transition-colors dark:text-primary-300 dark:hover:bg-gray-900"
               >
                 Clear Selection
               </button>
@@ -204,12 +204,12 @@ export default function CompareAnalyses() {
             <Loader2 className="h-8 w-8 animate-spin text-primary-600" />
           </div>
         ) : error ? (
-          <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-800">{error}</div>
+          <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-800 dark:bg-black dark:border-red-700/40 dark:text-red-300">{error}</div>
         ) : analyses.length === 0 ? (
-          <div className="rounded-lg border border-gray-200 bg-white p-6 sm:p-12 text-center">
+          <div className="rounded-lg border border-gray-200 bg-white p-6 sm:p-12 text-center dark:bg-black dark:border-gray-700">
             <FileText className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-4 text-lg font-semibold text-gray-900">No analyses yet</h3>
-            <p className="mt-2 text-gray-600">Upload and analyze chats to compare them here.</p>
+            <h3 className="mt-4 text-lg font-semibold text-gray-900 dark:text-white">No analyses yet</h3>
+            <p className="mt-2 text-gray-600 dark:text-gray-400">Upload and analyze chats to compare them here.</p>
             <button
               onClick={() => navigate('/dashboard/red-flag-radar')}
               className="mt-4 rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-700"
@@ -228,8 +228,8 @@ export default function CompareAnalyses() {
                     key={analysis.id}
                     className={`rounded-lg border p-4 transition-all cursor-pointer ${
                       isSelected
-                        ? 'border-primary-500 bg-primary-50 shadow-md'
-                        : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm'
+                        ? 'border-primary-500 bg-primary-50 shadow-md dark:bg-black dark:border-primary-500/40'
+                        : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm dark:bg-black dark:border-gray-700 dark:hover:border-gray-600'
                     }`}
                     onClick={() => toggleSelection(analysis.id)}
                   >
@@ -238,17 +238,17 @@ export default function CompareAnalyses() {
                         <div className={`mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded border-2 ${
                           isSelected
                             ? 'border-primary-600 bg-primary-600'
-                            : 'border-gray-300 bg-white'
+                            : 'border-gray-300 bg-white dark:bg-gray-900 dark:border-gray-600'
                         }`}>
                           {isSelected && <CheckCircle2 className="h-4 w-4 text-white" />}
                         </div>
                         <div className="flex-1">
                           <div className="flex items-center gap-3">
-                            <h3 className="font-semibold text-gray-900">
+                            <h3 className="font-semibold text-gray-900 dark:text-white">
                               Analysis from {format(new Date(analysis.created_at), 'MMM d, yyyy')}
                             </h3>
                             {analysis.platform && (
-                              <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700">
+                              <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700 dark:bg-gray-800 dark:text-gray-300">
                                 {analysis.platform}
                               </span>
                             )}
@@ -259,10 +259,10 @@ export default function CompareAnalyses() {
                                 Risk: {analysis.risk_score}/100 ({getRiskLabel(analysis.risk_score)})
                               </span>
                             </div>
-                            <span className="text-sm text-gray-600">
+                            <span className="text-sm text-gray-600 dark:text-gray-400">
                               {analysis.red_flags?.length || 0} red flag{analysis.red_flags?.length !== 1 ? 's' : ''}
                             </span>
-                            <span className="text-sm text-gray-600">
+                            <span className="text-sm text-gray-600 dark:text-gray-400">
                               {analysis.keywords_detected?.length || 0} keyword{analysis.keywords_detected?.length !== 1 ? 's' : ''}
                             </span>
                           </div>
@@ -274,7 +274,7 @@ export default function CompareAnalyses() {
                             e.stopPropagation()
                             navigate(`/dashboard/red-flag-radar/results/${analysis.id}`)
                           }}
-                          className="rounded-lg px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+                          className="rounded-lg px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors dark:text-gray-400 dark:hover:bg-gray-900 dark:hover:text-white"
                         >
                           <Eye className="h-4 w-4" />
                         </button>
@@ -289,12 +289,12 @@ export default function CompareAnalyses() {
             {selectedAnalyses.length > 0 && (
               <div className="mt-8 space-y-6">
                 {/* Side-by-Side Comparison */}
-                <div className="rounded-lg border border-gray-200 bg-white p-4 sm:p-6">
+                <div className="rounded-lg border border-gray-200 bg-white p-4 sm:p-6 dark:bg-black dark:border-gray-700">
                   <div className="mb-4 flex items-center justify-between">
-                    <h3 className="text-lg font-semibold text-gray-900">Side-by-Side Comparison</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Side-by-Side Comparison</h3>
                     <button
                       onClick={clearSelection}
-                      className="rounded-lg px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+                      className="rounded-lg px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors dark:text-gray-400 dark:hover:bg-gray-900"
                     >
                       Clear
                     </button>
@@ -303,13 +303,13 @@ export default function CompareAnalyses() {
                   <div className="overflow-x-auto">
                     <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${selectedAnalyses.length}, minmax(220px, 1fr))` }}>
                       {selectedAnalyses.map((analysis) => (
-                        <div key={analysis.id} className="rounded-lg border border-gray-200 bg-gray-50 p-4 sm:p-6">
+                        <div key={analysis.id} className="rounded-lg border border-gray-200 bg-gray-50 p-4 sm:p-6 dark:bg-black dark:border-gray-700">
                           <div className="mb-3">
-                            <p className="text-xs font-medium text-gray-500">
+                            <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
                               {format(new Date(analysis.created_at), 'MMM d, yyyy')}
                             </p>
                             {analysis.platform && (
-                              <span className="mt-1 inline-block rounded-full bg-gray-200 px-2 py-0.5 text-xs text-gray-700">
+                              <span className="mt-1 inline-block rounded-full bg-gray-200 px-2 py-0.5 text-xs text-gray-700 dark:bg-gray-800 dark:text-gray-300">
                                 {analysis.platform}
                               </span>
                             )}
@@ -320,12 +320,12 @@ export default function CompareAnalyses() {
                           </div>
                           <div className="space-y-2 text-sm">
                             <div>
-                              <span className="font-medium text-gray-700">Red Flags:</span>
-                              <span className="ml-2 text-gray-900">{analysis.red_flags?.length || 0}</span>
+                              <span className="font-medium text-gray-700 dark:text-gray-400">Red Flags:</span>
+                              <span className="ml-2 text-gray-900 dark:text-white">{analysis.red_flags?.length || 0}</span>
                             </div>
                             <div>
-                              <span className="font-medium text-gray-700">Keywords:</span>
-                              <span className="ml-2 text-gray-900">{analysis.keywords_detected?.length || 0}</span>
+                              <span className="font-medium text-gray-700 dark:text-gray-400">Keywords:</span>
+                              <span className="ml-2 text-gray-900 dark:text-white">{analysis.keywords_detected?.length || 0}</span>
                             </div>
                           </div>
                           <button
@@ -342,10 +342,10 @@ export default function CompareAnalyses() {
 
                 {/* AI-Powered Comparison Button */}
                 {selectedAnalyses.length >= 2 && !comparisonInsights && (
-                  <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 sm:p-6 text-center">
+                  <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 sm:p-6 text-center dark:bg-black dark:border-blue-700/40">
                     <Sparkles className="mx-auto mb-3 h-8 w-8 text-blue-600" />
-                    <h3 className="mb-2 text-lg font-semibold text-blue-900">Get AI-Powered Insights</h3>
-                    <p className="mb-4 text-sm text-blue-800">
+                    <h3 className="mb-2 text-lg font-semibold text-blue-900 dark:text-white">Get AI-Powered Insights</h3>
+                    <p className="mb-4 text-sm text-blue-800 dark:text-gray-300">
                       Analyze trends, detect escalation, and get personalized recommendations based on your selected analyses.
                     </p>
                     <button
@@ -372,22 +372,22 @@ export default function CompareAnalyses() {
                 {comparisonInsights && (
                   <div className="space-y-6">
                     {/* Summary */}
-                    <div className="rounded-lg border border-gray-200 bg-white p-4 sm:p-6">
+                    <div className="rounded-lg border border-gray-200 bg-white p-4 sm:p-6 dark:bg-black dark:border-gray-700">
                       <div className="mb-4 flex items-center gap-2">
                         <Sparkles className="h-5 w-5 text-primary-600" />
-                        <h3 className="text-lg font-semibold text-gray-900">AI Analysis Summary</h3>
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">AI Analysis Summary</h3>
                       </div>
-                      <p className="text-gray-700 leading-relaxed">{comparisonInsights.summary}</p>
+                      <p className="text-gray-700 leading-relaxed dark:text-gray-300">{comparisonInsights.summary}</p>
                     </div>
 
                     {/* Risk Trend */}
-                    <div className="rounded-lg border border-gray-200 bg-white p-4 sm:p-6">
-                      <h3 className="mb-4 text-lg font-semibold text-gray-900">Risk Trend</h3>
+                    <div className="rounded-lg border border-gray-200 bg-white p-4 sm:p-6 dark:bg-black dark:border-gray-700">
+                      <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Risk Trend</h3>
                       <div className="flex items-center gap-4">
                         <div className={`flex h-16 w-16 items-center justify-center rounded-lg ${
-                          comparisonInsights.riskTrend.direction === 'increasing' ? 'bg-red-100' :
-                          comparisonInsights.riskTrend.direction === 'decreasing' ? 'bg-green-100' :
-                          'bg-gray-100'
+                          comparisonInsights.riskTrend.direction === 'increasing' ? 'bg-red-100 dark:bg-red-900/30' :
+                          comparisonInsights.riskTrend.direction === 'decreasing' ? 'bg-green-100 dark:bg-green-900/30' :
+                          'bg-gray-100 dark:bg-gray-800'
                         }`}>
                           {comparisonInsights.riskTrend.direction === 'increasing' && (
                             <TrendingUp className="h-8 w-8 text-red-600" />
@@ -400,15 +400,15 @@ export default function CompareAnalyses() {
                           )}
                         </div>
                         <div className="flex-1">
-                          <div className="text-sm font-semibold text-gray-700">
+                          <div className="text-sm font-semibold text-gray-700 dark:text-gray-200">
                             {comparisonInsights.riskTrend.direction === 'increasing' ? 'Risk Increasing' :
                              comparisonInsights.riskTrend.direction === 'decreasing' ? 'Risk Decreasing' :
                              'Risk Stable'}
                           </div>
-                          <div className="text-sm text-gray-600">
+                          <div className="text-sm text-gray-600 dark:text-gray-400">
                             {Math.abs(comparisonInsights.riskTrend.change)}% change
                           </div>
-                          <div className="mt-1 text-sm text-gray-700">
+                          <div className="mt-1 text-sm text-gray-700 dark:text-gray-300">
                             {comparisonInsights.riskTrend.description}
                           </div>
                         </div>
@@ -418,10 +418,10 @@ export default function CompareAnalyses() {
                     {/* Escalation Alert */}
                     {comparisonInsights.escalationDetected && comparisonInsights.escalationDetails && (
                       <div className={`rounded-lg border p-4 sm:p-6 ${
-                        comparisonInsights.escalationDetails.severity === 'critical' ? 'border-red-300 bg-red-50' :
-                        comparisonInsights.escalationDetails.severity === 'high' ? 'border-orange-300 bg-orange-50' :
-                        comparisonInsights.escalationDetails.severity === 'medium' ? 'border-yellow-300 bg-yellow-50' :
-                        'border-blue-300 bg-blue-50'
+                        comparisonInsights.escalationDetails.severity === 'critical' ? 'border-red-300 bg-red-50 dark:bg-black dark:border-red-700/40' :
+                        comparisonInsights.escalationDetails.severity === 'high' ? 'border-orange-300 bg-orange-50 dark:bg-black dark:border-orange-700/40' :
+                        comparisonInsights.escalationDetails.severity === 'medium' ? 'border-yellow-300 bg-yellow-50 dark:bg-black dark:border-yellow-700/40' :
+                        'border-blue-300 bg-blue-50 dark:bg-black dark:border-blue-700/40'
                       }`}>
                         <div className="mb-3 flex items-center gap-2">
                           <AlertTriangle className={`h-5 w-5 ${
@@ -430,13 +430,13 @@ export default function CompareAnalyses() {
                             comparisonInsights.escalationDetails.severity === 'medium' ? 'text-yellow-600' :
                             'text-blue-600'
                           }`} />
-                          <h3 className="text-lg font-semibold">Escalation Detected</h3>
+                          <h3 className="text-lg font-semibold dark:text-white">Escalation Detected</h3>
                         </div>
-                        <p className="mb-3 text-gray-700">{comparisonInsights.escalationDetails.description}</p>
+                        <p className="mb-3 text-gray-700 dark:text-gray-300">{comparisonInsights.escalationDetails.description}</p>
                         {comparisonInsights.escalationDetails.evidence.length > 0 && (
                           <div className="mt-3">
-                            <div className="text-sm font-semibold text-gray-700 mb-2">Evidence:</div>
-                            <ul className="list-disc list-inside space-y-1 text-sm text-gray-600">
+                            <div className="text-sm font-semibold text-gray-700 mb-2 dark:text-gray-200">Evidence:</div>
+                            <ul className="list-disc list-inside space-y-1 text-sm text-gray-600 dark:text-gray-400">
                               {comparisonInsights.escalationDetails.evidence.map((evidence, idx) => (
                                 <li key={idx}>{evidence}</li>
                               ))}
@@ -448,28 +448,28 @@ export default function CompareAnalyses() {
 
                     {/* Common Patterns */}
                     {comparisonInsights.commonPatterns.length > 0 && (
-                      <div className="rounded-lg border border-gray-200 bg-white p-4 sm:p-6">
-                        <h3 className="mb-4 text-lg font-semibold text-gray-900">Common Patterns</h3>
+                      <div className="rounded-lg border border-gray-200 bg-white p-4 sm:p-6 dark:bg-black dark:border-gray-700">
+                        <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Common Patterns</h3>
                         <div className="space-y-3">
                           {comparisonInsights.commonPatterns.map((pattern, idx) => (
-                            <div key={idx} className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+                            <div key={idx} className="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:bg-gray-900 dark:border-gray-700">
                               <div className="flex items-start justify-between">
                                 <div className="flex-1">
                                   <div className="flex items-center gap-2 mb-1">
-                                    <span className="font-semibold text-gray-900">{pattern.pattern}</span>
+                                    <span className="font-semibold text-gray-900 dark:text-white">{pattern.pattern}</span>
                                     <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
-                                      pattern.severity === 'critical' ? 'bg-red-100 text-red-700' :
-                                      pattern.severity === 'high' ? 'bg-orange-100 text-orange-700' :
-                                      pattern.severity === 'medium' ? 'bg-yellow-100 text-yellow-700' :
-                                      'bg-blue-100 text-blue-700'
+                                      pattern.severity === 'critical' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300' :
+                                      pattern.severity === 'high' ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300' :
+                                      pattern.severity === 'medium' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300' :
+                                      'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
                                     }`}>
                                       {pattern.severity}
                                     </span>
-                                    <span className="text-xs text-gray-500">
+                                    <span className="text-xs text-gray-500 dark:text-gray-400">
                                       ({pattern.frequency} time{pattern.frequency !== 1 ? 's' : ''})
                                     </span>
                                   </div>
-                                  <p className="text-sm text-gray-700">{pattern.description}</p>
+                                  <p className="text-sm text-gray-700 dark:text-gray-300">{pattern.description}</p>
                                 </div>
                               </div>
                             </div>
@@ -480,11 +480,11 @@ export default function CompareAnalyses() {
 
                     {/* Insights */}
                     {comparisonInsights.insights.length > 0 && (
-                      <div className="rounded-lg border border-gray-200 bg-white p-4 sm:p-6">
-                        <h3 className="mb-4 text-lg font-semibold text-gray-900">Key Insights</h3>
+                      <div className="rounded-lg border border-gray-200 bg-white p-4 sm:p-6 dark:bg-black dark:border-gray-700">
+                        <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Key Insights</h3>
                         <ul className="space-y-2">
                           {comparisonInsights.insights.map((insight, idx) => (
-                            <li key={idx} className="flex items-start gap-2 text-gray-700">
+                            <li key={idx} className="flex items-start gap-2 text-gray-700 dark:text-gray-300">
                               <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-green-600" />
                               <span>{insight}</span>
                             </li>
@@ -495,11 +495,11 @@ export default function CompareAnalyses() {
 
                     {/* Recommendations */}
                     {comparisonInsights.recommendations.length > 0 && (
-                      <div className="rounded-lg border border-primary-200 bg-primary-50 p-4 sm:p-6">
-                        <h3 className="mb-4 text-lg font-semibold text-primary-900">Recommendations</h3>
+                      <div className="rounded-lg border border-primary-200 bg-primary-50 p-4 sm:p-6 dark:bg-black dark:border-primary-500/20">
+                        <h3 className="mb-4 text-lg font-semibold text-primary-900 dark:text-white">Recommendations</h3>
                         <ul className="space-y-2">
                           {comparisonInsights.recommendations.map((rec, idx) => (
-                            <li key={idx} className="flex items-start gap-2 text-primary-800">
+                            <li key={idx} className="flex items-start gap-2 text-primary-800 dark:text-gray-300">
                               <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-primary-600" />
                               <span>{rec}</span>
                             </li>

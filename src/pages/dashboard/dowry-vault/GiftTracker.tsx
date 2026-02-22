@@ -30,13 +30,13 @@ const TYPE_LABELS: Record<string, string> = {
 }
 
 const TYPE_COLORS: Record<string, string> = {
-  cash: 'bg-green-100 text-green-700',
-  bank_transfer: 'bg-blue-100 text-blue-700',
-  jewelry: 'bg-yellow-100 text-yellow-700',
-  appliances: 'bg-orange-100 text-orange-700',
-  vehicle: 'bg-red-100 text-red-700',
-  property: 'bg-purple-100 text-purple-700',
-  other: 'bg-gray-100 text-gray-700',
+  cash: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
+  bank_transfer: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
+  jewelry: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300',
+  appliances: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300',
+  vehicle: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300',
+  property: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300',
+  other: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300',
 }
 
 export default function GiftTracker() {
@@ -113,7 +113,7 @@ export default function GiftTracker() {
     <DashboardLayout title="Gift Tracker" subtitle={`${entries.length} documented item${entries.length !== 1 ? 's' : ''}`} backHref="/dashboard/dowry-vault">
       <div className="w-full max-w-5xl mx-auto space-y-4">
         {error && (
-          <div className="flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 p-4 text-red-800 shadow-sm">
+          <div className="flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 p-4 text-red-800 shadow-sm dark:bg-black dark:border-red-700/40 dark:text-red-300">
             <AlertCircle className="h-5 w-5 shrink-0" />
             <span>{error}</span>
           </div>
@@ -128,14 +128,14 @@ export default function GiftTracker() {
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full rounded-lg border border-gray-200 bg-white/60 py-2 pl-9 pr-3 text-sm focus:border-purple-500 focus:ring-1 focus:ring-purple-500 focus:outline-none"
+                className="w-full rounded-lg border border-gray-200 bg-white/60 py-2 pl-9 pr-3 text-sm focus:border-purple-500 focus:ring-1 focus:ring-purple-500 focus:outline-none dark:bg-black dark:border-gray-600 dark:text-gray-100"
                 placeholder="Search items..."
               />
             </div>
             <select
               value={typeFilter}
               onChange={(e) => setTypeFilter(e.target.value)}
-              className="rounded-lg border border-gray-200 bg-white/60 px-3 py-2 text-sm focus:border-purple-500 focus:outline-none"
+              className="rounded-lg border border-gray-200 bg-white/60 px-3 py-2 text-sm focus:border-purple-500 focus:outline-none dark:bg-black dark:border-gray-600 dark:text-gray-100"
             >
               <option value="">All Types</option>
               {Object.entries(TYPE_LABELS).map(([k, v]) => (
@@ -145,7 +145,7 @@ export default function GiftTracker() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as 'date' | 'value')}
-              className="hidden sm:block rounded-lg border border-gray-200 bg-white/60 px-3 py-2 text-sm focus:border-purple-500 focus:outline-none"
+              className="hidden sm:block rounded-lg border border-gray-200 bg-white/60 px-3 py-2 text-sm focus:border-purple-500 focus:outline-none dark:bg-black dark:border-gray-600 dark:text-gray-100"
             >
               <option value="date">Newest First</option>
               <option value="value">Highest Value</option>
@@ -162,11 +162,11 @@ export default function GiftTracker() {
 
         {/* Summary Bar */}
         {filtered.length > 0 && (
-          <div className="flex items-center justify-between rounded-lg border border-purple-200/50 bg-purple-50/30 px-4 py-2.5 text-sm">
-            <span className="text-gray-600">
+          <div className="flex items-center justify-between rounded-lg border border-purple-200/50 bg-purple-50/30 px-4 py-2.5 text-sm dark:bg-black dark:border-purple-700/40">
+            <span className="text-gray-600 dark:text-gray-400">
               Showing <strong>{filtered.length}</strong> of {entries.length} entries
             </span>
-            <span className="font-semibold text-purple-700">{formatCurrency(totalValue)}</span>
+            <span className="font-semibold text-purple-700 dark:text-purple-300">{formatCurrency(totalValue)}</span>
           </div>
         )}
 
@@ -176,12 +176,12 @@ export default function GiftTracker() {
             <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
           </div>
         ) : filtered.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-gray-300 bg-white/40 p-8 sm:p-12 text-center">
-            <Gift className="mx-auto mb-4 h-12 w-12 text-gray-300" />
-            <h3 className="text-lg font-semibold text-gray-700">
+          <div className="rounded-xl border border-dashed border-gray-300 bg-white/40 p-8 sm:p-12 text-center dark:bg-black dark:border-gray-700">
+            <Gift className="mx-auto mb-4 h-12 w-12 text-gray-300 dark:text-gray-600" />
+            <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">
               {entries.length === 0 ? 'No entries yet' : 'No matching entries'}
             </h3>
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
               {entries.length === 0 ? 'Start by adding your first dowry entry.' : 'Try adjusting your filters.'}
             </p>
             {entries.length === 0 && (
@@ -199,19 +199,19 @@ export default function GiftTracker() {
             {filtered.map((entry) => (
               <div
                 key={entry.id}
-                className="group rounded-lg border border-gray-200/60 bg-white/60 hover:bg-white/90 hover:shadow-sm transition-all"
+                className="group rounded-lg border border-gray-200/60 bg-white/60 hover:bg-white/90 hover:shadow-sm transition-all dark:bg-black dark:border-gray-700 dark:hover:bg-gray-900"
               >
                 <div className="flex items-start gap-3 p-4 sm:p-5">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-purple-50 text-purple-600">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-purple-50 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400">
                     <Gift className="h-5 w-5" />
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0 flex-1">
-                        <h4 className="font-semibold text-gray-900 truncate">{entry.item_description}</h4>
+                        <h4 className="font-semibold text-gray-900 truncate dark:text-white">{entry.item_description}</h4>
                         <div className="mt-1.5 flex flex-wrap items-center gap-2 text-xs">
                           {entry.value != null && (
-                            <span className="inline-flex items-center gap-1 rounded-full bg-purple-100 px-2 py-0.5 font-medium text-purple-700">
+                            <span className="inline-flex items-center gap-1 rounded-full bg-purple-100 px-2 py-0.5 font-medium text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
                               <IndianRupee className="h-3 w-3" />
                               {entry.value.toLocaleString('en-IN')}
                             </span>
@@ -223,7 +223,7 @@ export default function GiftTracker() {
                             </span>
                           )}
                           {entry.gift_date && (
-                            <span className="inline-flex items-center gap-1 text-gray-500">
+                            <span className="inline-flex items-center gap-1 text-gray-500 dark:text-gray-400">
                               <Calendar className="h-3 w-3" />
                               {new Date(entry.gift_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                             </span>
@@ -233,14 +233,14 @@ export default function GiftTracker() {
                       <div className="flex items-center gap-1 shrink-0 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                         <button
                           onClick={() => navigate(`/dashboard/dowry-vault/edit/${entry.id}`)}
-                          className="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors touch-manipulation"
+                          className="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors touch-manipulation dark:hover:bg-gray-800 dark:hover:text-gray-300"
                           aria-label="Edit"
                         >
                           <Edit2 className="h-4 w-4" />
                         </button>
                         <button
                           onClick={() => setDeleteConfirmId(entry.id)}
-                          className="rounded-lg p-2 text-gray-400 hover:bg-red-50 hover:text-red-600 transition-colors touch-manipulation"
+                          className="rounded-lg p-2 text-gray-400 hover:bg-red-50 hover:text-red-600 transition-colors touch-manipulation dark:hover:bg-red-900/30 dark:hover:text-red-400"
                           aria-label="Delete"
                         >
                           <Trash2 className="h-4 w-4" />

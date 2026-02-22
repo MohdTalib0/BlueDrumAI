@@ -173,24 +173,24 @@ export default function MaintenanceExpenses() {
     <DashboardLayout title="Expense Tracker" subtitle="Document expenses for maintenance claims" backHref="/dashboard/maintenance">
       <div className="w-full max-w-4xl mx-auto space-y-6">
         {error && (
-          <div className="flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 p-4 text-red-800 shadow-sm">
+          <div className="flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 p-4 text-red-800 shadow-sm dark:bg-black dark:border-red-700/40 dark:text-red-300">
             <AlertCircle className="h-5 w-5 shrink-0" />
             <span>{error}</span>
-            <button onClick={() => setError('')} className="ml-auto text-red-600 hover:text-red-800"><X className="h-4 w-4" /></button>
+            <button onClick={() => setError('')} className="ml-auto text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"><X className="h-4 w-4" /></button>
           </div>
         )}
         {success && (
-          <div className="flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 p-4 text-green-800 shadow-sm">
+          <div className="flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 p-4 text-green-800 shadow-sm dark:bg-black dark:border-green-700/40 dark:text-green-300">
             <CheckCircle2 className="h-5 w-5 shrink-0" />
             <span>{success}</span>
           </div>
         )}
 
         {/* Summary Bar */}
-        <div className="flex items-center justify-between rounded-lg border border-gray-200/20 bg-white/50 p-4 shadow-sm">
+        <div className="flex items-center justify-between rounded-lg border border-gray-200/20 bg-white/50 p-4 shadow-sm dark:bg-black dark:border-gray-700">
           <div>
-            <p className="text-xs text-gray-500 font-medium">Total Monthly Expenses</p>
-            <p className="text-xl font-bold text-gray-900">{formatCurrency(Math.round(totalMonthly))}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">Total Monthly Expenses</p>
+            <p className="text-xl font-bold text-gray-900 dark:text-white">{formatCurrency(Math.round(totalMonthly))}</p>
             <p className="text-xs text-gray-400">{expenses.length} expense{expenses.length !== 1 ? 's' : ''} documented</p>
           </div>
           <button
@@ -204,16 +204,16 @@ export default function MaintenanceExpenses() {
 
         {/* Add Expense Form */}
         {showForm && (
-          <div className="rounded-lg border-2 border-teal-200 bg-teal-50/30 p-4 sm:p-6 shadow-sm animate-in slide-in-from-top-3">
-            <h3 className="mb-4 text-base font-semibold text-gray-900">New Expense</h3>
+          <div className="rounded-lg border-2 border-teal-200 bg-teal-50/30 p-4 sm:p-6 shadow-sm animate-in slide-in-from-top-3 dark:bg-black dark:border-teal-700">
+            <h3 className="mb-4 text-base font-semibold text-gray-900 dark:text-white">New Expense</h3>
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                 <div>
-                  <label className="mb-1 block text-xs text-gray-500">Category</label>
+                  <label className="mb-1 block text-xs text-gray-500 dark:text-gray-400">Category</label>
                   <select
                     value={form.category}
                     onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}
-                    className="w-full rounded-lg border border-gray-300 py-2 px-3 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-none"
+                    className="w-full rounded-lg border border-gray-300 py-2 px-3 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-none dark:bg-black dark:border-gray-600 dark:text-gray-100"
                   >
                     {CATEGORIES.map((c) => (
                       <option key={c.value} value={c.value}>{c.label}</option>
@@ -221,11 +221,11 @@ export default function MaintenanceExpenses() {
                   </select>
                 </div>
                 <div>
-                  <label className="mb-1 block text-xs text-gray-500">Frequency</label>
+                  <label className="mb-1 block text-xs text-gray-500 dark:text-gray-400">Frequency</label>
                   <select
                     value={form.frequency}
                     onChange={(e) => setForm((f) => ({ ...f, frequency: e.target.value }))}
-                    className="w-full rounded-lg border border-gray-300 py-2 px-3 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-none"
+                    className="w-full rounded-lg border border-gray-300 py-2 px-3 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-none dark:bg-black dark:border-gray-600 dark:text-gray-100"
                   >
                     {FREQUENCIES.map((f) => (
                       <option key={f.value} value={f.value}>{f.label}</option>
@@ -233,11 +233,11 @@ export default function MaintenanceExpenses() {
                   </select>
                 </div>
                 <div>
-                  <label className="mb-1 block text-xs text-gray-500">Beneficiary</label>
+                  <label className="mb-1 block text-xs text-gray-500 dark:text-gray-400">Beneficiary</label>
                   <select
                     value={form.beneficiary}
                     onChange={(e) => setForm((f) => ({ ...f, beneficiary: e.target.value }))}
-                    className="w-full rounded-lg border border-gray-300 py-2 px-3 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-none"
+                    className="w-full rounded-lg border border-gray-300 py-2 px-3 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-none dark:bg-black dark:border-gray-600 dark:text-gray-100"
                   >
                     <option value="">Select...</option>
                     {BENEFICIARIES.map((b) => (
@@ -248,49 +248,49 @@ export default function MaintenanceExpenses() {
               </div>
 
               <div>
-                <label className="mb-1 block text-xs text-gray-500">Description</label>
+                <label className="mb-1 block text-xs text-gray-500 dark:text-gray-400">Description</label>
                 <input
                   type="text"
                   value={form.description}
                   onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
                   placeholder="e.g. School tuition for class 5"
                   maxLength={500}
-                  className="w-full rounded-lg border border-gray-300 py-2.5 px-3 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-none"
+                  className="w-full rounded-lg border border-gray-300 py-2.5 px-3 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-none dark:bg-black dark:border-gray-600 dark:text-gray-100"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="mb-1 block text-xs text-gray-500">Amount (₹)</label>
+                  <label className="mb-1 block text-xs text-gray-500 dark:text-gray-400">Amount (₹)</label>
                   <input
                     type="number"
                     min={0}
                     value={form.amount || ''}
                     onChange={(e) => setForm((f) => ({ ...f, amount: Math.max(0, parseFloat(e.target.value) || 0) }))}
                     placeholder="0"
-                    className="w-full rounded-lg border border-gray-300 py-2.5 px-3 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-none"
+                    className="w-full rounded-lg border border-gray-300 py-2.5 px-3 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-none dark:bg-black dark:border-gray-600 dark:text-gray-100"
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-xs text-gray-500">Date (optional)</label>
+                  <label className="mb-1 block text-xs text-gray-500 dark:text-gray-400">Date (optional)</label>
                   <input
                     type="date"
                     value={form.expense_date}
                     onChange={(e) => setForm((f) => ({ ...f, expense_date: e.target.value }))}
-                    className="w-full rounded-lg border border-gray-300 py-2.5 px-3 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-none"
+                    className="w-full rounded-lg border border-gray-300 py-2.5 px-3 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-none dark:bg-black dark:border-gray-600 dark:text-gray-100"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="mb-1 block text-xs text-gray-500">Notes (optional)</label>
+                <label className="mb-1 block text-xs text-gray-500 dark:text-gray-400">Notes (optional)</label>
                 <textarea
                   value={form.notes}
                   onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
                   placeholder="Additional details..."
                   rows={2}
                   maxLength={2000}
-                  className="w-full rounded-lg border border-gray-300 py-2.5 px-3 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-none resize-none"
+                  className="w-full rounded-lg border border-gray-300 py-2.5 px-3 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-none resize-none dark:bg-black dark:border-gray-600 dark:text-gray-100"
                 />
               </div>
 
@@ -316,19 +316,19 @@ export default function MaintenanceExpenses() {
             {expenses.map((expense) => (
               <div
                 key={expense.id}
-                className="group flex items-center gap-3 rounded-lg border border-gray-200/40 bg-white/50 p-3 sm:p-4 shadow-sm hover:shadow-md transition-all"
+                className="group flex items-center gap-3 rounded-lg border border-gray-200/40 bg-white/50 p-3 sm:p-4 shadow-sm hover:shadow-md transition-all dark:bg-black dark:border-gray-700"
               >
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-teal-50 text-teal-600">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-teal-50 text-teal-600 dark:bg-teal-900/30">
                   <Receipt className="h-4 w-4" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <p className="text-sm font-medium text-gray-900 truncate">{expense.description}</p>
-                    <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-600">
+                    <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{expense.description}</p>
+                    <span className="rounded-full bg-gray-100 dark:bg-gray-800 px-2 py-0.5 text-[10px] font-medium text-gray-600 dark:text-gray-400">
                       {CATEGORIES.find((c) => c.value === expense.category)?.label || expense.category}
                     </span>
                     {expense.beneficiary && (
-                      <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-medium text-blue-600">
+                      <span className="rounded-full bg-blue-50 dark:bg-blue-900/30 px-2 py-0.5 text-[10px] font-medium text-blue-600 dark:text-blue-400">
                         {BENEFICIARIES.find((b) => b.value === expense.beneficiary)?.label || expense.beneficiary}
                       </span>
                     )}
@@ -338,11 +338,11 @@ export default function MaintenanceExpenses() {
                     {expense.expense_date && ` · ${new Date(expense.expense_date).toLocaleDateString('en-IN')}`}
                   </p>
                 </div>
-                <p className="text-sm font-bold text-gray-900 shrink-0">{formatCurrency(expense.amount)}</p>
+                <p className="text-sm font-bold text-gray-900 dark:text-white shrink-0">{formatCurrency(expense.amount)}</p>
                 <button
                   onClick={() => handleDelete(expense.id)}
                   disabled={deletingId === expense.id}
-                  className="sm:opacity-0 sm:group-hover:opacity-100 shrink-0 rounded-lg p-2 text-gray-400 hover:bg-red-50 hover:text-red-600 transition-all touch-manipulation"
+                  className="sm:opacity-0 sm:group-hover:opacity-100 shrink-0 rounded-lg p-2 text-gray-400 hover:bg-red-50 hover:text-red-600 transition-all touch-manipulation dark:hover:bg-red-900/30 dark:hover:text-red-400"
                 >
                   {deletingId === expense.id ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -354,10 +354,10 @@ export default function MaintenanceExpenses() {
             ))}
           </div>
         ) : (
-          <div className="rounded-xl border border-dashed border-gray-300 bg-white/40 p-8 text-center">
+          <div className="rounded-xl border border-dashed border-gray-300 bg-white/40 p-8 text-center dark:bg-black dark:border-gray-600">
             <Receipt className="mx-auto mb-3 h-10 w-10 text-gray-300" />
-            <h3 className="text-base font-semibold text-gray-700">No expenses documented</h3>
-            <p className="mt-1 text-sm text-gray-500">Start adding expenses to strengthen your maintenance claim.</p>
+            <h3 className="text-base font-semibold text-gray-700 dark:text-gray-300">No expenses documented</h3>
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Start adding expenses to strengthen your maintenance claim.</p>
           </div>
         )}
       </div>

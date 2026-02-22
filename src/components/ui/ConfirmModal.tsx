@@ -28,22 +28,22 @@ export default function ConfirmModal({
   return (
     <div className="fixed inset-0 z-[100000] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-sm rounded-2xl bg-white shadow-2xl border border-gray-100 overflow-hidden">
+      <div className="relative w-full max-w-sm rounded-2xl bg-white dark:bg-black shadow-2xl border border-gray-100 dark:border-gray-700 overflow-hidden">
         <div className="p-6 text-center">
           <div className={`mx-auto flex h-14 w-14 items-center justify-center rounded-full border mb-4 ${
-            isDanger ? 'bg-red-50 border-red-100' : 'bg-amber-50 border-amber-100'
+            isDanger ? 'bg-red-50 dark:bg-black border-red-100 dark:border-red-700/40' : 'bg-amber-50 dark:bg-black border-amber-100 dark:border-yellow-700/40'
           }`}>
             {isDanger
               ? <Trash2 className="h-6 w-6 text-red-500" />
               : <AlertTriangle className="h-6 w-6 text-amber-500" />}
           </div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-1">{title}</h3>
-          <p className="text-sm text-gray-500">{message}</p>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">{title}</h3>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{message}</p>
         </div>
         <div className="flex gap-3 px-6 pb-6">
           <button
             onClick={onClose}
-            className="flex-1 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+            className="flex-1 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-black px-4 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors"
           >
             {cancelLabel}
           </button>

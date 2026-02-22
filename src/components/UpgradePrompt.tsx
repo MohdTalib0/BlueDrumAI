@@ -27,7 +27,7 @@ export default function UpgradePrompt({ feature, current, limit, onClose }: Prop
       style={{ background: 'rgba(15,23,42,0.4)', backdropFilter: 'blur(6px)' }}
       onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
     >
-      <div className="w-full max-w-sm rounded-2xl bg-white shadow-2xl overflow-hidden">
+      <div className="w-full max-w-sm rounded-2xl bg-white dark:bg-black shadow-2xl dark:border dark:border-gray-700 overflow-hidden">
         <div className="bg-gradient-to-r from-primary-600 to-blue-700 px-6 py-5 text-white">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -46,8 +46,8 @@ export default function UpgradePrompt({ feature, current, limit, onClose }: Prop
         </div>
 
         <div className="px-6 py-5">
-          <p className="text-sm text-gray-600 mb-4">
-            You've used <strong className="text-gray-900">{current} of {limit}</strong> {label} on your free plan this month.
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+            You've used <strong className="text-gray-900 dark:text-white">{current} of {limit}</strong> {label} on your free plan this month.
             Upgrade to Premium for unlimited access.
           </p>
 
@@ -61,7 +61,7 @@ export default function UpgradePrompt({ feature, current, limit, onClose }: Prop
 
           <button
             onClick={onClose}
-            className="w-full mt-2 rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors"
+            className="w-full mt-2 rounded-xl border border-gray-200 dark:border-gray-600 px-4 py-2.5 text-sm font-medium text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors"
           >
             Maybe later
           </button>

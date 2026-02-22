@@ -155,12 +155,12 @@ export default function DemoRedFlag() {
     >
       <div className="w-full">
         {/* Warning Banner */}
-        <div className="mb-6 rounded-lg border border-yellow-200 bg-yellow-50 p-4">
+        <div className="mb-6 rounded-lg border border-yellow-200 bg-yellow-50 dark:bg-black dark:border-yellow-700/40 p-4">
           <div className="flex items-start gap-3">
             <Info className="h-5 w-5 text-yellow-600 mt-0.5" />
             <div className="flex-1">
-              <h3 className="text-sm font-semibold text-yellow-900">Educational Tool</h3>
-              <p className="mt-1 text-sm text-yellow-800">
+              <h3 className="text-sm font-semibold text-yellow-900 dark:text-yellow-300">Educational Tool</h3>
+              <p className="mt-1 text-sm text-yellow-800 dark:text-yellow-300">
                 This is a simulated conversation demonstrating common red flag behaviors. Use this to recognize manipulation,
                 gaslighting, and controlling patterns. If you experience similar behavior in real life, seek support.
               </p>
@@ -169,22 +169,22 @@ export default function DemoRedFlag() {
         </div>
 
         {/* Chat Container */}
-        <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
+        <div className="rounded-lg border border-gray-200 bg-white dark:bg-black dark:border-gray-700 shadow-sm">
           {/* Chat Header */}
-          <div className="border-b border-gray-200 bg-red-50 px-4 py-3">
+          <div className="border-b border-gray-200 bg-red-50 dark:bg-black dark:border-gray-700 px-4 py-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-100">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-100 dark:bg-gray-800">
                   <Bot className="h-5 w-5 text-red-600" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">Demo Red Flag</h3>
-                  <p className="text-xs text-gray-600">Simulated manipulative behavior</p>
+                  <h3 className="font-semibold text-gray-900 dark:text-white">Demo Red Flag</h3>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">Simulated manipulative behavior</p>
                 </div>
               </div>
               <button
                 onClick={() => navigate('/dashboard/red-flag-radar')}
-                className="rounded-lg px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+                className="rounded-lg px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 transition-colors"
               >
                 <ArrowLeft className="h-4 w-4 inline mr-1" />
                 Back
@@ -193,14 +193,14 @@ export default function DemoRedFlag() {
           </div>
 
           {/* Messages */}
-          <div className="h-[500px] overflow-y-auto p-4 space-y-4 bg-gray-50">
+          <div className="h-[500px] overflow-y-auto p-4 space-y-4 bg-gray-50 dark:bg-gray-900">
             {messages.map((message) => (
               <div
                 key={message.id}
                 className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 {message.role === 'assistant' && (
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-red-100">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-red-100 dark:bg-gray-800">
                     <Bot className="h-4 w-4 text-red-600" />
                   </div>
                 )}
@@ -208,16 +208,16 @@ export default function DemoRedFlag() {
                   className={`max-w-[80%] rounded-lg px-4 py-2 ${
                     message.role === 'user'
                       ? 'bg-primary-600 text-white'
-                      : 'bg-white border border-red-200 text-gray-900'
+                      : 'bg-white dark:bg-black border border-red-200 dark:border-red-700/40 text-gray-900 dark:text-white'
                   }`}
                 >
                   <p className="text-sm leading-relaxed">{message.content}</p>
-                  <p className={`mt-1 text-xs ${message.role === 'user' ? 'text-primary-100' : 'text-gray-500'}`}>
+                  <p className={`mt-1 text-xs ${message.role === 'user' ? 'text-primary-100' : 'text-gray-500 dark:text-gray-400'}`}>
                     {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </p>
                 </div>
                 {message.role === 'user' && (
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-100">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-100 dark:bg-gray-800">
                     <User className="h-4 w-4 text-primary-600" />
                   </div>
                 )}
@@ -225,10 +225,10 @@ export default function DemoRedFlag() {
             ))}
             {sending && (
               <div className="flex gap-3 justify-start">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-red-100">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-red-100 dark:bg-gray-800">
                   <Bot className="h-4 w-4 text-red-600" />
                 </div>
-                <div className="bg-white border border-red-200 rounded-lg px-4 py-2">
+                <div className="bg-white dark:bg-black border border-red-200 dark:border-red-700/40 rounded-lg px-4 py-2">
                   <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
                 </div>
               </div>
@@ -237,7 +237,7 @@ export default function DemoRedFlag() {
           </div>
 
           {/* Input */}
-          <div className="border-t border-gray-200 bg-white p-4">
+          <div className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-black p-4">
             <div className="flex gap-2">
               <input
                 type="text"
@@ -245,7 +245,7 @@ export default function DemoRedFlag() {
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Type your message..."
-                className="flex-1 rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none"
+                className="flex-1 rounded-lg border border-gray-300 dark:bg-black dark:border-gray-600 dark:text-gray-100 px-4 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none"
                 disabled={sending}
               />
               <button
@@ -257,15 +257,15 @@ export default function DemoRedFlag() {
                 Send
               </button>
             </div>
-            <p className="mt-2 text-xs text-gray-500">
+            <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
               💡 Try responses like: "I'm busy with work", "I need some space", "I can't afford that"
             </p>
           </div>
         </div>
 
         {/* Red Flag Indicators */}
-        <div className="mt-6 rounded-lg border border-gray-200 bg-white p-4">
-          <h4 className="mb-3 text-sm font-semibold text-gray-900">Red Flags to Watch For:</h4>
+        <div className="mt-6 rounded-lg border border-gray-200 bg-white dark:bg-black dark:border-gray-700 p-4">
+          <h4 className="mb-3 text-sm font-semibold text-gray-900 dark:text-white">Red Flags to Watch For:</h4>
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             {[
               'Manipulation & Guilt Trips',
@@ -275,7 +275,7 @@ export default function DemoRedFlag() {
               'Emotional Blackmail',
               'Invalidation of Feelings',
             ].map((flag) => (
-              <div key={flag} className="flex items-center gap-2 text-sm text-gray-700">
+              <div key={flag} className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
                 <AlertTriangle className="h-4 w-4 text-red-500" />
                 <span>{flag}</span>
               </div>

@@ -35,9 +35,9 @@ const RELATIONSHIP_LABELS: Record<RelationshipStatus, string> = {
 }
 
 const MODULE_CONFIG: Record<GenderModule, { label: string; color: string; bg: string; border: string; icon: string }> = {
-  male:   { label: "Men's Module",  color: 'text-blue-700',   bg: 'bg-blue-50',   border: 'border-blue-200',  icon: '👨' },
-  female: { label: "Women's Module", color: 'text-purple-700', bg: 'bg-purple-50', border: 'border-purple-200', icon: '👩' },
-  both:   { label: 'Full Access',   color: 'text-primary-700', bg: 'bg-primary-50', border: 'border-primary-200', icon: '⚖️' },
+  male:   { label: "Men's Module",  color: 'text-blue-700 dark:text-blue-300',   bg: 'bg-blue-50 dark:bg-blue-900/20',   border: 'border-blue-200 dark:border-blue-700/40',  icon: '👨' },
+  female: { label: "Women's Module", color: 'text-purple-700 dark:text-purple-300', bg: 'bg-purple-50 dark:bg-purple-900/20', border: 'border-purple-200 dark:border-purple-700/40', icon: '👩' },
+  both:   { label: 'Full Access',   color: 'text-primary-700 dark:text-primary-300', bg: 'bg-primary-50 dark:bg-primary-900/20', border: 'border-primary-200 dark:border-primary-700/40', icon: '⚖️' },
 }
 
 function getInitials(firstName?: string | null, lastName?: string | null, email?: string | null): string {
@@ -166,26 +166,26 @@ export default function ProfilePage() {
       <div className="mx-auto max-w-4xl space-y-6">
 
         {/* ── Profile Overview Card ────────────────────────────────────────── */}
-        <div className="rounded-2xl bg-white border border-gray-200 shadow-sm overflow-hidden">
+        <div className="rounded-2xl bg-white dark:bg-black border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
           {/* Banner */}
           <div className="h-24 bg-gradient-to-r from-primary-600 via-primary-500 to-blue-400" />
 
           <div className="px-6 pb-6">
             {/* Avatar */}
             <div className="-mt-12 mb-4 flex items-end justify-between">
-              <div className="flex h-24 w-24 items-center justify-center rounded-2xl border-4 border-white bg-gradient-to-br from-primary-600 to-blue-500 shadow-lg">
+              <div className="flex h-24 w-24 items-center justify-center rounded-2xl border-4 border-white dark:border-black bg-gradient-to-br from-primary-600 to-blue-500 shadow-lg">
                 <span className="text-3xl font-bold text-white">{initials}</span>
               </div>
               {profile?.onboarding_completed && (
-                <span className="flex items-center gap-1.5 rounded-full bg-green-50 px-3 py-1 text-xs font-semibold text-green-700 border border-green-200">
+                <span className="flex items-center gap-1.5 rounded-full bg-green-50 dark:bg-black px-3 py-1 text-xs font-semibold text-green-700 dark:text-green-300 border border-green-200 dark:border-green-700/40">
                   <CheckCircle className="h-3.5 w-3.5" /> Profile Complete
                 </span>
               )}
             </div>
 
             {/* Name & email */}
-            <h2 className="text-2xl font-bold text-gray-900 -tracking-[0.05em]">{displayName}</h2>
-            <p className="mt-0.5 text-sm text-gray-500 flex items-center gap-1.5">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white -tracking-[0.05em]">{displayName}</h2>
+            <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
               <Mail className="h-3.5 w-3.5" /> {user?.email}
             </p>
 
@@ -196,11 +196,11 @@ export default function ProfilePage() {
                 { icon: Shield, label: 'Module', value: moduleInfo?.label || '—' },
                 { icon: User, label: 'Status', value: profile?.relationship_status ? RELATIONSHIP_LABELS[profile.relationship_status] : '—' },
               ].map(({ icon: Icon, label, value }) => (
-                <div key={label} className="rounded-xl bg-gray-50 border border-gray-100 px-4 py-3">
-                  <div className="flex items-center gap-1.5 text-xs text-gray-500 mb-1">
+                <div key={label} className="rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-700 px-4 py-3">
+                  <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 mb-1">
                     <Icon className="h-3.5 w-3.5" /> {label}
                   </div>
-                  <div className="text-sm font-semibold text-gray-900 truncate">{value}</div>
+                  <div className="text-sm font-semibold text-gray-900 dark:text-white truncate">{value}</div>
                 </div>
               ))}
             </div>
@@ -210,16 +210,16 @@ export default function ProfilePage() {
         <div className="grid gap-6 lg:grid-cols-2">
 
           {/* ── Edit Profile Card ──────────────────────────────────────────── */}
-          <div className="rounded-2xl bg-white border border-gray-200 shadow-sm">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+          <div className="rounded-2xl bg-white dark:bg-black border border-gray-200 dark:border-gray-700 shadow-sm">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-700">
               <div>
-                <h3 className="font-semibold text-gray-900">Personal Info</h3>
-                <p className="text-xs text-gray-500 mt-0.5">Update your name and relationship status</p>
+                <h3 className="font-semibold text-gray-900 dark:text-white">Personal Info</h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Update your name and relationship status</p>
               </div>
               {!editing && (
                 <button
                   onClick={() => setEditing(true)}
-                  className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+                  className="flex items-center gap-1.5 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-black px-3 py-1.5 text-xs font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors"
                 >
                   <Edit2 className="h-3.5 w-3.5" /> Edit
                 </button>
@@ -229,7 +229,7 @@ export default function ProfilePage() {
             <form onSubmit={handleSaveProfile} className="px-6 py-5 space-y-4">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1.5">First Name</label>
+                  <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">First Name</label>
                   <input
                     type="text"
                     value={firstName}
@@ -237,11 +237,11 @@ export default function ProfilePage() {
                     disabled={!editing}
                     placeholder="Your first name"
                     maxLength={100}
-                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:border-primary-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-100 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+                    className="w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-black px-3 py-2.5 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-primary-400 focus:bg-white dark:focus:bg-black focus:outline-none focus:ring-2 focus:ring-primary-100 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1.5">Last Name</label>
+                  <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Last Name</label>
                   <input
                     type="text"
                     value={lastName}
@@ -249,18 +249,18 @@ export default function ProfilePage() {
                     disabled={!editing}
                     placeholder="Your last name"
                     maxLength={100}
-                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:border-primary-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-100 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+                    className="w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-black px-3 py-2.5 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-primary-400 focus:bg-white dark:focus:bg-black focus:outline-none focus:ring-2 focus:ring-primary-100 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1.5">Relationship Status</label>
+                <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Relationship Status</label>
                 <select
                   value={relationshipStatus}
                   onChange={e => setRelationshipStatus(e.target.value as RelationshipStatus)}
                   disabled={!editing}
-                  className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 focus:border-primary-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-100 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+                  className="w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-black px-3 py-2.5 text-sm text-gray-900 dark:text-gray-100 focus:border-primary-400 focus:bg-white dark:focus:bg-black focus:outline-none focus:ring-2 focus:ring-primary-100 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
                 >
                   <option value="">Select status</option>
                   {(Object.entries(RELATIONSHIP_LABELS) as [RelationshipStatus, string][]).map(([val, label]) => (
@@ -270,12 +270,12 @@ export default function ProfilePage() {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1.5">Email Address</label>
+                <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Email Address</label>
                 <input
                   type="email"
                   value={user?.email || ''}
                   disabled
-                  className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-500 cursor-not-allowed"
+                  className="w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-black px-3 py-2.5 text-sm text-gray-500 dark:text-gray-400 cursor-not-allowed"
                 />
                 <p className="mt-1 text-xs text-gray-400">Email cannot be changed here</p>
               </div>
@@ -298,7 +298,7 @@ export default function ProfilePage() {
                       setLastName(profile?.last_name || '')
                       setRelationshipStatus(profile?.relationship_status || '')
                     }}
-                    className="rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+                    className="rounded-xl border border-gray-200 dark:border-gray-600 px-4 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors"
                   >
                     Cancel
                   </button>
@@ -311,18 +311,18 @@ export default function ProfilePage() {
           <div className="space-y-6">
 
             {/* Module Access — read-only, locked to gender set at onboarding */}
-            <div className="rounded-2xl bg-white border border-gray-200 shadow-sm">
-              <div className="px-6 py-4 border-b border-gray-100">
-                <h3 className="font-semibold text-gray-900">Module Access</h3>
-                <p className="text-xs text-gray-500 mt-0.5">Determined by your gender set during onboarding</p>
+            <div className="rounded-2xl bg-white dark:bg-black border border-gray-200 dark:border-gray-700 shadow-sm">
+              <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700">
+                <h3 className="font-semibold text-gray-900 dark:text-white">Module Access</h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Determined by your gender set during onboarding</p>
               </div>
               <div className="px-6 py-5">
                 {moduleInfo ? (
-                  <div className={`flex items-center gap-3 rounded-xl border-2 px-4 py-4 ${moduleInfo.bg} ${moduleInfo.border}`}>
+                  <div className={`flex items-center gap-3 rounded-xl border-2 px-4 py-4 dark:bg-black ${moduleInfo.bg} ${moduleInfo.border}`}>
                     <span className="text-2xl">{moduleInfo.icon}</span>
                     <div className="flex-1 min-w-0">
                       <div className={`text-sm font-semibold ${moduleInfo.color}`}>{moduleInfo.label}</div>
-                      <div className="text-xs text-gray-500 mt-0.5">
+                      <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                         {profile?.gender === 'male'   && 'Income Tracker · Breakup Generator · Consent Vault'}
                         {profile?.gender === 'female' && 'Dowry Vault · DV Log · Maintenance Calculator · Consent Vault'}
                         {profile?.gender === 'both'   && 'All modules enabled'}
@@ -341,37 +341,37 @@ export default function ProfilePage() {
             </div>
 
             {/* Security Card */}
-            <div className="rounded-2xl bg-white border border-gray-200 shadow-sm">
-              <div className="px-6 py-4 border-b border-gray-100">
-                <h3 className="font-semibold text-gray-900">Security</h3>
-                <p className="text-xs text-gray-500 mt-0.5">Manage your account security</p>
+            <div className="rounded-2xl bg-white dark:bg-black border border-gray-200 dark:border-gray-700 shadow-sm">
+              <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700">
+                <h3 className="font-semibold text-gray-900 dark:text-white">Security</h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Manage your account security</p>
               </div>
               <div className="px-6 py-5 space-y-3">
                 <button
                   onClick={handlePasswordReset}
                   disabled={sendingReset}
-                  className="flex w-full items-center gap-3 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-left hover:bg-white hover:border-gray-300 transition-all disabled:opacity-60"
+                  className="flex w-full items-center gap-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-4 py-3 text-left hover:bg-white dark:hover:bg-gray-900 hover:border-gray-300 dark:hover:border-gray-600 transition-all disabled:opacity-60"
                 >
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-100">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-100 dark:bg-gray-800">
                     {sendingReset
                       ? <div className="h-4 w-4 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
                       : <Key className="h-4 w-4 text-blue-600" />}
                   </div>
                   <div>
-                    <div className="text-sm font-semibold text-gray-900">Change Password</div>
+                    <div className="text-sm font-semibold text-gray-900 dark:text-white">Change Password</div>
                     <div className="text-xs text-gray-400">Send a password reset email</div>
                   </div>
                 </button>
 
                 <button
                   onClick={handleSignOut}
-                  className="flex w-full items-center gap-3 rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-left hover:bg-red-100 transition-all"
+                  className="flex w-full items-center gap-3 rounded-xl border border-red-100 dark:border-red-700/40 bg-red-50 dark:bg-black px-4 py-3 text-left hover:bg-red-100 dark:hover:bg-gray-900 transition-all"
                 >
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-red-100">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-red-100 dark:bg-gray-800">
                     <LogOut className="h-4 w-4 text-red-600" />
                   </div>
                   <div>
-                    <div className="text-sm font-semibold text-red-700">Sign Out</div>
+                    <div className="text-sm font-semibold text-red-700 dark:text-red-400">Sign Out</div>
                     <div className="text-xs text-red-400">You will be redirected to the login page</div>
                   </div>
                 </button>

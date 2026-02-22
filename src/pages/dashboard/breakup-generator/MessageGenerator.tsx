@@ -211,9 +211,9 @@ export default function MessageGenerator() {
     >
       <div className="w-full space-y-6">
         {/* Disclaimer banner */}
-        <div className="flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 p-3 sm:p-4">
+        <div className="flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 p-3 sm:p-4 dark:bg-black dark:border-amber-700/40">
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
-          <p className="text-xs sm:text-sm text-amber-800">
+          <p className="text-xs sm:text-sm text-amber-800 dark:text-amber-300">
             Messages generated here are for communication purposes only and do not constitute legal advice.
             Always consult a qualified family law attorney before initiating formal legal proceedings.
           </p>
@@ -222,8 +222,8 @@ export default function MessageGenerator() {
         {/* Main grid: form + output */}
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           {/* Left: Form */}
-          <div className="rounded-lg border border-gray-200/20 bg-white/50 p-4 sm:p-6 shadow-sm">
-            <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold text-gray-900">
+          <div className="rounded-lg border border-gray-200/20 bg-white/50 p-4 sm:p-6 shadow-sm dark:bg-black dark:border-gray-700">
+            <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white">
               <Wand2 className="h-4 w-4 text-blue-600" />
               Configure Message
             </h2>
@@ -231,14 +231,14 @@ export default function MessageGenerator() {
             <div className="space-y-4">
               {/* Template Type */}
               <div>
-                <label className="mb-1.5 block text-xs font-semibold text-gray-700">
+                <label className="mb-1.5 block text-xs font-semibold text-gray-700 dark:text-gray-300">
                   Message Type <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
                   <select
                     value={templateType}
                     onChange={(e) => setTemplateType(e.target.value as TemplateType)}
-                    className="w-full appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-3 pr-8 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    className="w-full appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-3 pr-8 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-black dark:border-gray-600 dark:text-gray-100"
                   >
                     {TEMPLATE_OPTIONS.map((opt) => (
                       <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -246,14 +246,14 @@ export default function MessageGenerator() {
                   </select>
                   <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                 </div>
-                <p className="mt-1 text-xs text-gray-500">
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                   {TEMPLATE_OPTIONS.find((o) => o.value === templateType)?.description}
                 </p>
               </div>
 
               {/* Tone */}
               <div>
-                <label className="mb-1.5 block text-xs font-semibold text-gray-700">
+                <label className="mb-1.5 block text-xs font-semibold text-gray-700 dark:text-gray-300">
                   Tone <span className="text-red-500">*</span>
                 </label>
                 <div className="grid grid-cols-2 gap-2">
@@ -264,8 +264,8 @@ export default function MessageGenerator() {
                       onClick={() => setTone(opt.value)}
                       className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-medium transition-colors ${
                         tone === opt.value
-                          ? 'border-blue-500 bg-blue-50 text-blue-700'
-                          : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50'
+                          ? 'border-blue-500 bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:border-blue-500/50 dark:text-blue-300'
+                          : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50 dark:bg-black dark:border-gray-600 dark:text-gray-300 dark:hover:border-gray-500 dark:hover:bg-gray-900'
                       }`}
                     >
                       <span>{opt.icon}</span>
@@ -277,14 +277,14 @@ export default function MessageGenerator() {
 
               {/* Relationship Type */}
               <div>
-                <label className="mb-1.5 block text-xs font-semibold text-gray-700">
+                <label className="mb-1.5 block text-xs font-semibold text-gray-700 dark:text-gray-300">
                   Relationship Type <span className="text-gray-400 font-normal">(optional)</span>
                 </label>
                 <div className="relative">
                   <select
                     value={relationshipType}
                     onChange={(e) => setRelationshipType(e.target.value as RelationshipType | '')}
-                    className="w-full appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-3 pr-8 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    className="w-full appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-3 pr-8 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-black dark:border-gray-600 dark:text-gray-100"
                   >
                     <option value="">Select (optional)</option>
                     {RELATIONSHIP_OPTIONS.map((opt) => (
@@ -297,7 +297,7 @@ export default function MessageGenerator() {
 
               {/* Duration */}
               <div>
-                <label className="mb-1.5 block text-xs font-semibold text-gray-700">
+                <label className="mb-1.5 block text-xs font-semibold text-gray-700 dark:text-gray-300">
                   Relationship Duration <span className="text-gray-400 font-normal">(optional)</span>
                 </label>
                 <input
@@ -305,13 +305,13 @@ export default function MessageGenerator() {
                   placeholder="e.g. 3 years, 8 months"
                   value={relationshipDuration}
                   onChange={(e) => setRelationshipDuration(e.target.value.slice(0, 100))}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm shadow-sm placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm shadow-sm placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-black dark:border-gray-600 dark:text-gray-100"
                 />
               </div>
 
               {/* Key Points */}
               <div>
-                <label className="mb-1.5 block text-xs font-semibold text-gray-700">
+                <label className="mb-1.5 block text-xs font-semibold text-gray-700 dark:text-gray-300">
                   Key Points to Include <span className="text-gray-400 font-normal">(optional)</span>
                 </label>
                 <textarea
@@ -319,7 +319,7 @@ export default function MessageGenerator() {
                   value={keyPoints}
                   onChange={(e) => setKeyPoints(e.target.value.slice(0, 1000))}
                   rows={3}
-                  className="w-full resize-none rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm shadow-sm placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full resize-none rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm shadow-sm placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-black dark:border-gray-600 dark:text-gray-100"
                 />
                 <p className="mt-0.5 text-right text-xs text-gray-400">{keyPoints.length}/1000</p>
               </div>
@@ -339,8 +339,8 @@ export default function MessageGenerator() {
           </div>
 
           {/* Right: Generated Output */}
-          <div className="rounded-lg border border-gray-200/20 bg-white/50 p-4 sm:p-6 shadow-sm">
-            <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold text-gray-900">
+          <div className="rounded-lg border border-gray-200/20 bg-white/50 p-4 sm:p-6 shadow-sm dark:bg-black dark:border-gray-700">
+            <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white">
               <FileText className="h-4 w-4 text-blue-600" />
               Generated Message
             </h2>
@@ -348,7 +348,7 @@ export default function MessageGenerator() {
             {!generated && !generating && (
               <div className="flex min-h-[300px] flex-col items-center justify-center text-center">
                 <Wand2 className="mb-3 h-10 w-10 text-gray-300" />
-                <p className="text-sm text-gray-400">Configure options and click Generate to create your message.</p>
+                <p className="text-sm text-gray-400 dark:text-gray-500">Configure options and click Generate to create your message.</p>
               </div>
             )}
 
@@ -362,19 +362,19 @@ export default function MessageGenerator() {
             {generated && !generating && (
               <div className="flex flex-col gap-4">
                 {/* Message text */}
-                <div className="rounded-lg border border-gray-100 bg-gray-50 p-4">
-                  <p className="whitespace-pre-wrap text-sm leading-relaxed text-gray-800">
+                <div className="rounded-lg border border-gray-100 bg-gray-50 p-4 dark:bg-gray-900 dark:border-gray-700">
+                  <p className="whitespace-pre-wrap text-sm leading-relaxed text-gray-800 dark:text-gray-200">
                     {generated.message}
                   </p>
                 </div>
 
                 {/* Legal notes */}
                 {generated.legalNotes && (
-                  <div className="flex items-start gap-2 rounded-lg border border-blue-100 bg-blue-50/60 p-3">
+                  <div className="flex items-start gap-2 rounded-lg border border-blue-100 bg-blue-50/60 p-3 dark:bg-black dark:border-blue-700/40">
                     <Info className="mt-0.5 h-4 w-4 shrink-0 text-blue-500" />
                     <div>
-                      <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-blue-700">Legal Notes</p>
-                      <p className="whitespace-pre-wrap text-xs leading-relaxed text-blue-800">{generated.legalNotes}</p>
+                      <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-blue-700 dark:text-blue-300">Legal Notes</p>
+                      <p className="whitespace-pre-wrap text-xs leading-relaxed text-blue-800 dark:text-blue-300">{generated.legalNotes}</p>
                     </div>
                   </div>
                 )}
@@ -383,14 +383,14 @@ export default function MessageGenerator() {
                 <div className="flex flex-wrap gap-2">
                   <button
                     onClick={handleCopy}
-                    className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs font-semibold text-gray-700 shadow-sm hover:bg-gray-50 transition-colors"
+                    className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs font-semibold text-gray-700 shadow-sm hover:bg-gray-50 transition-colors dark:bg-black dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-900"
                   >
                     {copied ? <CheckCircle2 className="h-3.5 w-3.5 text-green-600" /> : <Copy className="h-3.5 w-3.5" />}
                     {copied ? 'Copied!' : 'Copy'}
                   </button>
                   <button
                     onClick={handleDownload}
-                    className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs font-semibold text-gray-700 shadow-sm hover:bg-gray-50 transition-colors"
+                    className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs font-semibold text-gray-700 shadow-sm hover:bg-gray-50 transition-colors dark:bg-black dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-900"
                   >
                     <Download className="h-3.5 w-3.5" />
                     Download
@@ -398,7 +398,7 @@ export default function MessageGenerator() {
                   <button
                     onClick={() => setDeleteConfirmId(generated.id)}
                     disabled={deletingId === generated.id}
-                    className="flex items-center gap-2 rounded-lg border border-red-200 bg-white px-3 py-2 text-xs font-semibold text-red-600 shadow-sm hover:bg-red-50 disabled:opacity-50 transition-colors"
+                    className="flex items-center gap-2 rounded-lg border border-red-200 bg-white px-3 py-2 text-xs font-semibold text-red-600 shadow-sm hover:bg-red-50 disabled:opacity-50 transition-colors dark:bg-black dark:border-red-700/40 dark:hover:bg-gray-900"
                   >
                     {deletingId === generated.id
                       ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -416,12 +416,12 @@ export default function MessageGenerator() {
         </div>
 
         {/* Saved Messages History */}
-        <div className="rounded-lg border border-gray-200/20 bg-white/50 p-4 sm:p-6 shadow-sm">
-          <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold text-gray-900">
+        <div className="rounded-lg border border-gray-200/20 bg-white/50 p-4 sm:p-6 shadow-sm dark:bg-black dark:border-gray-700">
+          <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white">
             <Clock className="h-4 w-4 text-gray-500" />
             Saved Messages
             {savedMessages.length > 0 && (
-              <span className="ml-1 rounded-full bg-gray-100 px-2 py-0.5 text-xs font-semibold text-gray-600">
+              <span className="ml-1 rounded-full bg-gray-100 px-2 py-0.5 text-xs font-semibold text-gray-600 dark:bg-gray-800 dark:text-gray-300">
                 {savedMessages.length}
               </span>
             )}
@@ -436,34 +436,34 @@ export default function MessageGenerator() {
           {!loadingHistory && savedMessages.length === 0 && (
             <div className="py-8 text-center">
               <FileText className="mx-auto mb-2 h-8 w-8 text-gray-300" />
-              <p className="text-sm text-gray-400">No saved messages yet. Generate your first one above.</p>
+              <p className="text-sm text-gray-400 dark:text-gray-500">No saved messages yet. Generate your first one above.</p>
             </div>
           )}
 
           {!loadingHistory && savedMessages.length > 0 && (
             <div className="space-y-3">
               {savedMessages.map((msg) => (
-                <div key={msg.id} className="rounded-lg border border-gray-100 bg-white/60">
+                <div key={msg.id} className="rounded-lg border border-gray-100 bg-white/60 dark:bg-black dark:border-gray-700">
                   {/* Header row */}
                   <div className="flex items-center justify-between gap-3 p-3 sm:p-4">
                     <div className="flex min-w-0 flex-1 items-center gap-3">
                       <div className="flex min-w-0 flex-col">
-                        <span className="text-sm font-semibold text-gray-900">
+                        <span className="text-sm font-semibold text-gray-900 dark:text-white">
                           {TEMPLATE_LABELS[msg.template_type]}
                         </span>
-                        <span className="text-xs text-gray-400">
+                        <span className="text-xs text-gray-400 dark:text-gray-500">
                           {format(new Date(msg.created_at), 'MMM d, yyyy h:mm a')}
                           {msg.relationship_duration && ` · ${msg.relationship_duration}`}
                         </span>
                       </div>
-                      <span className="shrink-0 rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 capitalize">
+                      <span className="shrink-0 rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 capitalize dark:bg-blue-900/30 dark:text-blue-300">
                         {msg.tone}
                       </span>
                     </div>
                     <div className="flex shrink-0 items-center gap-1">
                       <button
                         onClick={() => setExpandedId(expandedId === msg.id ? null : msg.id)}
-                        className="rounded-lg border border-gray-200 bg-white p-1.5 text-gray-500 hover:bg-gray-50 transition-colors"
+                        className="rounded-lg border border-gray-200 bg-white p-1.5 text-gray-500 hover:bg-gray-50 transition-colors dark:bg-black dark:border-gray-600 dark:hover:bg-gray-900"
                         title={expandedId === msg.id ? 'Collapse' : 'View'}
                       >
                         <FileText className="h-3.5 w-3.5" />
@@ -477,7 +477,7 @@ export default function MessageGenerator() {
                             toast.error('Copy failed')
                           }
                         }}
-                        className="rounded-lg border border-gray-200 bg-white p-1.5 text-gray-500 hover:bg-gray-50 transition-colors"
+                        className="rounded-lg border border-gray-200 bg-white p-1.5 text-gray-500 hover:bg-gray-50 transition-colors dark:bg-black dark:border-gray-600 dark:hover:bg-gray-900"
                         title="Copy"
                       >
                         <Copy className="h-3.5 w-3.5" />
@@ -485,7 +485,7 @@ export default function MessageGenerator() {
                       <button
                         onClick={() => setDeleteConfirmId(msg.id)}
                         disabled={deletingId === msg.id}
-                        className="rounded-lg border border-red-100 bg-white p-1.5 text-red-500 hover:bg-red-50 disabled:opacity-50 transition-colors"
+                        className="rounded-lg border border-red-100 bg-white p-1.5 text-red-500 hover:bg-red-50 disabled:opacity-50 transition-colors dark:bg-black dark:border-red-700/40 dark:hover:bg-gray-900"
                         title="Delete"
                       >
                         {deletingId === msg.id
@@ -497,16 +497,16 @@ export default function MessageGenerator() {
 
                   {/* Expanded view */}
                   {expandedId === msg.id && (
-                    <div className="border-t border-gray-100 p-3 sm:p-4">
-                      <p className="whitespace-pre-wrap text-sm leading-relaxed text-gray-700">
+                    <div className="border-t border-gray-100 p-3 sm:p-4 dark:border-gray-700">
+                      <p className="whitespace-pre-wrap text-sm leading-relaxed text-gray-700 dark:text-gray-300">
                         {msg.generated_message}
                       </p>
                       {msg.legal_notes && (
-                        <div className="mt-3 flex items-start gap-2 rounded-lg border border-blue-100 bg-blue-50/60 p-3">
+                        <div className="mt-3 flex items-start gap-2 rounded-lg border border-blue-100 bg-blue-50/60 p-3 dark:bg-black dark:border-blue-700/40">
                           <Info className="mt-0.5 h-4 w-4 shrink-0 text-blue-500" />
                           <div>
-                            <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-blue-700">Legal Notes</p>
-                            <p className="whitespace-pre-wrap text-xs leading-relaxed text-blue-800">{msg.legal_notes}</p>
+                            <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-blue-700 dark:text-blue-300">Legal Notes</p>
+                            <p className="whitespace-pre-wrap text-xs leading-relaxed text-blue-800 dark:text-blue-300">{msg.legal_notes}</p>
                           </div>
                         </div>
                       )}

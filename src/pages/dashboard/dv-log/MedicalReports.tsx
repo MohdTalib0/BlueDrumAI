@@ -126,7 +126,7 @@ export default function MedicalReports() {
     <DashboardLayout title="Medical Reports" subtitle={`${reports.length} report${reports.length !== 1 ? 's' : ''} on file`} backHref="/dashboard/dv-log">
       <div className="w-full max-w-4xl mx-auto space-y-4">
         {error && (
-          <div className="flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 p-4 text-red-800 shadow-sm">
+          <div className="flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 p-4 text-red-800 shadow-sm dark:bg-black dark:border-red-700/40 dark:text-red-300">
             <AlertCircle className="h-5 w-5 shrink-0" />
             <span>{error}</span>
           </div>
@@ -148,62 +148,62 @@ export default function MedicalReports() {
 
         {/* Add Form */}
         {showForm && (
-          <div ref={formRef} className="rounded-lg border-2 border-red-200 bg-red-50/30 p-4 sm:p-6 shadow-sm">
-            <h3 className="mb-4 flex items-center gap-2 text-base font-semibold text-gray-900">
-              <FileHeart className="h-5 w-5 text-red-600" />
+          <div ref={formRef} className="rounded-lg border-2 border-red-200 bg-red-50/30 p-4 sm:p-6 shadow-sm dark:bg-black dark:border-red-700">
+            <h3 className="mb-4 flex items-center gap-2 text-base font-semibold text-gray-900 dark:text-white">
+              <FileHeart className="h-5 w-5 text-red-600 dark:text-red-400" />
               New Medical Report
             </h3>
             <form onSubmit={handleAdd} className="space-y-4">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">Report Date *</label>
+                  <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Report Date *</label>
                   <input
                     type="date"
                     value={form.report_date}
                     onChange={(e) => setForm((p) => ({ ...p, report_date: e.target.value }))}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-red-500 focus:ring-1 focus:ring-red-500 focus:outline-none"
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-red-500 focus:ring-1 focus:ring-red-500 focus:outline-none dark:bg-black dark:border-gray-600 dark:text-gray-100"
                     required
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">Hospital / Clinic</label>
+                  <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Hospital / Clinic</label>
                   <input
                     type="text"
                     value={form.hospital_name}
                     onChange={(e) => setForm((p) => ({ ...p, hospital_name: e.target.value }))}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-red-500 focus:ring-1 focus:ring-red-500 focus:outline-none"
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-red-500 focus:ring-1 focus:ring-red-500 focus:outline-none dark:bg-black dark:border-gray-600 dark:text-gray-100"
                     placeholder="Name of hospital or clinic"
                   />
                 </div>
                 <div className="sm:col-span-2">
-                  <label className="mb-1 block text-sm font-medium text-gray-700">Doctor Name</label>
+                  <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Doctor Name</label>
                   <input
                     type="text"
                     value={form.doctor_name}
                     onChange={(e) => setForm((p) => ({ ...p, doctor_name: e.target.value }))}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-red-500 focus:ring-1 focus:ring-red-500 focus:outline-none"
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-red-500 focus:ring-1 focus:ring-red-500 focus:outline-none dark:bg-black dark:border-gray-600 dark:text-gray-100"
                     placeholder="Treating doctor's name"
                   />
                 </div>
               </div>
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">Diagnosis / Injuries *</label>
+                <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Diagnosis / Injuries *</label>
                 <textarea
                   value={form.diagnosis}
                   onChange={(e) => setForm((p) => ({ ...p, diagnosis: e.target.value }))}
                   rows={3}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-red-500 focus:ring-1 focus:ring-red-500 focus:outline-none"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-red-500 focus:ring-1 focus:ring-red-500 focus:outline-none dark:bg-black dark:border-gray-600 dark:text-gray-100"
                   placeholder="Describe injuries, diagnosis, and treatment given..."
                   required
                 />
               </div>
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">Notes</label>
+                <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Notes</label>
                 <textarea
                   value={form.notes}
                   onChange={(e) => setForm((p) => ({ ...p, notes: e.target.value }))}
                   rows={2}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-red-500 focus:ring-1 focus:ring-red-500 focus:outline-none"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-red-500 focus:ring-1 focus:ring-red-500 focus:outline-none dark:bg-black dark:border-gray-600 dark:text-gray-100"
                   placeholder="Any additional notes..."
                 />
               </div>
@@ -234,10 +234,10 @@ export default function MedicalReports() {
             <Loader2 className="h-8 w-8 animate-spin text-red-600" />
           </div>
         ) : reports.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-gray-300 bg-white/40 p-8 sm:p-12 text-center">
-            <FileHeart className="mx-auto mb-4 h-12 w-12 text-gray-300" />
-            <h3 className="text-lg font-semibold text-gray-700">No medical reports</h3>
-            <p className="mt-1 text-sm text-gray-500">Upload and organize medical documentation here.</p>
+          <div className="rounded-xl border border-dashed border-gray-300 bg-white/40 p-8 sm:p-12 text-center dark:bg-black dark:border-gray-700">
+            <FileHeart className="mx-auto mb-4 h-12 w-12 text-gray-300 dark:text-gray-600" />
+            <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">No medical reports</h3>
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Upload and organize medical documentation here.</p>
             <button
               onClick={() => setShowForm(true)}
               className="mt-4 inline-flex items-center gap-2 rounded-lg bg-red-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-red-700 transition-colors"
@@ -251,16 +251,16 @@ export default function MedicalReports() {
             {reports.map((r) => (
               <div
                 key={r.id}
-                className="group rounded-lg border border-gray-200/60 bg-white/60 hover:bg-white/90 hover:shadow-sm transition-all p-4 sm:p-5"
+                className="group rounded-lg border border-gray-200/60 bg-white/60 hover:bg-white/90 hover:shadow-sm transition-all p-4 sm:p-5 dark:bg-black dark:border-gray-700 dark:hover:bg-gray-900"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-start gap-3 min-w-0 flex-1">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-red-50 text-red-600">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-400">
                       <FileHeart className="h-5 w-5" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <h4 className="font-semibold text-gray-900 line-clamp-1">{r.diagnosis}</h4>
-                      <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500">
+                      <h4 className="font-semibold text-gray-900 line-clamp-1 dark:text-white">{r.diagnosis}</h4>
+                      <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500 dark:text-gray-400">
                         <span className="inline-flex items-center gap-1">
                           <Calendar className="h-3 w-3" />
                           {formatDate(r.report_date)}
@@ -285,7 +285,7 @@ export default function MedicalReports() {
                   </div>
                   <button
                     onClick={() => setDeleteConfirmId(r.id)}
-                    className="shrink-0 rounded-lg p-2 text-gray-400 hover:bg-red-50 hover:text-red-600 sm:opacity-0 sm:group-hover:opacity-100 transition-all touch-manipulation"
+                    className="shrink-0 rounded-lg p-2 text-gray-400 hover:bg-red-50 hover:text-red-600 sm:opacity-0 sm:group-hover:opacity-100 transition-all touch-manipulation dark:hover:bg-red-900/30 dark:hover:text-red-400"
                     aria-label="Delete report"
                   >
                     <Trash2 className="h-4 w-4" />
@@ -297,9 +297,9 @@ export default function MedicalReports() {
         )}
 
         {/* Info */}
-        <div className="rounded-lg border border-blue-200 bg-blue-50/50 p-4 sm:p-5">
-          <h3 className="mb-2 font-semibold text-blue-900">Why Medical Reports Matter</h3>
-          <ul className="space-y-1.5 text-sm text-blue-800">
+        <div className="rounded-lg border border-blue-200 bg-blue-50/50 p-4 sm:p-5 dark:bg-black dark:border-blue-700/40">
+          <h3 className="mb-2 font-semibold text-blue-900 dark:text-blue-300">Why Medical Reports Matter</h3>
+          <ul className="space-y-1.5 text-sm text-blue-800 dark:text-blue-300">
             <li className="flex items-start gap-2">
               <span className="mt-0.5">•</span>
               <span>Medical reports serve as critical evidence in domestic violence cases</span>

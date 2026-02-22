@@ -42,33 +42,33 @@ export default function VerifyEmail() {
   }, [navigate])
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 via-yellow-50/30 to-white px-4">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 via-yellow-50/30 to-white dark:from-black dark:via-black dark:to-black px-4">
       <div className="w-full max-w-sm text-center">
-        <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary-100">
+        <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary-100 dark:bg-gray-800">
           <Shield className="h-8 w-8 text-primary-600" />
         </div>
 
         {status === 'verifying' && (
           <>
             <Loader2 className="mx-auto mb-4 h-8 w-8 animate-spin text-primary-600" />
-            <h1 className="text-xl font-bold text-gray-900 mb-2">Verifying your email...</h1>
-            <p className="text-sm text-gray-500">Please wait while we confirm your email address.</p>
+            <h1 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Verifying your email...</h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Please wait while we confirm your email address.</p>
           </>
         )}
 
         {status === 'success' && (
           <>
             <CheckCircle2 className="mx-auto mb-4 h-10 w-10 text-emerald-500" />
-            <h1 className="text-xl font-bold text-gray-900 mb-2">Email verified!</h1>
-            <p className="text-sm text-gray-500">Redirecting you to sign in...</p>
+            <h1 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Email verified!</h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Redirecting you to sign in...</p>
           </>
         )}
 
         {status === 'error' && (
           <>
             <XCircle className="mx-auto mb-4 h-10 w-10 text-red-500" />
-            <h1 className="text-xl font-bold text-gray-900 mb-2">Verification failed</h1>
-            <p className="text-sm text-gray-500 mb-6">
+            <h1 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Verification failed</h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
               The link may have expired or already been used. Try signing in — if your email
               isn't verified yet, you can request a new link.
             </p>

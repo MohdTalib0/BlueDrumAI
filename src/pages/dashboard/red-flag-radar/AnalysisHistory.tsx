@@ -151,11 +151,11 @@ export default function AnalysisHistory() {
   }
 
   const getRiskColor = (score: number) => {
-    if (score >= 80) return 'text-red-700 bg-red-50 border-red-200'
-    if (score >= 60) return 'text-orange-700 bg-orange-50 border-orange-200'
-    if (score >= 40) return 'text-yellow-700 bg-yellow-50 border-yellow-200'
-    if (score >= 20) return 'text-blue-700 bg-blue-50 border-blue-200'
-    return 'text-green-700 bg-green-50 border-green-200'
+    if (score >= 80) return 'text-red-700 bg-red-50 border-red-200 dark:bg-black dark:border-red-700/30 dark:text-red-300'
+    if (score >= 60) return 'text-orange-700 bg-orange-50 border-orange-200 dark:bg-black dark:border-orange-700/30 dark:text-orange-300'
+    if (score >= 40) return 'text-yellow-700 bg-yellow-50 border-yellow-200 dark:bg-black dark:border-yellow-700/30 dark:text-yellow-300'
+    if (score >= 20) return 'text-blue-700 bg-blue-50 border-blue-200 dark:bg-black dark:border-blue-700/30 dark:text-blue-300'
+    return 'text-green-700 bg-green-50 border-green-200 dark:bg-black dark:border-green-700/30 dark:text-green-300'
   }
 
   const getRiskLabel = (score: number) => {
@@ -219,7 +219,7 @@ export default function AnalysisHistory() {
         <div className="flex min-h-[400px] items-center justify-center">
           <div className="text-center">
             <Loader2 className="mb-4 inline-block h-8 w-8 animate-spin text-primary-600" />
-            <p className="text-gray-600">Loading analysis history...</p>
+            <p className="text-gray-600 dark:text-gray-400">Loading analysis history...</p>
           </div>
         </div>
       </DashboardLayout>
@@ -245,7 +245,7 @@ export default function AnalysisHistory() {
             {analyses.length > 1 && (
               <button
                 onClick={() => navigate('/dashboard/red-flag-radar/compare')}
-                className="inline-flex items-center gap-2 rounded-lg border border-blue-300 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 shadow-sm hover:bg-blue-100 transition-colors"
+                className="inline-flex items-center gap-2 rounded-lg border border-blue-300 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 shadow-sm hover:bg-blue-100 transition-colors dark:bg-black dark:border-blue-700/40 dark:text-blue-300 dark:hover:bg-gray-900"
               >
                 <GitCompare className="h-4 w-4" />
                 Compare
@@ -266,27 +266,27 @@ export default function AnalysisHistory() {
           <div className="mb-6 flex flex-col gap-4 lg:flex-row">
             {/* Left: Stat Cards ~75% */}
             <div className="grid grid-cols-3 gap-3 lg:w-3/5">
-              <div className="rounded-lg border border-gray-200/20 bg-white/50 p-3 shadow-sm">
-                <p className="text-xs text-gray-500">Total</p>
-                <p className="text-lg sm:text-2xl font-bold text-gray-900">{stats.total}</p>
+              <div className="rounded-lg border border-gray-200/20 bg-white/50 p-3 shadow-sm dark:bg-black dark:border-primary-500/20">
+                <p className="text-xs text-gray-500 dark:text-gray-400">Total</p>
+                <p className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-white">{stats.total}</p>
               </div>
-              <div className="rounded-lg border border-red-200 bg-red-50/50 p-3 shadow-sm">
+              <div className="rounded-lg border border-red-200 bg-red-50/50 p-3 shadow-sm dark:bg-black dark:border-red-700/30">
                 <p className="text-xs text-red-600">Critical</p>
                 <p className="text-lg sm:text-2xl font-bold text-red-700">{stats.critical}</p>
               </div>
-              <div className="rounded-lg border border-orange-200 bg-orange-50/50 p-3 shadow-sm">
+              <div className="rounded-lg border border-orange-200 bg-orange-50/50 p-3 shadow-sm dark:bg-black dark:border-orange-700/30">
                 <p className="text-xs text-orange-600">High</p>
                 <p className="text-lg sm:text-2xl font-bold text-orange-700">{stats.high}</p>
               </div>
-              <div className="rounded-lg border border-yellow-200 bg-yellow-50/50 p-3 shadow-sm">
+              <div className="rounded-lg border border-yellow-200 bg-yellow-50/50 p-3 shadow-sm dark:bg-black dark:border-yellow-700/30">
                 <p className="text-xs text-yellow-600">Moderate</p>
                 <p className="text-lg sm:text-2xl font-bold text-yellow-700">{stats.moderate}</p>
               </div>
-              <div className="rounded-lg border border-green-200 bg-green-50/50 p-3 shadow-sm">
+              <div className="rounded-lg border border-green-200 bg-green-50/50 p-3 shadow-sm dark:bg-black dark:border-green-700/30">
                 <p className="text-xs text-green-600">Low</p>
                 <p className="text-lg sm:text-2xl font-bold text-green-700">{stats.low}</p>
               </div>
-              <div className="rounded-lg border border-blue-200 bg-blue-50/50 p-3 shadow-sm">
+              <div className="rounded-lg border border-blue-200 bg-blue-50/50 p-3 shadow-sm dark:bg-black dark:border-blue-700/30">
                 <p className="text-xs text-blue-600">Avg Risk</p>
                 <p className="text-lg sm:text-2xl font-bold text-blue-700">{stats.avgRisk}<span className="text-xs font-normal text-gray-400">/100</span></p>
               </div>
@@ -294,24 +294,24 @@ export default function AnalysisHistory() {
 
             {/* Right: Risk Insight ~25% */}
             {trends && trends.dataPoints.length >= 1 && trends.summary ? (
-              <div className="rounded-lg border border-gray-200/20 bg-white/50 p-3 sm:p-4 shadow-sm lg:w-2/5">
+              <div className="rounded-lg border border-gray-200/20 bg-white/50 p-3 sm:p-4 shadow-sm lg:w-2/5 dark:bg-black dark:border-primary-500/20">
                 <div className="mb-2 flex items-center justify-between">
-                  <h3 className="flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-gray-900">
+                  <h3 className="flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-gray-900 dark:text-white">
                     <TrendingUp className="h-3.5 w-3.5 text-red-500" />
                     Risk Insight
                   </h3>
                   {trends.summary.overallTrend === 'improving' && (
-                    <span className="flex items-center gap-1 rounded-full bg-green-50 px-2.5 py-1 text-xs font-semibold text-green-700">
+                    <span className="flex items-center gap-1 rounded-full bg-green-50 px-2.5 py-1 text-xs font-semibold text-green-700 dark:bg-black">
                       <TrendingDown className="h-3 w-3" /> Improving
                     </span>
                   )}
                   {trends.summary.overallTrend === 'worsening' && (
-                    <span className="flex items-center gap-1 rounded-full bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-700">
+                    <span className="flex items-center gap-1 rounded-full bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-700 dark:bg-black">
                       <TrendingUp className="h-3 w-3" /> Worsening
                     </span>
                   )}
                   {trends.summary.overallTrend === 'stable' && (
-                    <span className="flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700">
+                    <span className="flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700 dark:bg-black">
                       <Minus className="h-3 w-3" /> Stable
                     </span>
                   )}
@@ -339,19 +339,19 @@ export default function AnalysisHistory() {
 
                 {/* Key numbers */}
                 <div className="grid grid-cols-2 gap-2 text-center">
-                  <div className="rounded-lg bg-gray-50 px-2.5 py-2">
+                  <div className="rounded-lg bg-gray-50 px-2.5 py-2 dark:bg-black">
                     <p className="text-[11px] text-gray-400">Latest</p>
-                    <p className="text-base font-bold text-gray-900">{trends.summary.latestRiskScore}</p>
+                    <p className="text-base font-bold text-gray-900 dark:text-white">{trends.summary.latestRiskScore}</p>
                   </div>
-                  <div className="rounded-lg bg-gray-50 px-2.5 py-2">
+                  <div className="rounded-lg bg-gray-50 px-2.5 py-2 dark:bg-black">
                     <p className="text-[11px] text-gray-400">Average</p>
-                    <p className="text-base font-bold text-gray-900">{trends.summary.avgRiskScore}</p>
+                    <p className="text-base font-bold text-gray-900 dark:text-white">{trends.summary.avgRiskScore}</p>
                   </div>
-                  <div className="rounded-lg bg-gray-50 px-2.5 py-2">
+                  <div className="rounded-lg bg-gray-50 px-2.5 py-2 dark:bg-black">
                     <p className="text-[11px] text-gray-400">Highest</p>
                     <p className="text-base font-bold text-red-600">{trends.summary.maxRiskScore}</p>
                   </div>
-                  <div className="rounded-lg bg-gray-50 px-2.5 py-2">
+                  <div className="rounded-lg bg-gray-50 px-2.5 py-2 dark:bg-black">
                     <p className="text-[11px] text-gray-400">Change</p>
                     <p className={`text-base font-bold ${trends.summary.riskChange > 0 ? 'text-red-600' : trends.summary.riskChange < 0 ? 'text-green-600' : 'text-gray-500'}`}>
                       {trends.summary.riskChange > 0 ? '+' : ''}{trends.summary.riskChange}
@@ -361,10 +361,10 @@ export default function AnalysisHistory() {
 
                 {/* Top patterns */}
                 {trends.summary.topPatterns.length > 0 && (
-                  <div className="mt-2.5 border-t border-gray-100 pt-2.5">
+                  <div className="mt-2.5 border-t border-gray-100 pt-2.5 dark:border-primary-500/10">
                     <div className="flex flex-wrap gap-1.5">
                       {trends.summary.topPatterns.slice(0, 3).map((p) => (
-                        <span key={p.pattern} className="rounded-full bg-purple-50 px-2.5 py-1 text-xs font-medium text-purple-700 truncate max-w-full">
+                        <span key={p.pattern} className="rounded-full bg-purple-50 px-2.5 py-1 text-xs font-medium text-purple-700 truncate max-w-full dark:bg-black dark:text-purple-300">
                           {p.pattern}
                         </span>
                       ))}
@@ -373,7 +373,7 @@ export default function AnalysisHistory() {
                 )}
               </div>
             ) : (
-              <div className="rounded-lg border border-gray-200/20 bg-white/50 p-3 sm:p-4 shadow-sm lg:w-2/5 flex items-center justify-center">
+              <div className="rounded-lg border border-gray-200/20 bg-white/50 p-3 sm:p-4 shadow-sm lg:w-2/5 flex items-center justify-center dark:bg-black dark:border-primary-500/20">
                 <p className="text-sm text-gray-400 text-center">Risk insights appear after your first analysis</p>
               </div>
             )}
@@ -390,7 +390,7 @@ export default function AnalysisHistory() {
                 placeholder="Search analyses, keywords, or red flags..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 bg-white py-2 pl-10 pr-4 text-sm shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                className="w-full rounded-lg border border-gray-300 bg-white py-2 pl-10 pr-4 text-sm shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:bg-black dark:border-gray-700 dark:text-gray-100"
               />
             </div>
             <div className="flex items-center gap-2">
@@ -398,7 +398,7 @@ export default function AnalysisHistory() {
               <select
                 value={riskFilter}
                 onChange={(e) => setRiskFilter(e.target.value as typeof riskFilter)}
-                className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:bg-black dark:border-gray-700 dark:text-gray-100"
               >
                 <option value="all">All Risk Levels</option>
                 <option value="critical">Critical (80+)</option>
@@ -412,17 +412,17 @@ export default function AnalysisHistory() {
 
         {/* Error Message */}
         {error && (
-          <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-red-800">
+          <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-red-800 dark:bg-black dark:border-red-700/40 dark:text-red-300">
             {error}
           </div>
         )}
 
         {/* Empty State */}
         {analyses.length === 0 && !loading && (
-          <div className="rounded-lg border border-gray-200/20 bg-white/50 p-12 text-center shadow-sm">
+          <div className="rounded-lg border border-gray-200/20 bg-white/50 p-12 text-center shadow-sm dark:bg-black dark:border-primary-500/20">
             <AlertTriangle className="mx-auto mb-4 h-16 w-16 text-gray-400" />
-            <h3 className="mb-2 text-lg font-semibold text-gray-900">No analyses yet</h3>
-            <p className="mb-6 text-gray-600">Upload a WhatsApp chat export to start analyzing for red flags.</p>
+            <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-white">No analyses yet</h3>
+            <p className="mb-6 text-gray-600 dark:text-gray-400">Upload a WhatsApp chat export to start analyzing for red flags.</p>
             <button
               onClick={() => navigate('/dashboard/red-flag-radar')}
               className="inline-flex items-center gap-2 rounded-lg bg-primary-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-primary-700 transition-colors"
@@ -435,10 +435,10 @@ export default function AnalysisHistory() {
 
         {/* No Results Message */}
         {analyses.length > 0 && filteredAnalyses.length === 0 && (
-          <div className="rounded-lg border border-gray-200/20 bg-white/50 p-8 text-center shadow-sm">
+          <div className="rounded-lg border border-gray-200/20 bg-white/50 p-8 text-center shadow-sm dark:bg-black dark:border-primary-500/20">
             <Search className="mx-auto mb-4 h-12 w-12 text-gray-400" />
-            <h3 className="mb-2 text-lg font-semibold text-gray-900">No analyses found</h3>
-            <p className="text-gray-600">Try adjusting your search or filter criteria.</p>
+            <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-white">No analyses found</h3>
+            <p className="text-gray-600 dark:text-gray-400">Try adjusting your search or filter criteria.</p>
           </div>
         )}
 
@@ -448,7 +448,7 @@ export default function AnalysisHistory() {
             {filteredAnalyses.map((analysis) => (
               <div
                 key={analysis.id}
-                className="rounded-lg border border-gray-200/20 bg-white/50 hover:bg-white/70 transition-all duration-200 shadow-sm hover:shadow-md"
+                className="rounded-lg border border-gray-200/20 bg-white/50 hover:bg-white/70 transition-all duration-200 shadow-sm hover:shadow-md dark:bg-black dark:border-primary-500/20 dark:hover:bg-primary-900/30"
               >
                 <div className="p-4 sm:p-6">
                   <div className="flex items-start justify-between">
@@ -458,10 +458,10 @@ export default function AnalysisHistory() {
                           {getRiskIcon(analysis.risk_score)}
                         </div>
                         <div>
-                          <h3 className="text-base sm:text-xl font-bold text-gray-900">
+                          <h3 className="text-base sm:text-xl font-bold text-gray-900 dark:text-white">
                             {getRiskLabel(analysis.risk_score)} Risk
                           </h3>
-                          <p className="text-xs sm:text-sm text-gray-500">
+                          <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                             {format(new Date(analysis.created_at), 'MMM d, yyyy h:mm a')}
                           </p>
                         </div>
@@ -470,19 +470,19 @@ export default function AnalysisHistory() {
                       {/* Risk Score */}
                       <div className="mb-3 sm:mb-4">
                         <div className="flex items-center gap-2">
-                          <span className="text-xs sm:text-sm font-semibold text-gray-700">Risk Score:</span>
+                          <span className="text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300">Risk Score:</span>
                           <span className={`text-xl sm:text-2xl font-bold ${getRiskColor(analysis.risk_score).split(' ')[0]}`}>
                             {analysis.risk_score}
                           </span>
-                          <span className="text-xs sm:text-sm text-gray-500">/ 100</span>
+                          <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">/ 100</span>
                         </div>
                       </div>
 
                       {/* Summary */}
-                      <p className="mb-3 sm:mb-4 line-clamp-2 text-xs sm:text-sm text-gray-700">{analysis.analysis_text || 'No summary available'}</p>
+                      <p className="mb-3 sm:mb-4 line-clamp-2 text-xs sm:text-sm text-gray-700 dark:text-gray-300">{analysis.analysis_text || 'No summary available'}</p>
 
                       {/* Stats */}
-                      <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-gray-600">
+                      <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
                         <div className="flex items-center gap-1.5">
                           <AlertTriangle className="h-4 w-4 text-red-600" />
                           <span className="font-semibold">{analysis.red_flags?.length || 0} Red Flags</span>
@@ -506,7 +506,7 @@ export default function AnalysisHistory() {
                     <div className="ml-4 flex flex-col gap-2">
                       <button
                         onClick={() => navigate(`/dashboard/red-flag-radar/analysis/${analysis.id}`)}
-                        className="rounded-lg border border-gray-300 bg-white p-2 text-gray-600 hover:bg-gray-50 transition-colors"
+                        className="rounded-lg border border-gray-300 bg-white p-2 text-gray-600 hover:bg-gray-50 transition-colors dark:bg-black dark:border-primary-500/20 dark:text-gray-300 dark:hover:bg-primary-900/30"
                         title="View Details"
                       >
                         <Eye className="h-4 w-4" />
@@ -514,7 +514,7 @@ export default function AnalysisHistory() {
                       <button
                         onClick={() => setDeleteConfirmId(analysis.id)}
                         disabled={deletingId === analysis.id}
-                        className="rounded-lg border border-red-300 bg-white p-2 text-red-600 hover:bg-red-50 disabled:opacity-50 transition-colors"
+                        className="rounded-lg border border-red-300 bg-white p-2 text-red-600 hover:bg-red-50 disabled:opacity-50 transition-colors dark:bg-black dark:border-red-700/40 dark:hover:bg-red-900/20"
                         title="Delete"
                       >
                         {deletingId === analysis.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}

@@ -62,41 +62,41 @@ export default function Onboarding() {
 
   if (!profileReady || authLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-black">
         <div className="text-center">
           <div className="mb-4 inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary-600 border-r-transparent"></div>
-          <p className="text-gray-600">Setting up your account...</p>
+          <p className="text-gray-600 dark:text-gray-400">Setting up your account...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12">
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-black px-4 py-12">
       <div className="w-full max-w-2xl">
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-gray-900">Welcome to Blue Drum AI</h1>
-          <p className="mt-2 text-gray-600">Let's set up your profile to get started</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Welcome to Blue Drum AI</h1>
+          <p className="mt-2 text-gray-600 dark:text-gray-400">Let's set up your profile to get started</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6 rounded-2xl border border-gray-200 bg-white p-8 shadow-lg">
+        <form onSubmit={handleSubmit} className="space-y-6 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-black p-8 shadow-lg">
           {/* Gender Selection */}
           <div>
-            <label className="mb-3 block text-sm font-semibold text-gray-900">Which module applies to you?</label>
+            <label className="mb-3 block text-sm font-semibold text-gray-900 dark:text-white">Which module applies to you?</label>
             <div className="grid gap-3 sm:grid-cols-3">
               <button
                 type="button"
                 onClick={() => setGender('male')}
                 className={`flex items-start gap-3 rounded-xl border-2 p-4 text-left transition-colors ${
                   gender === 'male'
-                    ? 'border-primary-500 bg-primary-50'
-                    : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                    ? 'border-primary-500 bg-primary-50 dark:bg-primary-950'
+                    : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 hover:bg-gray-50 dark:hover:bg-gray-900'
                 }`}
               >
                 <Shield className="mt-0.5 h-5 w-5 shrink-0 text-blue-600" />
                 <div>
-                  <div className="font-semibold text-gray-900">Men's Module</div>
-                  <div className="mt-1 text-xs text-gray-600">Alimony, false cases</div>
+                  <div className="font-semibold text-gray-900 dark:text-white">Men's Module</div>
+                  <div className="mt-1 text-xs text-gray-600 dark:text-gray-400">Alimony, false cases</div>
                 </div>
               </button>
 
@@ -105,14 +105,14 @@ export default function Onboarding() {
                 onClick={() => setGender('female')}
                 className={`flex items-start gap-3 rounded-xl border-2 p-4 text-left transition-colors ${
                   gender === 'female'
-                    ? 'border-primary-500 bg-primary-50'
-                    : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                    ? 'border-primary-500 bg-primary-50 dark:bg-primary-950'
+                    : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 hover:bg-gray-50 dark:hover:bg-gray-900'
                 }`}
               >
                 <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-purple-600" />
                 <div>
-                  <div className="font-semibold text-gray-900">Women's Module</div>
-                  <div className="mt-1 text-xs text-gray-600">Dowry, DV protection</div>
+                  <div className="font-semibold text-gray-900 dark:text-white">Women's Module</div>
+                  <div className="mt-1 text-xs text-gray-600 dark:text-gray-400">Dowry, DV protection</div>
                 </div>
               </button>
 
@@ -121,14 +121,14 @@ export default function Onboarding() {
                 onClick={() => setGender('both')}
                 className={`flex items-start gap-3 rounded-xl border-2 p-4 text-left transition-colors ${
                   gender === 'both'
-                    ? 'border-primary-500 bg-primary-50'
-                    : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                    ? 'border-primary-500 bg-primary-50 dark:bg-primary-950'
+                    : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 hover:bg-gray-50 dark:hover:bg-gray-900'
                 }`}
               >
                 <Shield className="mt-0.5 h-5 w-5 shrink-0 text-primary-600" />
                 <div>
-                  <div className="font-semibold text-gray-900">Both Modules</div>
-                  <div className="mt-1 text-xs text-gray-600">Full access</div>
+                  <div className="font-semibold text-gray-900 dark:text-white">Both Modules</div>
+                  <div className="mt-1 text-xs text-gray-600 dark:text-gray-400">Full access</div>
                 </div>
               </button>
             </div>
@@ -136,7 +136,7 @@ export default function Onboarding() {
 
           {/* Relationship Status */}
           <div>
-            <label htmlFor="relationship" className="mb-3 block text-sm font-semibold text-gray-900">
+            <label htmlFor="relationship" className="mb-3 block text-sm font-semibold text-gray-900 dark:text-white">
               What is your relationship status?
             </label>
             <select
@@ -156,7 +156,7 @@ export default function Onboarding() {
             </select>
           </div>
 
-          {error && <div className="rounded-lg bg-red-50 p-3 text-sm text-red-600">{error}</div>}
+          {error && <div className="rounded-lg bg-red-50 dark:bg-black border border-transparent dark:border-red-700/40 p-3 text-sm text-red-600 dark:text-red-300">{error}</div>}
 
           <button
             type="submit"

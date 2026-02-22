@@ -330,7 +330,7 @@ export default function ExpenseTracker() {
         <div className="flex min-h-[400px] items-center justify-center">
           <div className="text-center">
             <Loader2 className="mb-4 inline-block h-8 w-8 animate-spin text-primary-600" />
-            <p className="text-gray-600">Loading income history...</p>
+            <p className="text-gray-600 dark:text-gray-400">Loading income history...</p>
           </div>
         </div>
       </DashboardLayout>
@@ -346,7 +346,7 @@ export default function ExpenseTracker() {
             {filteredEntries.length > 0 && (
               <button
                 onClick={handleExportCSV}
-                className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 transition-colors min-h-[44px] touch-manipulation"
+                className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-black px-3 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-300 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors min-h-[44px] touch-manipulation"
               >
                 <Download className="h-4 w-4 shrink-0" />
                 <span className="hidden sm:inline">Export CSV</span>
@@ -366,26 +366,26 @@ export default function ExpenseTracker() {
         <div className="mb-4 sm:mb-6 grid grid-cols-2 gap-3 sm:gap-4">
           <button
             onClick={() => navigate('/dashboard/income-tracker/annual')}
-            className="group flex items-center gap-3 rounded-xl border border-blue-200 bg-gradient-to-br from-blue-50 to-white p-3 sm:p-4 shadow-sm hover:shadow-md hover:border-blue-300 transition-all text-left touch-manipulation"
+            className="group flex items-center gap-3 rounded-xl border border-blue-200 dark:border-blue-700/30 bg-gradient-to-br from-blue-50 to-white dark:from-black dark:to-black p-3 sm:p-4 shadow-sm hover:shadow-md hover:border-blue-300 transition-all text-left touch-manipulation"
           >
-            <div className="flex h-10 w-10 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-600 group-hover:bg-blue-200 transition-colors">
+            <div className="flex h-10 w-10 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-600 group-hover:bg-blue-200 transition-colors">
               <CalendarIcon className="h-5 w-5" />
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-gray-900 group-hover:text-blue-700 transition-colors">Annual Summary</p>
-              <p className="text-xs text-gray-500 mt-0.5 hidden sm:block">Yearly income overview</p>
+              <p className="text-sm font-semibold text-gray-900 dark:text-white group-hover:text-blue-700 transition-colors">Annual Summary</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 hidden sm:block">Yearly income overview</p>
             </div>
           </button>
           <button
             onClick={() => navigate('/dashboard/income-tracker/affidavit')}
-            className="group flex items-center gap-3 rounded-xl border border-purple-200 bg-gradient-to-br from-purple-50 to-white p-3 sm:p-4 shadow-sm hover:shadow-md hover:border-purple-300 transition-all text-left touch-manipulation"
+            className="group flex items-center gap-3 rounded-xl border border-purple-200 dark:border-purple-700/30 bg-gradient-to-br from-purple-50 to-white dark:from-black dark:to-black p-3 sm:p-4 shadow-sm hover:shadow-md hover:border-purple-300 transition-all text-left touch-manipulation"
           >
-            <div className="flex h-10 w-10 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-lg bg-purple-100 text-purple-600 group-hover:bg-purple-200 transition-colors">
+            <div className="flex h-10 w-10 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-lg bg-purple-100 dark:bg-purple-900/30 text-purple-600 group-hover:bg-purple-200 transition-colors">
               <FileText className="h-5 w-5" />
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-gray-900 group-hover:text-purple-700 transition-colors">Generate Affidavit</p>
-              <p className="text-xs text-gray-500 mt-0.5 hidden sm:block">Legal income declaration</p>
+              <p className="text-sm font-semibold text-gray-900 dark:text-white group-hover:text-purple-700 transition-colors">Generate Affidavit</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 hidden sm:block">Legal income declaration</p>
             </div>
           </button>
         </div>
@@ -401,12 +401,12 @@ export default function ExpenseTracker() {
                 placeholder="Search by month or notes..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 bg-white pl-9 sm:pl-10 pr-10 py-2.5 sm:py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none min-h-[44px] sm:min-h-0"
+                className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-black pl-9 sm:pl-10 pr-10 py-2.5 sm:py-2 text-sm dark:text-gray-100 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none min-h-[44px] sm:min-h-0"
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -418,8 +418,8 @@ export default function ExpenseTracker() {
               onClick={() => setShowFilters(!showFilters)}
               className={`inline-flex items-center justify-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-semibold transition-colors min-h-[44px] touch-manipulation ${
                 filterPeriod !== 'all' || showFilters
-                  ? 'border-primary-500 bg-primary-50 text-primary-700'
-                  : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                  ? 'border-primary-500 bg-primary-50 dark:bg-black text-primary-700'
+                  : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-black text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-900'
               }`}
             >
               <Filter className="h-4 w-4" />
@@ -429,9 +429,9 @@ export default function ExpenseTracker() {
 
           {/* Filter Options */}
           {showFilters && (
-            <div className="rounded-lg border border-gray-200 bg-white p-3 sm:p-4 animate-in slide-in-from-top-2">
+            <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-black p-3 sm:p-4 animate-in slide-in-from-top-2">
               <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                <span className="text-sm font-semibold text-gray-700">Period:</span>
+                <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Period:</span>
                 {(['all', '3months', '6months', '12months'] as FilterPeriod[]).map((period) => (
                   <button
                     key={period}
@@ -441,8 +441,8 @@ export default function ExpenseTracker() {
                     }}
                     className={`rounded-lg border px-3 py-2 sm:py-1.5 text-xs font-semibold transition-colors min-h-[40px] sm:min-h-0 touch-manipulation ${
                       filterPeriod === period
-                        ? 'border-primary-500 bg-primary-50 text-primary-700'
-                        : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                        ? 'border-primary-500 bg-primary-50 dark:bg-black text-primary-700'
+                        : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-black text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-900'
                     }`}
                   >
                     {period === 'all'
@@ -456,14 +456,14 @@ export default function ExpenseTracker() {
                 ))}
                 {availableYears.length > 0 && (
                   <>
-                    <span className="text-sm font-semibold text-gray-700">Year:</span>
+                    <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Year:</span>
                     <select
                       value={selectedYear}
                       onChange={(e) => {
                         setSelectedYear(Number(e.target.value))
                         setFilterPeriod('year')
                       }}
-                      className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold focus:border-primary-500 focus:outline-none"
+                      className="rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-black px-3 py-1.5 text-xs font-semibold dark:text-gray-100 focus:border-primary-500 focus:outline-none"
                     >
                       {availableYears.map((year) => (
                         <option key={year} value={year}>
@@ -478,8 +478,8 @@ export default function ExpenseTracker() {
                       }}
                       className={`rounded-lg border px-3 py-2 sm:py-1.5 text-xs font-semibold transition-colors min-h-[40px] sm:min-h-0 touch-manipulation ${
                         filterPeriod === 'year'
-                          ? 'border-primary-500 bg-primary-50 text-primary-700'
-                          : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                          ? 'border-primary-500 bg-primary-50 dark:bg-black text-primary-700'
+                          : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-black text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-900'
                       }`}
                     >
                       <span className="hidden sm:inline">Apply Year Filter</span>
@@ -494,38 +494,38 @@ export default function ExpenseTracker() {
 
         {/* Insights Panel */}
         {insights && filteredEntries.length > 0 && (
-          <div className="mb-4 sm:mb-6 rounded-lg border border-gray-200/20 bg-white/50 p-4 sm:p-6 shadow-sm">
+          <div className="mb-4 sm:mb-6 rounded-lg border border-gray-200/20 dark:border-gray-700 bg-white/50 dark:bg-black p-4 sm:p-6 shadow-sm">
             <button
               onClick={() => setShowInsights(!showInsights)}
               className="flex w-full items-center justify-between py-1 min-h-[44px] touch-manipulation"
             >
               <div className="flex items-center gap-2">
                 <BarChart3 className="h-5 w-5 text-primary-600 shrink-0" />
-                <h3 className="text-base font-semibold text-gray-900">Financial Insights</h3>
+                <h3 className="text-base font-semibold text-gray-900 dark:text-white">Financial Insights</h3>
               </div>
               {showInsights ? <ChevronUp className="h-5 w-5 text-gray-400 shrink-0" /> : <ChevronDown className="h-5 w-5 text-gray-400 shrink-0" />}
             </button>
             {showInsights && (
               <div className="mt-4 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4 animate-in slide-in-from-top-2">
-                <div className="rounded-lg border border-primary-200 bg-primary-50/50 p-3 sm:p-4">
+                <div className="rounded-lg border border-primary-200 dark:border-primary-700/30 bg-primary-50/50 dark:bg-black p-3 sm:p-4">
                   <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-wide text-primary-600">Avg Disposable</p>
                   <p className="mt-1 text-lg sm:text-2xl font-bold text-primary-700 truncate">{formatCurrency(insights.avgDisposable)}</p>
                 </div>
-                <div className="rounded-lg border border-blue-200 bg-blue-50/50 p-3 sm:p-4">
+                <div className="rounded-lg border border-blue-200 dark:border-blue-700/30 bg-blue-50/50 dark:bg-black p-3 sm:p-4">
                   <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-wide text-blue-600">Avg Gross</p>
                   <p className="mt-1 text-lg sm:text-2xl font-bold text-blue-700 truncate">{formatCurrency(insights.avgGross)}</p>
                 </div>
-                <div className="rounded-lg border border-gray-200 bg-gray-50/50 p-3 sm:p-4">
-                  <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-wide text-gray-600">Entries</p>
-                  <p className="mt-1 text-lg sm:text-2xl font-bold text-gray-900">{insights.totalEntries}</p>
+                <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-black p-3 sm:p-4">
+                  <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-400">Entries</p>
+                  <p className="mt-1 text-lg sm:text-2xl font-bold text-gray-900 dark:text-white">{insights.totalEntries}</p>
                 </div>
                 <div
                   className={`rounded-lg border p-3 sm:p-4 col-span-2 lg:col-span-1 ${
                     insights.trend === 'up'
-                      ? 'border-green-200 bg-green-50/50'
+                      ? 'border-green-200 dark:border-green-700/30 bg-green-50/50 dark:bg-black'
                       : insights.trend === 'down'
-                      ? 'border-red-200 bg-red-50/50'
-                      : 'border-gray-200 bg-gray-50/50'
+                      ? 'border-red-200 dark:border-red-700/30 bg-red-50/50 dark:bg-black'
+                      : 'border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-black'
                   }`}
                 >
                   <div className="flex items-center gap-2">
@@ -536,11 +536,11 @@ export default function ExpenseTracker() {
                     ) : (
                       <BarChart3 className="h-5 w-5 text-gray-600" />
                     )}
-                    <p className="text-xs font-semibold uppercase tracking-wide text-gray-600">Trend</p>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-400">Trend</p>
                   </div>
                   <p
                     className={`mt-1 text-lg sm:text-2xl font-bold ${
-                      insights.trend === 'up' ? 'text-green-700' : insights.trend === 'down' ? 'text-red-700' : 'text-gray-900'
+                      insights.trend === 'up' ? 'text-green-700' : insights.trend === 'down' ? 'text-red-700' : 'text-gray-900 dark:text-white'
                     }`}
                   >
                     {insights.trend === 'up' ? '↑' : insights.trend === 'down' ? '↓' : '→'} {insights.trendPercent.toFixed(1)}%
@@ -556,11 +556,11 @@ export default function ExpenseTracker() {
           <div className="mb-4 sm:mb-6 space-y-4 sm:space-y-6">
             <button
               onClick={() => setShowCharts(!showCharts)}
-              className="flex w-full items-center justify-between rounded-lg border border-gray-200/20 bg-white/50 p-3 sm:p-4 shadow-sm hover:bg-white/70 transition-colors min-h-[44px] touch-manipulation"
+              className="flex w-full items-center justify-between rounded-lg border border-gray-200/20 dark:border-gray-700 bg-white/50 dark:bg-black p-3 sm:p-4 shadow-sm hover:bg-white/70 dark:hover:bg-gray-900 transition-colors min-h-[44px] touch-manipulation"
             >
               <div className="flex items-center gap-2">
                 <LineChart className="h-5 w-5 text-primary-600 shrink-0" />
-                <h3 className="text-base font-semibold text-gray-900">Visual Analytics</h3>
+                <h3 className="text-base font-semibold text-gray-900 dark:text-white">Visual Analytics</h3>
               </div>
               {showCharts ? <ChevronUp className="h-5 w-5 text-gray-400 shrink-0" /> : <ChevronDown className="h-5 w-5 text-gray-400 shrink-0" />}
             </button>
@@ -569,8 +569,8 @@ export default function ExpenseTracker() {
               <div className="space-y-4 sm:space-y-6 animate-in slide-in-from-top-2 overflow-x-hidden">
                 {/* Income Trend Chart */}
                 {chartData.length > 0 && (
-                  <div className="rounded-lg border border-gray-200/20 bg-white/50 p-3 sm:p-6 shadow-sm overflow-x-auto">
-                    <h4 className="mb-3 sm:mb-4 text-sm font-semibold text-gray-900">Income Trend</h4>
+                  <div className="rounded-lg border border-gray-200/20 dark:border-gray-700 bg-white/50 dark:bg-black p-3 sm:p-6 shadow-sm overflow-x-auto">
+                    <h4 className="mb-3 sm:mb-4 text-sm font-semibold text-gray-900 dark:text-white">Income Trend</h4>
                     <div className="min-w-[280px]" style={{ width: '100%', height: 260 }}>
                     <ResponsiveContainer width="100%" height="100%">
                       <RechartsLineChart data={chartData}>
@@ -592,8 +592,8 @@ export default function ExpenseTracker() {
 
                 {/* Monthly Comparison Chart */}
                 {chartData.length > 0 && (
-                  <div className="rounded-lg border border-gray-200/20 bg-white/50 p-3 sm:p-6 shadow-sm overflow-x-auto">
-                    <h4 className="mb-3 sm:mb-4 text-sm font-semibold text-gray-900">Monthly Breakdown</h4>
+                  <div className="rounded-lg border border-gray-200/20 dark:border-gray-700 bg-white/50 dark:bg-black p-3 sm:p-6 shadow-sm overflow-x-auto">
+                    <h4 className="mb-3 sm:mb-4 text-sm font-semibold text-gray-900 dark:text-white">Monthly Breakdown</h4>
                     <div className="min-w-[280px]" style={{ width: '100%', height: 260 }}>
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={chartData}>
@@ -617,8 +617,8 @@ export default function ExpenseTracker() {
 
                 {/* Expense Category Breakdown */}
                 {expenseCategoryData.length > 0 && (
-                  <div className="rounded-lg border border-gray-200/20 bg-white/50 p-3 sm:p-6 shadow-sm overflow-x-auto">
-                    <h4 className="mb-3 sm:mb-4 text-sm font-semibold text-gray-900">Expense Categories</h4>
+                  <div className="rounded-lg border border-gray-200/20 dark:border-gray-700 bg-white/50 dark:bg-black p-3 sm:p-6 shadow-sm overflow-x-auto">
+                    <h4 className="mb-3 sm:mb-4 text-sm font-semibold text-gray-900 dark:text-white">Expense Categories</h4>
                     <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-2 min-w-[260px]">
                       <div className="h-[220px] sm:h-[250px] w-full min-w-[200px]">
                       <ResponsiveContainer width="100%" height="100%">
@@ -646,9 +646,9 @@ export default function ExpenseTracker() {
                           <div key={item.name} className="flex items-center justify-between gap-2 min-w-0">
                             <div className="flex items-center gap-2 min-w-0">
                               <div className="h-4 w-4 shrink-0 rounded" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
-                              <span className="text-sm text-gray-700 truncate">{item.name}</span>
+                              <span className="text-sm text-gray-700 dark:text-gray-300 truncate">{item.name}</span>
                             </div>
-                            <span className="text-sm font-semibold text-gray-900 shrink-0">{formatCurrency(item.value)}</span>
+                            <span className="text-sm font-semibold text-gray-900 dark:text-white shrink-0">{formatCurrency(item.value)}</span>
                           </div>
                         ))}
                       </div>
@@ -662,19 +662,19 @@ export default function ExpenseTracker() {
 
         {/* Error Message */}
         {error && (
-          <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-red-800">
+          <div className="mb-6 rounded-lg border border-red-200 dark:border-red-700/40 bg-red-50 dark:bg-black p-4 text-red-800 dark:text-red-300">
             {error}
           </div>
         )}
 
         {/* Empty State */}
         {filteredEntries.length === 0 && !loading && (
-          <div className="rounded-lg border border-gray-200/20 bg-white/50 p-6 sm:p-12 text-center shadow-sm">
+          <div className="rounded-lg border border-gray-200/20 dark:border-gray-700 bg-white/50 dark:bg-black p-6 sm:p-12 text-center shadow-sm">
             <TrendingUp className="mx-auto mb-4 h-16 w-16 text-gray-400" />
-            <h3 className="mb-2 text-lg font-semibold text-gray-900">
+            <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-white">
               {entries.length === 0 ? 'No income records yet' : 'No entries match your filters'}
             </h3>
-            <p className="mb-6 text-gray-600">
+            <p className="mb-6 text-gray-600 dark:text-gray-400">
               {entries.length === 0
                 ? 'Start tracking your income and expenses to see your financial history and insights.'
                 : 'Try adjusting your search or filter criteria.'}
@@ -693,7 +693,7 @@ export default function ExpenseTracker() {
                   setSearchQuery('')
                   setFilterPeriod('all')
                 }}
-                className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 min-h-[44px] touch-manipulation"
+                className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-black px-4 py-3 text-sm font-semibold text-gray-700 dark:text-gray-300 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-900 min-h-[44px] touch-manipulation"
               >
                 <X className="h-4 w-4" />
                 Clear Filters
@@ -713,7 +713,7 @@ export default function ExpenseTracker() {
               const isExpanded = expandedId === entry.id
 
               return (
-                <div key={entry.id} className="rounded-lg border border-gray-200/20 bg-white/50 hover:bg-white/70 transition-all duration-200 shadow-sm hover:shadow-md overflow-hidden">
+                <div key={entry.id} className="rounded-lg border border-gray-200/20 dark:border-gray-700 bg-white/50 dark:bg-black hover:bg-white/70 dark:hover:bg-gray-900 transition-all duration-200 shadow-sm hover:shadow-md overflow-hidden">
                   <div className="p-4 sm:p-6">
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                       <div className="flex-1 min-w-0">
@@ -723,10 +723,10 @@ export default function ExpenseTracker() {
                             <Calendar className="h-5 w-5 sm:h-6 sm:w-6" />
                           </div>
                           <div className="min-w-0">
-                            <h3 className="text-lg sm:text-xl font-bold text-gray-900 truncate">
+                            <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white truncate">
                               {monthDate ? format(monthDate, 'MMMM yyyy') : entry.month_year || 'Unknown'}
                             </h3>
-                            <p className="text-xs text-gray-500">
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
                               Updated {updatedAtDate ? format(updatedAtDate, 'MMM d, yyyy') : 'Unknown'}
                             </p>
                           </div>
@@ -735,15 +735,15 @@ export default function ExpenseTracker() {
                         {/* Income Breakdown - Compact View */}
                         <div className="grid grid-cols-2 gap-3 sm:gap-4 sm:grid-cols-4">
                           <div className="min-w-0">
-                            <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-wide text-gray-500">Gross</p>
-                            <p className="mt-0.5 text-base sm:text-xl font-bold text-gray-900 truncate">{formatCurrency(entry.gross_income)}</p>
+                            <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Gross</p>
+                            <p className="mt-0.5 text-base sm:text-xl font-bold text-gray-900 dark:text-white truncate">{formatCurrency(entry.gross_income)}</p>
                           </div>
                           <div className="min-w-0">
-                            <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-wide text-gray-500">Deductions</p>
+                            <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Deductions</p>
                             <p className="mt-0.5 text-base sm:text-xl font-bold text-red-600 truncate">-{formatCurrency(totalDeductions)}</p>
                           </div>
                           <div className="min-w-0">
-                            <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-wide text-gray-500">Expenses</p>
+                            <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Expenses</p>
                             <p className="mt-0.5 text-base sm:text-xl font-bold text-orange-600 truncate">-{formatCurrency(totalExpenses)}</p>
                           </div>
                           <div className="min-w-0">
@@ -757,26 +757,26 @@ export default function ExpenseTracker() {
                           <div className="mt-4 sm:mt-6 space-y-4 animate-in slide-in-from-top-2">
                             {/* Deductions Breakdown */}
                             {totalDeductions > 0 && (
-                              <div className="rounded-lg border border-red-100 bg-red-50/30 p-3 sm:p-4">
+                              <div className="rounded-lg border border-red-100 dark:border-red-700/30 bg-red-50/30 dark:bg-black p-3 sm:p-4">
                                 <p className="mb-2 sm:mb-3 text-xs font-semibold uppercase tracking-wide text-red-600">Deductions Breakdown</p>
                                 <div className="flex flex-wrap gap-2">
                                   {entry.deductions.income_tax && (
-                                    <span className="rounded-lg bg-white px-3 py-1.5 text-xs font-medium text-red-700 shadow-sm">
+                                    <span className="rounded-lg bg-white dark:bg-gray-900 px-3 py-1.5 text-xs font-medium text-red-700 shadow-sm">
                                       Income Tax: {formatCurrency(entry.deductions.income_tax)}
                                     </span>
                                   )}
                                   {entry.deductions.pf && (
-                                    <span className="rounded-lg bg-white px-3 py-1.5 text-xs font-medium text-red-700 shadow-sm">
+                                    <span className="rounded-lg bg-white dark:bg-gray-900 px-3 py-1.5 text-xs font-medium text-red-700 shadow-sm">
                                       PF: {formatCurrency(entry.deductions.pf)}
                                     </span>
                                   )}
                                   {entry.deductions.professional_tax && (
-                                    <span className="rounded-lg bg-white px-3 py-1.5 text-xs font-medium text-red-700 shadow-sm">
+                                    <span className="rounded-lg bg-white dark:bg-gray-900 px-3 py-1.5 text-xs font-medium text-red-700 shadow-sm">
                                       Prof. Tax: {formatCurrency(entry.deductions.professional_tax)}
                                     </span>
                                   )}
                                   {entry.deductions.other && (
-                                    <span className="rounded-lg bg-white px-3 py-1.5 text-xs font-medium text-red-700 shadow-sm">
+                                    <span className="rounded-lg bg-white dark:bg-gray-900 px-3 py-1.5 text-xs font-medium text-red-700 shadow-sm">
                                       Other: {formatCurrency(entry.deductions.other)}
                                     </span>
                                   )}
@@ -786,36 +786,36 @@ export default function ExpenseTracker() {
 
                             {/* Expenses Breakdown */}
                             {totalExpenses > 0 && (
-                              <div className="rounded-lg border border-orange-100 bg-orange-50/30 p-3 sm:p-4">
+                              <div className="rounded-lg border border-orange-100 dark:border-orange-700/30 bg-orange-50/30 dark:bg-black p-3 sm:p-4">
                                 <p className="mb-2 sm:mb-3 text-xs font-semibold uppercase tracking-wide text-orange-600">Expenses Breakdown</p>
                                 <div className="flex flex-wrap gap-2">
                                   {entry.expenses.emi && (
-                                    <span className="rounded-lg bg-white px-3 py-1.5 text-xs font-medium text-orange-700 shadow-sm">
+                                    <span className="rounded-lg bg-white dark:bg-gray-900 px-3 py-1.5 text-xs font-medium text-orange-700 shadow-sm">
                                       EMI: {formatCurrency(entry.expenses.emi)}
                                     </span>
                                   )}
                                   {entry.expenses.medical && (
-                                    <span className="rounded-lg bg-white px-3 py-1.5 text-xs font-medium text-orange-700 shadow-sm">
+                                    <span className="rounded-lg bg-white dark:bg-gray-900 px-3 py-1.5 text-xs font-medium text-orange-700 shadow-sm">
                                       Medical: {formatCurrency(entry.expenses.medical)}
                                     </span>
                                   )}
                                   {entry.expenses.parents && (
-                                    <span className="rounded-lg bg-white px-3 py-1.5 text-xs font-medium text-orange-700 shadow-sm">
+                                    <span className="rounded-lg bg-white dark:bg-gray-900 px-3 py-1.5 text-xs font-medium text-orange-700 shadow-sm">
                                       Parents: {formatCurrency(entry.expenses.parents)}
                                     </span>
                                   )}
                                   {entry.expenses.rent && (
-                                    <span className="rounded-lg bg-white px-3 py-1.5 text-xs font-medium text-orange-700 shadow-sm">
+                                    <span className="rounded-lg bg-white dark:bg-gray-900 px-3 py-1.5 text-xs font-medium text-orange-700 shadow-sm">
                                       Rent: {formatCurrency(entry.expenses.rent)}
                                     </span>
                                   )}
                                   {entry.expenses.utilities && (
-                                    <span className="rounded-lg bg-white px-3 py-1.5 text-xs font-medium text-orange-700 shadow-sm">
+                                    <span className="rounded-lg bg-white dark:bg-gray-900 px-3 py-1.5 text-xs font-medium text-orange-700 shadow-sm">
                                       Utilities: {formatCurrency(entry.expenses.utilities)}
                                     </span>
                                   )}
                                   {entry.expenses.other && (
-                                    <span className="rounded-lg bg-white px-3 py-1.5 text-xs font-medium text-orange-700 shadow-sm">
+                                    <span className="rounded-lg bg-white dark:bg-gray-900 px-3 py-1.5 text-xs font-medium text-orange-700 shadow-sm">
                                       Other: {formatCurrency(entry.expenses.other)}
                                     </span>
                                   )}
@@ -825,9 +825,9 @@ export default function ExpenseTracker() {
 
                             {/* Notes */}
                             {entry.notes && (
-                              <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 sm:p-4">
-                                <p className="mb-1 text-xs font-semibold text-gray-700">Notes</p>
-                                <p className="text-sm text-gray-600 whitespace-pre-wrap">{entry.notes}</p>
+                              <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-black p-3 sm:p-4">
+                                <p className="mb-1 text-xs font-semibold text-gray-700 dark:text-gray-300">Notes</p>
+                                <p className="text-sm text-gray-600 dark:text-gray-400 whitespace-pre-wrap">{entry.notes}</p>
                               </div>
                             )}
                           </div>
@@ -838,14 +838,14 @@ export default function ExpenseTracker() {
                       <div className="flex flex-row sm:flex-col gap-2 shrink-0 sm:ml-4">
                         <button
                           onClick={() => setExpandedId(isExpanded ? null : entry.id)}
-                          className="flex-1 sm:flex-none rounded-lg border border-gray-300 bg-white p-2.5 text-gray-600 hover:bg-gray-50 transition-colors min-h-[44px] touch-manipulation flex items-center justify-center"
+                          className="flex-1 sm:flex-none rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-black p-2.5 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors min-h-[44px] touch-manipulation flex items-center justify-center"
                           title={isExpanded ? 'Collapse' : 'Expand'}
                         >
                           {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                         </button>
                         <button
                           onClick={() => navigate(`/dashboard/income-tracker/edit/${entry.id}`)}
-                          className="flex-1 sm:flex-none rounded-lg border border-gray-300 bg-white p-2.5 text-gray-600 hover:bg-gray-50 transition-colors min-h-[44px] touch-manipulation flex items-center justify-center"
+                          className="flex-1 sm:flex-none rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-black p-2.5 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors min-h-[44px] touch-manipulation flex items-center justify-center"
                           title="Edit"
                         >
                           <Edit2 className="h-4 w-4" />
@@ -853,7 +853,7 @@ export default function ExpenseTracker() {
                         <button
                           onClick={() => setDeleteConfirmId(entry.id)}
                           disabled={deletingId === entry.id}
-                          className="flex-1 sm:flex-none rounded-lg border border-red-300 bg-white p-2.5 text-red-600 hover:bg-red-50 disabled:opacity-50 transition-colors min-h-[44px] touch-manipulation flex items-center justify-center"
+                          className="flex-1 sm:flex-none rounded-lg border border-red-300 dark:border-red-700 bg-white dark:bg-black p-2.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 disabled:opacity-50 transition-colors min-h-[44px] touch-manipulation flex items-center justify-center"
                           title="Delete"
                         >
                           {deletingId === entry.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}

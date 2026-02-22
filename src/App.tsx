@@ -41,10 +41,10 @@ const SubscriptionPage = lazy(() => import('./pages/dashboard/subscription/Subsc
 
 function PageLoader() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 via-yellow-50/30 to-white">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 via-yellow-50/30 to-white dark:from-black dark:via-black dark:to-black">
       <div className="text-center">
         <div className="mb-4 inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary-600 border-r-transparent" />
-        <p className="text-gray-500 text-sm">Loading...</p>
+        <p className="text-gray-500 dark:text-gray-400 text-sm">Loading...</p>
       </div>
     </div>
   )
@@ -54,7 +54,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading, profileReady } = useAuth()
   const location = useLocation()
 
-  if (loading) {
+  if (loading || (user && !profileReady)) {
     return <PageLoader />
   }
 
@@ -63,7 +63,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   }
 
   const isOnboardingPage = location.pathname === '/onboarding'
-  if (profileReady && !user.onboarding_completed && !isOnboardingPage) {
+  if (!user.onboarding_completed && !isOnboardingPage) {
     return <Navigate to="/onboarding" replace />
   }
 
@@ -72,18 +72,18 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 function MaleRoute({ children }: { children: React.ReactNode }) {
   const { user, loading, profileReady } = useAuth()
-  if (loading) return <PageLoader />
+  if (loading || (user && !profileReady)) return <PageLoader />
   if (!user) return <Navigate to="/" replace />
-  if (profileReady && !user.onboarding_completed) return <Navigate to="/onboarding" replace />
+  if (!user.onboarding_completed) return <Navigate to="/onboarding" replace />
   if (user.gender === 'female') return <Navigate to="/dashboard" replace />
   return <>{children}</>
 }
 
 function FemaleRoute({ children }: { children: React.ReactNode }) {
   const { user, loading, profileReady } = useAuth()
-  if (loading) return <PageLoader />
+  if (loading || (user && !profileReady)) return <PageLoader />
   if (!user) return <Navigate to="/" replace />
-  if (profileReady && !user.onboarding_completed) return <Navigate to="/onboarding" replace />
+  if (!user.onboarding_completed) return <Navigate to="/onboarding" replace />
   if (user.gender === 'male') return <Navigate to="/dashboard" replace />
   return <>{children}</>
 }

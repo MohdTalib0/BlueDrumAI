@@ -90,12 +90,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else {
         const { access_token, user: sessionUser } = data.session
         setSessionToken(access_token ?? null)
-        setUser({ id: sessionUser.id, email: sessionUser.email, gender: null })
+        if (!profileFetchedRef.current) {
+          setUser({ id: sessionUser.id, email: sessionUser.email, gender: null })
+        }
         setLoading(false)
-        // Enrich with full profile (gender, name) in the background
-        fetchProfile(access_token, sessionUser.id, sessionUser.email).then(() => {
-          profileFetchedRef.current = true
-        })
+        if (!profileFetchedRef.current) {
+          fetchProfile(access_token, sessionUser.id, sessionUser.email).then(() => {
+            profileFetchedRef.current = true
+          })
+        }
       }
     }
 

@@ -59,25 +59,25 @@ function UsageCard({
     : accentClass
 
   return (
-    <div className="group relative rounded-2xl border border-gray-100 bg-white p-3.5 sm:p-5 shadow-sm hover:shadow-md transition-shadow">
+    <div className="group relative rounded-2xl border border-gray-100 bg-white p-3.5 sm:p-5 shadow-sm hover:shadow-md transition-shadow dark:bg-black dark:border-gray-700">
       <div className="flex items-start justify-between mb-3 sm:mb-4">
         <div className={`flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl ${accentClass.replace('bg-', 'bg-').replace('-500', '-100')}`}>
           <Icon className={`h-4 w-4 ${accentClass.replace('bg-', 'text-')}`} />
         </div>
         <span className={`text-[11px] sm:text-xs font-semibold px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full ${
           unlimited
-            ? 'bg-emerald-50 text-emerald-700'
+            ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
             : isOver
-            ? 'bg-red-50 text-red-700'
+            ? 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300'
             : isNear
-            ? 'bg-amber-50 text-amber-700'
-            : 'bg-gray-50 text-gray-600'
+            ? 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300'
+            : 'bg-gray-50 text-gray-600 dark:bg-gray-800 dark:text-gray-300'
         }`}>
           {unlimited ? '∞' : isOver ? 'Limit' : `${used}/${limit}`}
         </span>
       </div>
-      <p className="text-xs sm:text-sm font-semibold text-gray-800 mb-2 sm:mb-3">{label}</p>
-      <div className="h-1.5 w-full rounded-full bg-gray-100 overflow-hidden">
+      <p className="text-xs sm:text-sm font-semibold text-gray-800 mb-2 sm:mb-3 dark:text-white">{label}</p>
+      <div className="h-1.5 w-full rounded-full bg-gray-100 overflow-hidden dark:bg-gray-800">
         <div
           className={`h-full rounded-full transition-all duration-700 ${barClass}`}
           style={{ width: `${unlimited ? 100 : pct}%`, opacity: unlimited ? 0.5 : 1 }}
@@ -301,15 +301,15 @@ export default function SubscriptionPage() {
           </div>
         ) : (
           /* ── Free plan hero ── */
-          <div className="rounded-3xl border-2 border-dashed border-gray-200 bg-white overflow-hidden">
+          <div className="rounded-3xl border-2 border-dashed border-gray-200 bg-white overflow-hidden dark:bg-black dark:border-gray-700">
             <div className="px-7 py-8 flex flex-col sm:flex-row sm:items-center gap-6">
               <div className="flex items-center gap-4 flex-1">
-                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-gray-100">
+                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-gray-100 dark:bg-gray-800">
                   <Zap className="h-8 w-8 text-gray-500" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900">Free Plan</h2>
-                  <p className="text-gray-500 text-sm mt-0.5">Core features with monthly limits</p>
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Free Plan</h2>
+                  <p className="text-gray-500 text-sm mt-0.5 dark:text-gray-400">Core features with monthly limits</p>
                 </div>
               </div>
               <button
@@ -324,7 +324,7 @@ export default function SubscriptionPage() {
             </div>
 
             {/* feature grid */}
-            <div className="border-t border-gray-100 px-7 py-6 bg-gradient-to-br from-primary-50/40 to-indigo-50/40">
+            <div className="border-t border-gray-100 px-7 py-6 bg-gradient-to-br from-primary-50/40 to-indigo-50/40 dark:from-black dark:to-black dark:border-gray-700">
               <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-4">What you unlock at ₹199/month</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 {[
@@ -335,7 +335,7 @@ export default function SubscriptionPage() {
                   'Unlimited Red Flag sessions',
                   'Priority support',
                 ].map(f => (
-                  <div key={f} className="flex items-center gap-2.5 text-sm text-gray-700">
+                  <div key={f} className="flex items-center gap-2.5 text-sm text-gray-700 dark:text-gray-300">
                     <CheckCircle2 className="h-4 w-4 shrink-0 text-primary-500" />
                     {f}
                   </div>
@@ -347,32 +347,32 @@ export default function SubscriptionPage() {
 
         {/* ── Usage Overview ───────────────────────────────────────────── */}
         <div>
-          <h3 className="text-base font-semibold text-gray-900 mb-4">Usage This Month</h3>
+          <h3 className="text-base font-semibold text-gray-900 mb-4 dark:text-white">Usage This Month</h3>
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             {usageCards.map(card => (
               <UsageCard key={card.label} {...card} />
             ))}
 
             {/* Storage card */}
-            <div className="rounded-2xl border border-gray-100 bg-white p-3.5 sm:p-5 shadow-sm hover:shadow-md transition-shadow">
+            <div className="rounded-2xl border border-gray-100 bg-white p-3.5 sm:p-5 shadow-sm hover:shadow-md transition-shadow dark:bg-black dark:border-gray-700">
               <div className="flex items-start justify-between mb-3 sm:mb-4">
                 <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-indigo-100">
                   <HardDrive className="h-4 w-4 text-indigo-500" />
                 </div>
                 <span className={`text-[11px] sm:text-xs font-semibold px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full ${
                   u?.storage.limit_bytes === -1
-                    ? 'bg-emerald-50 text-emerald-700'
+                    ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
                     : storagePct >= 90
-                    ? 'bg-red-50 text-red-700'
-                    : 'bg-gray-50 text-gray-600'
+                    ? 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300'
+                    : 'bg-gray-50 text-gray-600 dark:bg-gray-800 dark:text-gray-300'
                 }`}>
                   {u?.storage.limit_bytes === -1
                     ? '∞'
                     : `${formatBytes(u?.storage.used_bytes ?? 0)} / ${formatBytes(u?.storage.limit_bytes ?? 0)}`}
                 </span>
               </div>
-              <p className="text-xs sm:text-sm font-semibold text-gray-800 mb-2 sm:mb-3">Storage</p>
-              <div className="h-1.5 w-full rounded-full bg-gray-100 overflow-hidden">
+              <p className="text-xs sm:text-sm font-semibold text-gray-800 mb-2 sm:mb-3 dark:text-white">Storage</p>
+              <div className="h-1.5 w-full rounded-full bg-gray-100 overflow-hidden dark:bg-gray-800">
                 <div
                   className={`h-full rounded-full transition-all duration-700 ${
                     u?.storage.limit_bytes === -1
@@ -389,21 +389,21 @@ export default function SubscriptionPage() {
         </div>
 
         {/* ── Plan Comparison ──────────────────────────────────────────── */}
-        <div className="rounded-2xl border border-gray-200 bg-white overflow-hidden">
-          <div className="grid grid-cols-3 px-6 py-4 bg-gray-50/60 border-b border-gray-100">
+        <div className="rounded-2xl border border-gray-200 bg-white overflow-hidden dark:bg-black dark:border-gray-700">
+          <div className="grid grid-cols-3 px-6 py-4 bg-gray-50/60 border-b border-gray-100 dark:bg-gray-900 dark:border-gray-700">
             <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">Feature</span>
             <span className="text-center text-xs font-semibold uppercase tracking-wider text-gray-400">Free</span>
-            <span className="text-center text-xs font-semibold uppercase tracking-wider text-primary-600">Premium</span>
+            <span className="text-center text-xs font-semibold uppercase tracking-wider text-primary-600 dark:text-primary-400">Premium</span>
           </div>
-          <div className="divide-y divide-gray-50">
+          <div className="divide-y divide-gray-50 dark:divide-gray-800">
             {FEATURES.map((row, i) => (
-              <div key={row.label} className={`grid grid-cols-3 px-6 py-3.5 text-sm ${i % 2 === 0 ? '' : 'bg-gray-50/30'}`}>
-                <div className="flex items-center gap-2 font-medium text-gray-700">
+              <div key={row.label} className={`grid grid-cols-3 px-6 py-3.5 text-sm ${i % 2 === 0 ? '' : 'bg-gray-50/30 dark:bg-gray-900/30'}`}>
+                <div className="flex items-center gap-2 font-medium text-gray-700 dark:text-gray-300">
                   <row.icon className="h-3.5 w-3.5 text-gray-400 shrink-0" />
                   {row.label}
                 </div>
                 <span className="text-center text-gray-400">{row.free}</span>
-                <span className="text-center font-semibold text-primary-600">
+                <span className="text-center font-semibold text-primary-600 dark:text-primary-400">
                   {row.label === 'Priority Support' ? (
                     <CheckCircle2 className="h-4 w-4 mx-auto text-primary-500" />
                   ) : row.label === 'Storage' ? '5 GB' : 'Unlimited'}
@@ -412,10 +412,10 @@ export default function SubscriptionPage() {
             ))}
           </div>
           {!isPremium && (
-            <div className="px-6 py-5 border-t border-gray-100 bg-gradient-to-r from-primary-50 to-indigo-50 flex flex-col sm:flex-row items-center gap-4">
+            <div className="px-6 py-5 border-t border-gray-100 bg-gradient-to-r from-primary-50 to-indigo-50 flex flex-col sm:flex-row items-center gap-4 dark:from-black dark:to-black dark:border-gray-700">
               <div className="flex-1">
-                <p className="font-semibold text-gray-900">Ready to unlock everything?</p>
-                <p className="text-sm text-gray-500 mt-0.5">Start your Premium plan today for ₹199/month.</p>
+                <p className="font-semibold text-gray-900 dark:text-white">Ready to unlock everything?</p>
+                <p className="text-sm text-gray-500 mt-0.5 dark:text-gray-400">Start your Premium plan today for ₹199/month.</p>
               </div>
               <button
                 onClick={handleUpgrade}
@@ -437,19 +437,19 @@ export default function SubscriptionPage() {
           style={{ background: 'rgba(15,23,42,0.5)', backdropFilter: 'blur(8px)' }}
           onClick={e => { if (e.target === e.currentTarget) setShowCancelConfirm(false) }}
         >
-          <div className="w-full max-w-md rounded-3xl bg-white shadow-2xl overflow-hidden">
+          <div className="w-full max-w-md rounded-3xl bg-white shadow-2xl overflow-hidden dark:bg-black dark:border dark:border-gray-700">
             {/* header */}
             <div className="flex items-start justify-between px-6 pt-6 pb-4">
               <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-red-100">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-red-100 dark:bg-red-900/30">
                   <AlertTriangle className="h-5 w-5 text-red-600" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-gray-900">Cancel Premium?</h3>
-                  <p className="text-xs text-gray-500 mt-0.5">You'll lose access when the period ends</p>
+                  <h3 className="font-bold text-gray-900 dark:text-white">Cancel Premium?</h3>
+                  <p className="text-xs text-gray-500 mt-0.5 dark:text-gray-400">You'll lose access when the period ends</p>
                 </div>
               </div>
-              <button onClick={() => setShowCancelConfirm(false)} className="text-gray-400 hover:text-gray-600 transition-colors">
+              <button onClick={() => setShowCancelConfirm(false)} className="text-gray-400 hover:text-gray-600 transition-colors dark:hover:text-gray-300">
                 <X className="h-5 w-5" />
               </button>
             </div>
@@ -461,8 +461,8 @@ export default function SubscriptionPage() {
                 'Monthly limits apply after downgrade',
                 'Your data and vault files are never deleted',
               ].map(item => (
-                <div key={item} className="flex items-start gap-2.5 text-sm text-gray-600">
-                  <div className="mt-0.5 h-4 w-4 shrink-0 rounded-full bg-gray-100 flex items-center justify-center">
+                <div key={item} className="flex items-start gap-2.5 text-sm text-gray-600 dark:text-gray-300">
+                  <div className="mt-0.5 h-4 w-4 shrink-0 rounded-full bg-gray-100 flex items-center justify-center dark:bg-gray-800">
                     <div className="h-1.5 w-1.5 rounded-full bg-gray-400" />
                   </div>
                   {item}
@@ -470,10 +470,10 @@ export default function SubscriptionPage() {
               ))}
             </div>
 
-            <div className="flex gap-3 px-6 py-5 border-t border-gray-100 bg-gray-50/50">
+            <div className="flex gap-3 px-6 py-5 border-t border-gray-100 bg-gray-50/50 dark:bg-gray-900/50 dark:border-gray-700">
               <button
                 onClick={() => setShowCancelConfirm(false)}
-                className="flex-1 rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-100 transition-colors"
+                className="flex-1 rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-100 transition-colors dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
               >
                 Keep Premium
               </button>

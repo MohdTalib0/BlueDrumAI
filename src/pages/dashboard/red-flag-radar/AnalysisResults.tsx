@@ -158,11 +158,11 @@ export default function AnalysisResults() {
   }
 
   const getRiskColor = (score: number) => {
-    if (score >= 80) return 'text-red-700 bg-red-50 border-red-200'
-    if (score >= 60) return 'text-orange-700 bg-orange-50 border-orange-200'
-    if (score >= 40) return 'text-yellow-700 bg-yellow-50 border-yellow-200'
-    if (score >= 20) return 'text-blue-700 bg-blue-50 border-blue-200'
-    return 'text-green-700 bg-green-50 border-green-200'
+    if (score >= 80) return 'text-red-700 bg-red-50 border-red-200 dark:bg-black dark:border-red-700/40 dark:text-red-300'
+    if (score >= 60) return 'text-orange-700 bg-orange-50 border-orange-200 dark:bg-black dark:border-orange-700/40 dark:text-orange-300'
+    if (score >= 40) return 'text-yellow-700 bg-yellow-50 border-yellow-200 dark:bg-black dark:border-yellow-700/40 dark:text-yellow-300'
+    if (score >= 20) return 'text-blue-700 bg-blue-50 border-blue-200 dark:bg-black dark:border-blue-700/40 dark:text-blue-300'
+    return 'text-green-700 bg-green-50 border-green-200 dark:bg-black dark:border-green-700/40 dark:text-green-300'
   }
 
   const getRiskLabel = (score: number) => {
@@ -189,13 +189,13 @@ export default function AnalysisResults() {
   const getSeverityColor = (severity: string) => {
     switch (severity) {
       case 'critical':
-        return 'border-red-300 bg-red-50'
+        return 'border-red-300 bg-red-50 dark:bg-black dark:border-primary-500/20'
       case 'high':
-        return 'border-orange-300 bg-orange-50'
+        return 'border-orange-300 bg-orange-50 dark:bg-black dark:border-primary-500/20'
       case 'medium':
-        return 'border-yellow-300 bg-yellow-50'
+        return 'border-yellow-300 bg-yellow-50 dark:bg-black dark:border-primary-500/20'
       default:
-        return 'border-blue-300 bg-blue-50'
+        return 'border-blue-300 bg-blue-50 dark:bg-black dark:border-primary-500/20'
     }
   }
 
@@ -205,7 +205,7 @@ export default function AnalysisResults() {
         <div className="flex min-h-[400px] items-center justify-center">
           <div className="text-center">
             <Loader2 className="mb-4 inline-block h-8 w-8 animate-spin text-primary-600" />
-            <p className="text-gray-600">Loading analysis results...</p>
+            <p className="text-gray-600 dark:text-gray-400">Loading analysis results...</p>
           </div>
         </div>
       </DashboardLayout>
@@ -215,10 +215,10 @@ export default function AnalysisResults() {
   if (error || !analysis) {
     return (
       <DashboardLayout title="Analysis Results" subtitle="Error loading analysis">
-        <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-center">
+        <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-center dark:bg-black dark:border-red-700/40">
           <AlertTriangle className="mx-auto mb-4 h-12 w-12 text-red-600" />
-          <h3 className="mb-2 text-lg font-semibold text-red-900">Failed to Load Analysis</h3>
-          <p className="mb-4 text-red-800">{error || 'Analysis not found'}</p>
+          <h3 className="mb-2 text-lg font-semibold text-red-900 dark:text-red-300">Failed to Load Analysis</h3>
+          <p className="mb-4 text-red-800 dark:text-red-300">{error || 'Analysis not found'}</p>
           <button
             onClick={() => navigate('/dashboard/red-flag-radar')}
             className="inline-flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-700"
@@ -240,7 +240,7 @@ export default function AnalysisResults() {
             <button
               onClick={handleExportPDF}
               disabled={exporting}
-              className="inline-flex items-center gap-1.5 sm:gap-2 rounded-lg border border-blue-300 bg-blue-50 px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-semibold text-blue-700 shadow-sm hover:bg-blue-100 disabled:opacity-50 transition-colors"
+              className="inline-flex items-center gap-1.5 sm:gap-2 rounded-lg border border-blue-300 bg-blue-50 px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-semibold text-blue-700 shadow-sm hover:bg-blue-100 disabled:opacity-50 transition-colors dark:bg-black dark:border-blue-700/40"
             >
               {exporting ? (
                 <>
@@ -256,7 +256,7 @@ export default function AnalysisResults() {
             </button>
             <button
               onClick={() => window.print()}
-              className="inline-flex items-center gap-1.5 sm:gap-2 rounded-lg border border-gray-300 bg-white px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 transition-colors"
+              className="inline-flex items-center gap-1.5 sm:gap-2 rounded-lg border border-gray-300 bg-white px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 transition-colors dark:bg-black dark:border-primary-500/20 dark:text-gray-300"
             >
               <Printer className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               Print
@@ -266,7 +266,7 @@ export default function AnalysisResults() {
                 href={analysis.chat_export_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 sm:gap-2 rounded-lg border border-gray-300 bg-white px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 transition-colors"
+                className="inline-flex items-center gap-1.5 sm:gap-2 rounded-lg border border-gray-300 bg-white px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 transition-colors dark:bg-black dark:border-primary-500/20 dark:text-gray-300"
               >
                 <Download className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                 Download Chat
@@ -275,7 +275,7 @@ export default function AnalysisResults() {
             <button
               onClick={() => setShowDeleteConfirm(true)}
               disabled={deleting}
-              className="inline-flex items-center gap-1.5 sm:gap-2 rounded-lg border border-red-300 bg-white px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-semibold text-red-700 shadow-sm hover:bg-red-50 disabled:opacity-50 transition-colors"
+              className="inline-flex items-center gap-1.5 sm:gap-2 rounded-lg border border-red-300 bg-white px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-semibold text-red-700 shadow-sm hover:bg-red-50 disabled:opacity-50 transition-colors dark:bg-black dark:border-red-700/40"
             >
               {deleting ? (
                 <>
@@ -315,13 +315,13 @@ export default function AnalysisResults() {
         </div>
 
         {/* Summary */}
-        <div className="mb-4 sm:mb-6 rounded-lg border border-gray-200/20 bg-white/50 p-4 sm:p-6 shadow-sm">
-          <h3 className="mb-3 flex items-center gap-2 text-sm sm:text-base font-semibold text-gray-900">
+        <div className="mb-4 sm:mb-6 rounded-lg border border-gray-200/20 bg-white/50 p-4 sm:p-6 shadow-sm dark:bg-black dark:border-primary-500/20">
+          <h3 className="mb-3 flex items-center gap-2 text-sm sm:text-base font-semibold text-gray-900 dark:text-white">
             <FileText className="h-4 w-4 sm:h-5 sm:w-5 shrink-0" />
             Analysis Summary
           </h3>
-          <p className="text-xs sm:text-sm leading-relaxed text-gray-700">{analysis.analysis_text}</p>
-          <div className="mt-3 sm:mt-4 flex items-center gap-2 text-xs text-gray-500">
+          <p className="text-xs sm:text-sm leading-relaxed text-gray-700 dark:text-gray-300">{analysis.analysis_text}</p>
+          <div className="mt-3 sm:mt-4 flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
             <Calendar className="h-3.5 w-3.5 shrink-0" />
             <span>Analyzed on {format(new Date(analysis.created_at), 'MMM d, yyyy h:mm a')}</span>
           </div>
@@ -329,13 +329,13 @@ export default function AnalysisResults() {
 
         {/* Red Flags */}
         {analysis.red_flags && analysis.red_flags.length > 0 && (
-          <div className="mb-4 sm:mb-6 rounded-lg border border-gray-200/20 bg-white/50 p-4 sm:p-6 shadow-sm">
+          <div className="mb-4 sm:mb-6 rounded-lg border border-gray-200/20 bg-white/50 p-4 sm:p-6 shadow-sm dark:bg-black dark:border-primary-500/20">
             <div className="mb-3 sm:mb-4 flex items-center justify-between gap-2">
-              <h3 className="flex items-center gap-2 text-sm sm:text-base font-semibold text-gray-900">
+              <h3 className="flex items-center gap-2 text-sm sm:text-base font-semibold text-gray-900 dark:text-white">
                 <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5 text-red-600 shrink-0" />
                 Red Flags ({analysis.red_flags.length})
               </h3>
-              <span className="text-[11px] sm:text-xs font-semibold text-gray-500 shrink-0">
+              <span className="text-[11px] sm:text-xs font-semibold text-gray-500 dark:text-gray-400 shrink-0">
                 {analysis.red_flags.filter((f) => f.severity === 'critical').length} Critical •{' '}
                 {analysis.red_flags.filter((f) => f.severity === 'high').length} High
               </span>
@@ -350,21 +350,21 @@ export default function AnalysisResults() {
                     <div className="shrink-0">{getSeverityIcon(flag.severity)}</div>
                     <div className="flex-1 min-w-0">
                       <div className="mb-1.5 sm:mb-2 flex flex-wrap items-center gap-1.5 sm:gap-2">
-                        <span className="rounded-lg bg-white px-2 py-0.5 sm:py-1 text-[10px] sm:text-xs font-semibold uppercase tracking-wide">
+                        <span className="rounded-lg bg-white px-2 py-0.5 sm:py-1 text-[10px] sm:text-xs font-semibold uppercase tracking-wide dark:bg-black">
                           {flag.severity}
                         </span>
-                        <span className="text-xs sm:text-sm font-semibold text-gray-900">{flag.type}</span>
+                        <span className="text-xs sm:text-sm font-semibold text-gray-900 dark:text-white">{flag.type}</span>
                       </div>
-                      <p className="mb-1.5 sm:mb-2 text-xs sm:text-sm font-medium text-gray-900">{flag.message}</p>
+                      <p className="mb-1.5 sm:mb-2 text-xs sm:text-sm font-medium text-gray-900 dark:text-white">{flag.message}</p>
                       {flag.context && (
-                        <div className="rounded-lg bg-white/80 p-2">
-                          <p className="text-xs text-gray-600">
+                        <div className="rounded-lg bg-white/80 p-2 dark:bg-black">
+                          <p className="text-xs text-gray-600 dark:text-gray-400">
                             <span className="font-semibold">Context:</span> {flag.context}
                           </p>
                         </div>
                       )}
                       {flag.keyword && (
-                        <p className="mt-1 text-xs text-gray-500">
+                        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                           Keyword: <span className="font-semibold">{flag.keyword}</span>
                         </p>
                       )}
@@ -378,8 +378,8 @@ export default function AnalysisResults() {
 
         {/* Keywords Detected */}
         {analysis.keywords_detected && analysis.keywords_detected.length > 0 && (
-          <div className="mb-4 sm:mb-6 rounded-lg border border-gray-200/20 bg-white/50 p-4 sm:p-6 shadow-sm">
-            <h3 className="mb-3 sm:mb-4 flex items-center gap-2 text-sm sm:text-base font-semibold text-gray-900">
+          <div className="mb-4 sm:mb-6 rounded-lg border border-gray-200/20 bg-white/50 p-4 sm:p-6 shadow-sm dark:bg-black dark:border-primary-500/20">
+            <h3 className="mb-3 sm:mb-4 flex items-center gap-2 text-sm sm:text-base font-semibold text-gray-900 dark:text-white">
               <MessageSquare className="h-4 w-4 sm:h-5 sm:w-5 shrink-0" />
               Keywords ({analysis.keywords_detected.length})
             </h3>
@@ -387,7 +387,7 @@ export default function AnalysisResults() {
               {analysis.keywords_detected.map((keyword, index) => (
                 <span
                   key={index}
-                  className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 shadow-sm"
+                  className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 shadow-sm dark:bg-black dark:border-primary-500/20 dark:text-gray-300"
                 >
                   {keyword}
                 </span>
@@ -398,20 +398,20 @@ export default function AnalysisResults() {
 
         {/* AI Recommendations */}
         {analysis.recommendations && analysis.recommendations.length > 0 && (
-          <div className="mb-4 sm:mb-6 rounded-lg border border-blue-200 bg-blue-50/50 p-4 sm:p-6 shadow-sm">
-            <h3 className="mb-3 sm:mb-4 flex items-center gap-2 text-sm sm:text-base font-semibold text-blue-900">
+          <div className="mb-4 sm:mb-6 rounded-lg border border-blue-200 bg-blue-50/50 p-4 sm:p-6 shadow-sm dark:bg-black dark:border-primary-500/20">
+            <h3 className="mb-3 sm:mb-4 flex items-center gap-2 text-sm sm:text-base font-semibold text-blue-900 dark:text-blue-300">
               <Info className="h-4 w-4 sm:h-5 sm:w-5 shrink-0" />
               AI Recommendations ({analysis.recommendations.length})
             </h3>
             <div className="space-y-3">
               {analysis.recommendations.map((recommendation, index) => (
-                <div key={index} className="flex items-start gap-3 rounded-lg bg-white/80 p-3">
+                <div key={index} className="flex items-start gap-3 rounded-lg bg-white/80 p-3 dark:bg-black">
                   <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-blue-600" />
-                  <p className="text-sm leading-relaxed text-blue-900">{recommendation}</p>
+                  <p className="text-sm leading-relaxed text-blue-900 dark:text-gray-200">{recommendation}</p>
                 </div>
               ))}
             </div>
-            <p className="mt-4 text-xs text-blue-700">
+            <p className="mt-4 text-xs text-blue-700 dark:text-blue-400">
               <strong>Note:</strong> This analysis is for informational purposes only and does not constitute legal advice. Please consult with a qualified legal professional for specific situations.
             </p>
           </div>
@@ -419,22 +419,22 @@ export default function AnalysisResults() {
 
         {/* Detected Patterns */}
         {analysis.patterns_detected && analysis.patterns_detected.length > 0 && (
-          <div className="mb-4 sm:mb-6 rounded-lg border border-purple-200 bg-purple-50/50 p-4 sm:p-6 shadow-sm">
-            <h3 className="mb-3 sm:mb-4 flex items-center gap-2 text-sm sm:text-base font-semibold text-purple-900">
+          <div className="mb-4 sm:mb-6 rounded-lg border border-purple-200 bg-purple-50/50 p-4 sm:p-6 shadow-sm dark:bg-black dark:border-primary-500/20">
+            <h3 className="mb-3 sm:mb-4 flex items-center gap-2 text-sm sm:text-base font-semibold text-purple-900 dark:text-purple-300">
               <MessageSquare className="h-4 w-4 sm:h-5 sm:w-5 shrink-0" />
               Behavioral Patterns ({analysis.patterns_detected.length})
             </h3>
             <div className="space-y-4">
               {analysis.patterns_detected.map((pattern, index) => (
-                <div key={index} className="rounded-lg border border-purple-200 bg-white/80 p-4">
-                  <h4 className="mb-2 text-sm font-semibold text-purple-900">{pattern.pattern}</h4>
-                  <p className="mb-3 text-sm text-purple-800">{pattern.description}</p>
+                <div key={index} className="rounded-lg border border-purple-200 bg-white/80 p-4 dark:bg-black dark:border-primary-500/10">
+                  <h4 className="mb-2 text-sm font-semibold text-purple-900 dark:text-gray-200">{pattern.pattern}</h4>
+                  <p className="mb-3 text-sm text-purple-800 dark:text-gray-300">{pattern.description}</p>
                   {pattern.examples && pattern.examples.length > 0 && (
-                    <div className="mt-3 border-t border-purple-200 pt-3">
-                      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-purple-700">Examples:</p>
+                    <div className="mt-3 border-t border-purple-200 pt-3 dark:border-primary-500/10">
+                      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-purple-700 dark:text-gray-400">Examples:</p>
                       <ul className="space-y-1">
                         {pattern.examples.map((example, exIndex) => (
-                          <li key={exIndex} className="text-xs text-purple-600">
+                          <li key={exIndex} className="text-xs text-purple-600 dark:text-gray-400">
                             • "{example}"
                           </li>
                         ))}
@@ -449,12 +449,12 @@ export default function AnalysisResults() {
 
         {/* Fallback Recommendations if AI didn't generate any */}
         {(!analysis.recommendations || analysis.recommendations.length === 0) && (
-          <div className="rounded-lg border border-blue-200 bg-blue-50/50 p-4 sm:p-6 shadow-sm">
-            <h3 className="mb-3 sm:mb-4 flex items-center gap-2 text-sm sm:text-base font-semibold text-blue-900">
+          <div className="rounded-lg border border-blue-200 bg-blue-50/50 p-4 sm:p-6 shadow-sm dark:bg-black dark:border-primary-500/20">
+            <h3 className="mb-3 sm:mb-4 flex items-center gap-2 text-sm sm:text-base font-semibold text-blue-900 dark:text-blue-300">
               <Info className="h-4 w-4 sm:h-5 sm:w-5 shrink-0" />
               General Recommendations
             </h3>
-            <div className="space-y-2 text-sm text-blue-800">
+            <div className="space-y-2 text-sm text-blue-800 dark:text-gray-200">
               {analysis.risk_score >= 80 && (
                 <>
                   <p>• <strong>CRITICAL:</strong> Consider seeking immediate legal advice and support</p>
@@ -485,7 +485,7 @@ export default function AnalysisResults() {
                   <p>• Keep records of important communications</p>
                 </>
               )}
-              <p className="mt-4 text-xs text-blue-700">
+              <p className="mt-4 text-xs text-blue-700 dark:text-blue-400">
                 <strong>Note:</strong> This analysis is for informational purposes only and does not constitute legal advice. Please consult with a qualified legal professional for specific situations.
               </p>
             </div>

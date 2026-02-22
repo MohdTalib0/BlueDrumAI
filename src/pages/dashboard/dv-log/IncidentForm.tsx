@@ -149,17 +149,17 @@ export default function IncidentForm() {
     >
       <div className="w-full max-w-3xl mx-auto">
         {success && (
-          <div className="mb-6 flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 p-4 text-green-800 shadow-sm">
+          <div className="mb-6 flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 p-4 text-green-800 shadow-sm dark:bg-black dark:border-green-700/40 dark:text-green-300">
             <CheckCircle2 className="h-5 w-5 shrink-0" />
             <div className="flex-1">
               <p className="font-semibold">{isEditMode ? 'Incident updated!' : 'Incident logged!'}</p>
-              <p className="text-sm text-green-700">Redirecting to timeline...</p>
+              <p className="text-sm text-green-700 dark:text-green-400">Redirecting to timeline...</p>
             </div>
           </div>
         )}
 
         {error && (
-          <div className="mb-6 flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 p-4 text-red-800 shadow-sm">
+          <div className="mb-6 flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 p-4 text-red-800 shadow-sm dark:bg-black dark:border-red-700/40 dark:text-red-300">
             <AlertCircle className="h-5 w-5 shrink-0" />
             <span>{error}</span>
           </div>
@@ -167,8 +167,8 @@ export default function IncidentForm() {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Incident Type */}
-          <div className="rounded-lg border border-gray-200/20 bg-white/50 hover:bg-white/70 transition-colors p-4 sm:p-6 shadow-sm">
-            <label className="mb-3 flex items-center gap-2 text-sm font-semibold text-gray-700">
+          <div className="rounded-lg border border-gray-200/20 bg-white/50 hover:bg-white/70 transition-colors p-4 sm:p-6 shadow-sm dark:bg-black dark:border-gray-700 dark:hover:bg-gray-900">
+            <label className="mb-3 flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
               <ShieldAlert className="h-4 w-4" />
               Type of Incident *
             </label>
@@ -180,12 +180,12 @@ export default function IncidentForm() {
                   onClick={() => setFormData((p) => ({ ...p, incident_type: t.value }))}
                   className={`rounded-lg border p-3 text-left transition-all ${
                     formData.incident_type === t.value
-                      ? 'border-red-500 bg-red-50 ring-1 ring-red-500'
-                      : 'border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50'
+                      ? 'border-red-500 bg-red-50 ring-1 ring-red-500 dark:bg-red-900/30 dark:border-red-500'
+                      : 'border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50 dark:bg-black dark:border-gray-600 dark:hover:bg-gray-900 dark:hover:border-gray-500'
                   }`}
                 >
-                  <p className={`text-sm font-medium ${formData.incident_type === t.value ? 'text-red-700' : 'text-gray-700'}`}>{t.label}</p>
-                  <p className="text-[11px] text-gray-500 mt-0.5">{t.desc}</p>
+                  <p className={`text-sm font-medium ${formData.incident_type === t.value ? 'text-red-700 dark:text-red-300' : 'text-gray-700 dark:text-gray-300'}`}>{t.label}</p>
+                  <p className="text-[11px] text-gray-500 mt-0.5 dark:text-gray-400">{t.desc}</p>
                 </button>
               ))}
             </div>
@@ -193,8 +193,8 @@ export default function IncidentForm() {
 
           {/* Date & Location */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="rounded-lg border border-gray-200/20 bg-white/50 hover:bg-white/70 transition-colors p-4 sm:p-6 shadow-sm">
-              <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-gray-700">
+            <div className="rounded-lg border border-gray-200/20 bg-white/50 hover:bg-white/70 transition-colors p-4 sm:p-6 shadow-sm dark:bg-black dark:border-gray-700 dark:hover:bg-gray-900">
+              <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
                 <Calendar className="h-4 w-4" />
                 Date & Time *
               </label>
@@ -202,13 +202,13 @@ export default function IncidentForm() {
                 type="datetime-local"
                 value={formData.incident_date}
                 onChange={(e) => setFormData((p) => ({ ...p, incident_date: e.target.value }))}
-                className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-red-500 focus:ring-2 focus:ring-red-500 focus:outline-none transition-colors"
+                className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-red-500 focus:ring-2 focus:ring-red-500 focus:outline-none transition-colors dark:bg-black dark:border-gray-600 dark:text-gray-100"
                 required
               />
             </div>
 
-            <div className="rounded-lg border border-gray-200/20 bg-white/50 hover:bg-white/70 transition-colors p-4 sm:p-6 shadow-sm">
-              <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-gray-700">
+            <div className="rounded-lg border border-gray-200/20 bg-white/50 hover:bg-white/70 transition-colors p-4 sm:p-6 shadow-sm dark:bg-black dark:border-gray-700 dark:hover:bg-gray-900">
+              <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
                 <MapPin className="h-4 w-4" />
                 Location
               </label>
@@ -216,15 +216,15 @@ export default function IncidentForm() {
                 type="text"
                 value={formData.location}
                 onChange={(e) => setFormData((p) => ({ ...p, location: e.target.value }))}
-                className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-red-500 focus:ring-2 focus:ring-red-500 focus:outline-none transition-colors"
+                className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-red-500 focus:ring-2 focus:ring-red-500 focus:outline-none transition-colors dark:bg-black dark:border-gray-600 dark:text-gray-100"
                 placeholder="e.g., Home, In-law's house"
               />
             </div>
           </div>
 
           {/* Description */}
-          <div className="rounded-lg border border-gray-200/20 bg-white/50 hover:bg-white/70 transition-colors p-4 sm:p-6 shadow-sm">
-            <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-gray-700">
+          <div className="rounded-lg border border-gray-200/20 bg-white/50 hover:bg-white/70 transition-colors p-4 sm:p-6 shadow-sm dark:bg-black dark:border-gray-700 dark:hover:bg-gray-900">
+            <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
               <FileText className="h-4 w-4" />
               What Happened *
             </label>
@@ -232,17 +232,17 @@ export default function IncidentForm() {
               value={formData.description}
               onChange={(e) => setFormData((p) => ({ ...p, description: e.target.value }))}
               rows={6}
-              className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-red-500 focus:ring-2 focus:ring-red-500 focus:outline-none transition-colors"
+              className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-red-500 focus:ring-2 focus:ring-red-500 focus:outline-none transition-colors dark:bg-black dark:border-gray-600 dark:text-gray-100"
               placeholder="Describe the incident in as much detail as possible — who was involved, what happened, any injuries, what was said..."
               required
             />
-            <p className="mt-1 text-xs text-gray-500">The more detail you provide, the stronger your documentation will be for legal proceedings.</p>
+            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">The more detail you provide, the stronger your documentation will be for legal proceedings.</p>
           </div>
 
           {/* Guidance Box */}
-          <div className="rounded-lg border border-amber-200 bg-amber-50/50 p-4">
-            <h4 className="text-sm font-semibold text-amber-900 mb-1">Documentation Tips</h4>
-            <ul className="text-xs text-amber-800 space-y-1">
+          <div className="rounded-lg border border-amber-200 bg-amber-50/50 p-4 dark:bg-black dark:border-yellow-700/40">
+            <h4 className="text-sm font-semibold text-amber-900 mb-1 dark:text-yellow-300">Documentation Tips</h4>
+            <ul className="text-xs text-amber-800 space-y-1 dark:text-yellow-300">
               <li>• Include exact time, sequence of events, and words spoken</li>
               <li>• Note any witnesses who were present</li>
               <li>• Describe any physical injuries in detail</li>
@@ -272,7 +272,7 @@ export default function IncidentForm() {
             <button
               type="button"
               onClick={() => navigate('/dashboard/dv-log/timeline')}
-              className="min-h-[44px] w-full sm:w-auto rounded-lg border border-gray-300 px-6 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+              className="min-h-[44px] w-full sm:w-auto rounded-lg border border-gray-300 px-6 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors dark:bg-black dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-900"
             >
               View Timeline
             </button>

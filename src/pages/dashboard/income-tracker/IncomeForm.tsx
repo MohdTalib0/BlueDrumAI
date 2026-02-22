@@ -219,7 +219,7 @@ export default function IncomeForm() {
         <div className="flex min-h-[400px] items-center justify-center">
           <div className="text-center">
             <Loader2 className="mb-4 inline-block h-8 w-8 animate-spin text-primary-600" />
-            <p className="text-gray-600">Loading entry...</p>
+            <p className="text-gray-600 dark:text-gray-400">Loading entry...</p>
           </div>
         </div>
       </DashboardLayout>
@@ -231,18 +231,18 @@ export default function IncomeForm() {
       <div className="w-full max-w-5xl mx-auto">
         {/* Success Message */}
         {success && (
-          <div className="mb-6 animate-in slide-in-from-top-5 flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 p-4 text-green-800 shadow-sm">
+          <div className="mb-6 animate-in slide-in-from-top-5 flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 p-4 text-green-800 shadow-sm dark:bg-black dark:border-green-700/40 dark:text-green-300">
             <CheckCircle2 className="h-5 w-5 shrink-0" />
             <div className="flex-1">
               <p className="font-semibold">Income data saved successfully!</p>
-              <p className="text-sm text-green-700">Redirecting to history...</p>
+              <p className="text-sm text-green-700 dark:text-green-300">Redirecting to history...</p>
             </div>
           </div>
         )}
 
         {/* Error Message */}
         {error && (
-          <div className="mb-6 animate-in slide-in-from-top-5 flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 p-4 text-red-800 shadow-sm">
+          <div className="mb-6 animate-in slide-in-from-top-5 flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 p-4 text-red-800 shadow-sm dark:bg-black dark:border-red-700/40 dark:text-red-300">
             <AlertCircle className="h-5 w-5 shrink-0" />
             <span>{error}</span>
           </div>
@@ -250,19 +250,19 @@ export default function IncomeForm() {
 
         {/* Quick Stats Bar */}
         <div className="mb-6 grid grid-cols-2 gap-3 sm:gap-4 sm:grid-cols-4">
-          <div className="rounded-lg border border-gray-200/20 bg-white/50 p-3 sm:p-4 shadow-sm">
-            <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Gross Income</p>
-            <p className="mt-1 text-lg sm:text-xl font-bold text-gray-900">{formatCurrency(formData.gross_income || 0)}</p>
+          <div className="rounded-lg border border-gray-200/20 bg-white/50 p-3 sm:p-4 shadow-sm dark:bg-black dark:border-gray-700">
+            <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Gross Income</p>
+            <p className="mt-1 text-lg sm:text-xl font-bold text-gray-900 dark:text-white">{formatCurrency(formData.gross_income || 0)}</p>
           </div>
-          <div className="rounded-lg border border-red-200/20 bg-red-50/50 p-3 sm:p-4 shadow-sm">
+          <div className="rounded-lg border border-red-200/20 bg-red-50/50 p-3 sm:p-4 shadow-sm dark:bg-black dark:border-red-700/30">
             <p className="text-xs font-semibold uppercase tracking-wide text-red-600">Deductions</p>
             <p className="mt-1 text-lg sm:text-xl font-bold text-red-700">-{formatCurrency(totalDeductions)}</p>
           </div>
-          <div className="rounded-lg border border-orange-200/20 bg-orange-50/50 p-3 sm:p-4 shadow-sm">
+          <div className="rounded-lg border border-orange-200/20 bg-orange-50/50 p-3 sm:p-4 shadow-sm dark:bg-black dark:border-orange-700/30">
             <p className="text-xs font-semibold uppercase tracking-wide text-orange-600">Expenses</p>
             <p className="mt-1 text-lg sm:text-xl font-bold text-orange-700">-{formatCurrency(totalExpenses)}</p>
           </div>
-          <div className="rounded-lg border border-primary-200 bg-primary-50/50 p-3 sm:p-4 shadow-sm">
+          <div className="rounded-lg border border-primary-200 bg-primary-50/50 p-3 sm:p-4 shadow-sm dark:bg-black dark:border-primary-500/30">
             <p className="text-xs font-semibold uppercase tracking-wide text-primary-600">Disposable</p>
             <p className="mt-1 text-lg sm:text-xl font-bold text-primary-700">{formatCurrency(disposableIncome)}</p>
           </div>
@@ -270,9 +270,9 @@ export default function IncomeForm() {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Month Selection & Copy */}
-          <div className="rounded-lg border border-gray-200/20 bg-white/50 hover:bg-white/70 transition-colors p-4 sm:p-6 shadow-sm">
+          <div className="rounded-lg border border-gray-200/20 bg-white/50 hover:bg-white/70 transition-colors p-4 sm:p-6 shadow-sm dark:bg-black dark:border-gray-700 dark:hover:bg-gray-900">
             <div className="flex items-center justify-between mb-4">
-              <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+              <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
                 <Calendar className="h-4 w-4" />
                 Month & Year
               </label>
@@ -281,7 +281,7 @@ export default function IncomeForm() {
                   <button
                     type="button"
                     onClick={() => setShowCopyMenu(!showCopyMenu)}
-                    className="inline-flex min-h-[36px] items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+                    className="inline-flex min-h-[36px] items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors dark:bg-black dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-900"
                   >
                     <Copy className="h-3.5 w-3.5" />
                     Copy from Previous
@@ -289,9 +289,9 @@ export default function IncomeForm() {
                   {showCopyMenu && (
                     <>
                       <div className="fixed inset-0 z-10" onClick={() => setShowCopyMenu(false)} />
-                      <div className="absolute right-0 top-full z-20 mt-2 w-64 rounded-lg border border-gray-200 bg-white shadow-lg">
+                      <div className="absolute right-0 top-full z-20 mt-2 w-64 rounded-lg border border-gray-200 bg-white shadow-lg dark:bg-black dark:border-gray-700">
                         <div className="p-2">
-                          <p className="px-2 py-1 text-xs font-semibold text-gray-500">Select Month:</p>
+                          <p className="px-2 py-1 text-xs font-semibold text-gray-500 dark:text-gray-400">Select Month:</p>
                           {previousMonths.slice(0, 6).map((entry) => {
                             const [year, month] = entry.month_year.split('-').map(Number)
                             const monthDate = new Date(year, month - 1, 1)
@@ -301,7 +301,7 @@ export default function IncomeForm() {
                                 type="button"
                                 onClick={() => handleCopyFromPrevious(entry.month_year)}
                                 disabled={loadingPrevious}
-                                className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
+                                className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors dark:text-gray-300 dark:hover:bg-gray-900"
                               >
                                 {monthDate.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })}
                               </button>
@@ -318,15 +318,15 @@ export default function IncomeForm() {
               type="month"
               value={formData.month_year}
               onChange={(e) => setFormData((prev) => ({ ...prev, month_year: e.target.value }))}
-              className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-colors"
+              className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-colors dark:bg-black dark:border-gray-600 dark:text-gray-100"
               required
               disabled={isEditMode}
             />
           </div>
 
           {/* Gross Income */}
-          <div className="rounded-lg border border-gray-200/20 bg-white/50 hover:bg-white/70 transition-colors p-4 sm:p-6 shadow-sm">
-            <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-gray-700">
+          <div className="rounded-lg border border-gray-200/20 bg-white/50 hover:bg-white/70 transition-colors p-4 sm:p-6 shadow-sm dark:bg-black dark:border-gray-700 dark:hover:bg-gray-900">
+            <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
               <DollarSign className="h-4 w-4" />
               Gross Income (₹)
             </label>
@@ -336,17 +336,17 @@ export default function IncomeForm() {
               min="0"
               value={formData.gross_income || ''}
               onChange={(e) => setFormData((prev) => ({ ...prev, gross_income: parseFloat(e.target.value) || 0 }))}
-              className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-colors"
+              className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-colors dark:bg-black dark:border-gray-600 dark:text-gray-100"
               placeholder="Enter gross monthly income"
               required
             />
-            <p className="mt-1 text-xs text-gray-500">Your total monthly income before deductions</p>
+            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Your total monthly income before deductions</p>
           </div>
 
           {/* Deductions */}
-          <div className="rounded-lg border border-gray-200/20 bg-white/50 hover:bg-white/70 transition-colors p-4 sm:p-6 shadow-sm">
+          <div className="rounded-lg border border-gray-200/20 bg-white/50 hover:bg-white/70 transition-colors p-4 sm:p-6 shadow-sm dark:bg-black dark:border-gray-700 dark:hover:bg-gray-900">
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="flex items-center gap-2 text-base font-semibold text-gray-900">
+              <h3 className="flex items-center gap-2 text-base font-semibold text-gray-900 dark:text-white">
                 <FileText className="h-4 w-4" />
                 Statutory Deductions
               </h3>
@@ -356,50 +356,50 @@ export default function IncomeForm() {
             </div>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
-                <label className="mb-1 block text-sm text-gray-600">Income Tax (₹)</label>
+                <label className="mb-1 block text-sm text-gray-600 dark:text-gray-400">Income Tax (₹)</label>
                 <input
                   type="number"
                   step="0.01"
                   min="0"
                   value={formData.deductions.income_tax || ''}
                   onChange={(e) => updateDeduction('income_tax', e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-colors"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-colors dark:bg-black dark:border-gray-600 dark:text-gray-100"
                   placeholder="0.00"
                 />
               </div>
               <div>
-                <label className="mb-1 block text-sm text-gray-600">Provident Fund (PF) (₹)</label>
+                <label className="mb-1 block text-sm text-gray-600 dark:text-gray-400">Provident Fund (PF) (₹)</label>
                 <input
                   type="number"
                   step="0.01"
                   min="0"
                   value={formData.deductions.pf || ''}
                   onChange={(e) => updateDeduction('pf', e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-colors"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-colors dark:bg-black dark:border-gray-600 dark:text-gray-100"
                   placeholder="0.00"
                 />
               </div>
               <div>
-                <label className="mb-1 block text-sm text-gray-600">Professional Tax (₹)</label>
+                <label className="mb-1 block text-sm text-gray-600 dark:text-gray-400">Professional Tax (₹)</label>
                 <input
                   type="number"
                   step="0.01"
                   min="0"
                   value={formData.deductions.professional_tax || ''}
                   onChange={(e) => updateDeduction('professional_tax', e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-colors"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-colors dark:bg-black dark:border-gray-600 dark:text-gray-100"
                   placeholder="0.00"
                 />
               </div>
               <div>
-                <label className="mb-1 block text-sm text-gray-600">Other Deductions (₹)</label>
+                <label className="mb-1 block text-sm text-gray-600 dark:text-gray-400">Other Deductions (₹)</label>
                 <input
                   type="number"
                   step="0.01"
                   min="0"
                   value={formData.deductions.other || ''}
                   onChange={(e) => updateDeduction('other', e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-colors"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-colors dark:bg-black dark:border-gray-600 dark:text-gray-100"
                   placeholder="0.00"
                 />
               </div>
@@ -407,9 +407,9 @@ export default function IncomeForm() {
           </div>
 
           {/* Expenses */}
-          <div className="rounded-lg border border-gray-200/20 bg-white/50 hover:bg-white/70 transition-colors p-4 sm:p-6 shadow-sm">
+          <div className="rounded-lg border border-gray-200/20 bg-white/50 hover:bg-white/70 transition-colors p-4 sm:p-6 shadow-sm dark:bg-black dark:border-gray-700 dark:hover:bg-gray-900">
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="flex items-center gap-2 text-base font-semibold text-gray-900">
+              <h3 className="flex items-center gap-2 text-base font-semibold text-gray-900 dark:text-white">
                 <TrendingUp className="h-4 w-4" />
                 Monthly Expenses
               </h3>
@@ -419,74 +419,74 @@ export default function IncomeForm() {
             </div>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
-                <label className="mb-1 block text-sm text-gray-600">EMI / Loan Payments (₹)</label>
+                <label className="mb-1 block text-sm text-gray-600 dark:text-gray-400">EMI / Loan Payments (₹)</label>
                 <input
                   type="number"
                   step="0.01"
                   min="0"
                   value={formData.expenses.emi || ''}
                   onChange={(e) => updateExpense('emi', e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-colors"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-colors dark:bg-black dark:border-gray-600 dark:text-gray-100"
                   placeholder="0.00"
                 />
               </div>
               <div>
-                <label className="mb-1 block text-sm text-gray-600">Medical Expenses (₹)</label>
+                <label className="mb-1 block text-sm text-gray-600 dark:text-gray-400">Medical Expenses (₹)</label>
                 <input
                   type="number"
                   step="0.01"
                   min="0"
                   value={formData.expenses.medical || ''}
                   onChange={(e) => updateExpense('medical', e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-colors"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-colors dark:bg-black dark:border-gray-600 dark:text-gray-100"
                   placeholder="0.00"
                 />
               </div>
               <div>
-                <label className="mb-1 block text-sm text-gray-600">Parents Support (₹)</label>
+                <label className="mb-1 block text-sm text-gray-600 dark:text-gray-400">Parents Support (₹)</label>
                 <input
                   type="number"
                   step="0.01"
                   min="0"
                   value={formData.expenses.parents || ''}
                   onChange={(e) => updateExpense('parents', e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-colors"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-colors dark:bg-black dark:border-gray-600 dark:text-gray-100"
                   placeholder="0.00"
                 />
               </div>
               <div>
-                <label className="mb-1 block text-sm text-gray-600">Rent (₹)</label>
+                <label className="mb-1 block text-sm text-gray-600 dark:text-gray-400">Rent (₹)</label>
                 <input
                   type="number"
                   step="0.01"
                   min="0"
                   value={formData.expenses.rent || ''}
                   onChange={(e) => updateExpense('rent', e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-colors"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-colors dark:bg-black dark:border-gray-600 dark:text-gray-100"
                   placeholder="0.00"
                 />
               </div>
               <div>
-                <label className="mb-1 block text-sm text-gray-600">Utilities (₹)</label>
+                <label className="mb-1 block text-sm text-gray-600 dark:text-gray-400">Utilities (₹)</label>
                 <input
                   type="number"
                   step="0.01"
                   min="0"
                   value={formData.expenses.utilities || ''}
                   onChange={(e) => updateExpense('utilities', e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-colors"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-colors dark:bg-black dark:border-gray-600 dark:text-gray-100"
                   placeholder="0.00"
                 />
               </div>
               <div>
-                <label className="mb-1 block text-sm text-gray-600">Other Expenses (₹)</label>
+                <label className="mb-1 block text-sm text-gray-600 dark:text-gray-400">Other Expenses (₹)</label>
                 <input
                   type="number"
                   step="0.01"
                   min="0"
                   value={formData.expenses.other || ''}
                   onChange={(e) => updateExpense('other', e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-colors"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-colors dark:bg-black dark:border-gray-600 dark:text-gray-100"
                   placeholder="0.00"
                 />
               </div>
@@ -494,36 +494,36 @@ export default function IncomeForm() {
           </div>
 
           {/* Disposable Income Calculation */}
-          <div className="rounded-lg border-2 border-primary-200 bg-gradient-to-br from-primary-50/80 to-primary-100/40 p-4 sm:p-6 shadow-sm">
+          <div className="rounded-lg border-2 border-primary-200 bg-gradient-to-br from-primary-50/80 to-primary-100/40 p-4 sm:p-6 shadow-sm dark:from-black dark:to-black dark:border-gray-700">
             <div className="flex items-center justify-between">
               <div>
                 <div className="flex items-center gap-2 mb-2">
                   <Sparkles className="h-5 w-5 text-primary-600" />
-                  <p className="text-sm font-semibold text-gray-700">Disposable Income</p>
+                  <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">Disposable Income</p>
                 </div>
                 <p className="text-2xl sm:text-3xl font-bold text-primary-700">{formatCurrency(disposableIncome)}</p>
-                <p className="mt-2 text-xs text-gray-600">Gross Income - Deductions - Expenses</p>
+                <p className="mt-2 text-xs text-gray-600 dark:text-gray-400">Gross Income - Deductions - Expenses</p>
               </div>
               <div className="hidden sm:block">
                 <TrendingUp className="h-16 w-16 text-primary-600/30" />
               </div>
             </div>
-            <div className="mt-4 flex items-start gap-2 rounded-lg bg-blue-50/50 p-3">
+            <div className="mt-4 flex items-start gap-2 rounded-lg bg-blue-50/50 p-3 dark:bg-black/50">
               <Info className="h-4 w-4 shrink-0 mt-0.5 text-blue-600" />
-              <p className="text-xs text-blue-800">
+              <p className="text-xs text-blue-800 dark:text-blue-300">
                 This calculation follows the <strong>Rajnesh v. Neha</strong> Supreme Court guidelines for determining disposable income for maintenance purposes.
               </p>
             </div>
           </div>
 
           {/* Notes */}
-          <div className="rounded-lg border border-gray-200/20 bg-white/50 hover:bg-white/70 transition-colors p-4 sm:p-6 shadow-sm">
-            <label className="mb-2 block text-sm font-semibold text-gray-700">Additional Notes (Optional)</label>
+          <div className="rounded-lg border border-gray-200/20 bg-white/50 hover:bg-white/70 transition-colors p-4 sm:p-6 shadow-sm dark:bg-black dark:border-gray-700 dark:hover:bg-gray-900">
+            <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">Additional Notes (Optional)</label>
             <textarea
               value={formData.notes || ''}
               onChange={(e) => setFormData((prev) => ({ ...prev, notes: e.target.value }))}
               rows={4}
-              className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-colors"
+              className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-colors dark:bg-black dark:border-gray-600 dark:text-gray-100"
               placeholder="Add any additional notes or context (e.g., one-time expenses, bonuses, etc.)..."
             />
           </div>
@@ -550,7 +550,7 @@ export default function IncomeForm() {
             <button
               type="button"
               onClick={() => navigate('/dashboard/income-tracker/history')}
-              className="min-h-[44px] w-full sm:w-auto rounded-lg border border-gray-300 px-6 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+              className="min-h-[44px] w-full sm:w-auto rounded-lg border border-gray-300 px-6 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors dark:bg-black dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-900"
             >
               View History
             </button>

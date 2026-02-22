@@ -130,28 +130,28 @@ function PreviewModal({
       onClick={onClose}
     >
       <div
-        className="relative mb-4 sm:mb-8 w-full max-w-6xl rounded-lg sm:rounded-xl bg-white shadow-2xl overflow-hidden flex flex-col max-h-[calc(100vh-3.5rem)] sm:max-h-[calc(100vh-4rem)]"
+        className="relative mb-4 sm:mb-8 w-full max-w-6xl rounded-lg sm:rounded-xl bg-white dark:bg-black dark:border dark:border-gray-700 shadow-2xl overflow-hidden flex flex-col max-h-[calc(100vh-3.5rem)] sm:max-h-[calc(100vh-4rem)]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-gray-200 bg-white px-4 py-3 sm:px-6 sm:py-4 shrink-0">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-black px-4 py-3 sm:px-6 sm:py-4 shrink-0">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <div className="shrink-0">{getTypeIcon(entry.type)}</div>
             <div className="min-w-0 flex-1">
-              <h3 className="text-base sm:text-lg font-semibold text-gray-900">{getTypeLabel(entry.type)}</h3>
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">{getTypeLabel(entry.type)}</h3>
               {entry.metadata?.filename && (
-                <p className="text-xs text-gray-500 truncate max-w-[200px] sm:max-w-md">{entry.metadata.filename}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[200px] sm:max-w-md">{entry.metadata.filename}</p>
               )}
             </div>
           </div>
           <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-4">
             {entry.encrypted && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-green-50 border border-green-200 px-2 py-0.5 text-xs font-medium text-green-700">
+              <span className="inline-flex items-center gap-1 rounded-full bg-green-50 dark:bg-black border border-green-200 dark:border-green-700/40 px-2 py-0.5 text-xs font-medium text-green-700 dark:text-green-300">
                 <Lock className="h-3 w-3" /> Encrypted
               </span>
             )}
             {entry.metadata && (
-              <div className="hidden sm:flex items-center gap-2 text-xs text-gray-500">
+              <div className="hidden sm:flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
                 <span>{fmtSize(entry.metadata.size)}</span>
                 {displayMimeType && (
                   <>
@@ -163,7 +163,7 @@ function PreviewModal({
             )}
             <button
               onClick={onClose}
-              className="flex h-10 w-10 sm:h-8 sm:w-8 items-center justify-center rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-900 transition-colors touch-manipulation"
+              className="flex h-10 w-10 sm:h-8 sm:w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white transition-colors touch-manipulation"
               aria-label="Close"
             >
               <X className="h-5 w-5" />
@@ -176,7 +176,7 @@ function PreviewModal({
           {decryptingLocal ? (
             <div className="flex flex-col items-center justify-center py-20">
               <Loader2 className="h-8 w-8 animate-spin text-primary-600 mb-3" />
-              <p className="text-sm text-gray-600">Decrypting file...</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Decrypting file...</p>
             </div>
           ) : resolvedUrl ? (
             <div className="mb-4">
@@ -190,9 +190,9 @@ function PreviewModal({
 
           {/* EXIF Info */}
           {entry.metadata?.exif && (
-            <div className="mb-4 rounded-lg bg-blue-50 border border-blue-200 p-4">
-              <h4 className="text-sm font-semibold text-blue-900 mb-2">Image Metadata (EXIF)</h4>
-              <div className="grid grid-cols-2 gap-2 text-xs text-blue-800">
+            <div className="mb-4 rounded-lg bg-blue-50 dark:bg-black border border-blue-200 dark:border-blue-700/40 p-4">
+              <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-300 mb-2">Image Metadata (EXIF)</h4>
+              <div className="grid grid-cols-2 gap-2 text-xs text-blue-800 dark:text-blue-300">
                 {entry.metadata.exif.dateTaken && (
                   <div><span className="font-medium">Date Taken:</span> {entry.metadata.exif.dateTaken}</div>
                 )}
@@ -211,22 +211,22 @@ function PreviewModal({
 
           {/* Hash */}
           {entry.file_hash && (
-            <div className="mb-4 rounded-lg bg-gray-50 border border-gray-200 p-4">
-              <h4 className="text-sm font-semibold text-gray-700 mb-1">Evidence Integrity Hash (SHA-256)</h4>
-              <code className="block text-xs text-gray-500 break-all font-mono">{entry.file_hash}</code>
+            <div className="mb-4 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-4">
+              <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Evidence Integrity Hash (SHA-256)</h4>
+              <code className="block text-xs text-gray-500 dark:text-gray-400 break-all font-mono">{entry.file_hash}</code>
             </div>
           )}
 
           {entry.description && (
-            <div className="mb-4 rounded-lg bg-gray-50 p-4">
-              <p className="text-sm text-gray-700 whitespace-pre-wrap">{entry.description}</p>
+            <div className="mb-4 rounded-lg bg-gray-50 dark:bg-gray-900 p-4">
+              <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{entry.description}</p>
             </div>
           )}
         </div>
 
         {/* Footer */}
-        <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3 border-t border-gray-200 bg-gray-50 px-4 py-3 sm:px-6 sm:py-4 shrink-0">
-          <span className="text-xs text-gray-500 text-center sm:text-left">{format(new Date(entry.created_at), 'PPP p')}</span>
+        <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-4 py-3 sm:px-6 sm:py-4 shrink-0">
+          <span className="text-xs text-gray-500 dark:text-gray-400 text-center sm:text-left">{format(new Date(entry.created_at), 'PPP p')}</span>
           <button
             onClick={handleDownload}
             className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary-600 px-4 py-3 sm:py-2 text-sm font-medium text-white hover:bg-primary-700 transition-colors min-h-[44px] touch-manipulation w-full sm:w-auto"
@@ -472,15 +472,15 @@ export default function TimelineView() {
   const getTypeColor = (type: string) => {
     switch (type) {
       case 'photo':
-        return 'bg-blue-50 text-blue-700 border-blue-200'
+        return 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-700/40'
       case 'document':
-        return 'bg-green-50 text-green-700 border-green-200'
+        return 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 border-green-200 dark:border-green-700/40'
       case 'ticket':
-        return 'bg-purple-50 text-purple-700 border-purple-200'
+        return 'bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-700/40'
       case 'receipt':
-        return 'bg-orange-50 text-orange-700 border-orange-200'
+        return 'bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-700/40'
       default:
-        return 'bg-gray-50 text-gray-700 border-gray-200'
+        return 'bg-gray-50 dark:bg-gray-900 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700'
     }
   }
 
@@ -552,10 +552,10 @@ export default function TimelineView() {
   if (loading && !retrying) {
     return (
       <DashboardLayout title="Consent Vault" subtitle="Loading your vault...">
-        <div className="flex min-h-[50vh] items-center justify-center bg-gray-50 rounded-xl border border-gray-200">
+        <div className="flex min-h-[50vh] items-center justify-center bg-gray-50 dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700">
           <div className="text-center">
             <div className="mb-4 inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary-600 border-r-transparent"></div>
-            <p className="text-gray-600">Loading your vault...</p>
+            <p className="text-gray-600 dark:text-gray-400">Loading your vault...</p>
           </div>
         </div>
       </DashboardLayout>
@@ -578,7 +578,7 @@ export default function TimelineView() {
               placeholder="Search..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-xl border border-blue-200 bg-blue-50/50 py-3 pl-10 pr-10 sm:pr-4 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-colors min-h-[44px]"
+              className="w-full rounded-xl border border-blue-200 bg-blue-50/50 dark:bg-black dark:border-gray-600 dark:text-gray-100 py-3 pl-10 pr-10 sm:pr-4 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-colors min-h-[44px]"
             />
             {searchQuery && (
               <button
@@ -598,7 +598,7 @@ export default function TimelineView() {
                 className={`inline-flex items-center gap-2 rounded-lg border px-3 sm:px-4 py-2 text-sm font-medium transition-colors min-h-[40px] touch-manipulation ${
                   showFilters || filterType !== 'all'
                     ? 'border-primary-500 bg-primary-50 text-primary-700'
-                    : 'border-blue-200 bg-blue-50/50 text-gray-700 hover:bg-blue-100/50'
+                    : 'border-blue-200 bg-blue-50/50 dark:bg-black dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-blue-100/50 dark:hover:bg-gray-900'
                 }`}
               >
                 <Filter className="h-4 w-4" />
@@ -614,7 +614,7 @@ export default function TimelineView() {
               <div className="relative">
                 <button
                   onClick={() => setShowSortMenu(!showSortMenu)}
-                  className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 sm:px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors min-h-[40px] touch-manipulation"
+                  className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white dark:bg-black dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-900 px-3 sm:px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors min-h-[40px] touch-manipulation"
                 >
                   {sortBy === 'newest' ? (
                     <SortDesc className="h-4 w-4" />
@@ -635,7 +635,7 @@ export default function TimelineView() {
                       className="fixed inset-0 z-10"
                       onClick={() => setShowSortMenu(false)}
                     />
-                    <div className="absolute left-0 top-full z-20 mt-2 w-48 rounded-lg border border-gray-200 bg-white shadow-lg">
+                    <div className="absolute left-0 top-full z-20 mt-2 w-48 rounded-lg border border-gray-200 bg-white dark:bg-black dark:border-gray-700 shadow-lg">
                       {(['newest', 'oldest', 'name', 'size'] as SortOption[]).map((option) => (
                         <button
                           key={option}
@@ -645,8 +645,8 @@ export default function TimelineView() {
                           }}
                           className={`w-full px-4 py-2 text-left text-sm transition-colors ${
                             sortBy === option
-                              ? 'bg-primary-50 text-primary-700 font-medium'
-                              : 'text-gray-700 hover:bg-gray-50'
+                              ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 font-medium'
+                              : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-900'
                           }`}
                         >
                           {option === 'newest' ? 'Newest First' : option === 'oldest' ? 'Oldest First' : option === 'name' ? 'Name (A-Z)' : 'Size (Largest)'}
@@ -658,11 +658,11 @@ export default function TimelineView() {
               </div>
 
               {/* View Mode Toggle */}
-              <div className="flex items-center rounded-lg border border-gray-300 bg-white p-1">
+              <div className="flex items-center rounded-lg border border-gray-300 bg-white dark:bg-black dark:border-gray-600 p-1">
                 <button
                   onClick={() => setViewMode('list')}
                   className={`rounded-md p-1.5 transition-colors ${
-                    viewMode === 'list' ? 'bg-primary-100 text-primary-700' : 'text-gray-600 hover:bg-gray-50'
+                    viewMode === 'list' ? 'bg-primary-100 text-primary-700' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
                   }`}
                   title="List View"
                 >
@@ -671,7 +671,7 @@ export default function TimelineView() {
                 <button
                   onClick={() => setViewMode('grid')}
                   className={`rounded-md p-1.5 transition-colors ${
-                    viewMode === 'grid' ? 'bg-primary-100 text-primary-700' : 'text-gray-600 hover:bg-gray-50'
+                    viewMode === 'grid' ? 'bg-primary-100 text-primary-700' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
                   }`}
                   title="Grid View"
                 >
@@ -698,17 +698,17 @@ export default function TimelineView() {
             {/* Bulk Actions */}
             {selectedIds.size > 0 && (
               <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-600">{selectedIds.size} selected</span>
+                <span className="text-sm text-gray-600 dark:text-gray-400">{selectedIds.size} selected</span>
                 <button
                   onClick={requestBulkDelete}
-                  className="inline-flex items-center gap-2 rounded-lg border border-red-300 bg-white px-3 py-1.5 text-sm font-medium text-red-700 hover:bg-red-50 transition-colors"
+                  className="inline-flex items-center gap-2 rounded-lg border border-red-300 bg-white dark:bg-black dark:border-red-700/40 px-3 py-1.5 text-sm font-medium text-red-700 dark:text-red-300 hover:bg-red-50 dark:hover:bg-gray-900 transition-colors"
                 >
                   <Trash2 className="h-4 w-4" />
                   Delete
                 </button>
                 <button
                   onClick={() => setSelectedIds(new Set())}
-                  className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                  className="rounded-lg border border-gray-300 bg-white dark:bg-black dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-900 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
                 >
                   Clear
                 </button>
@@ -718,7 +718,7 @@ export default function TimelineView() {
 
           {/* Filter Options */}
           {showFilters && (
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 rounded-xl border border-blue-200 bg-blue-50/50 p-3 sm:p-4 animate-in slide-in-from-top-2">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 rounded-xl border border-blue-200 bg-blue-50/50 dark:bg-black dark:border-gray-700 p-3 sm:p-4 animate-in slide-in-from-top-2">
               {[
                 { value: 'all', label: 'All Types' },
                 { value: 'photo', label: 'Photos' },
@@ -736,7 +736,7 @@ export default function TimelineView() {
                   className={`rounded-lg border-2 px-3 py-2 text-sm font-medium transition-all ${
                     filterType === option.value
                       ? 'border-primary-500 bg-primary-50 text-primary-700 shadow-sm'
-                      : 'border-blue-200 bg-blue-50/50 text-gray-700 hover:border-blue-300 hover:bg-blue-100/50'
+                      : 'border-blue-200 bg-blue-50/50 dark:bg-black dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-blue-300 hover:bg-blue-100/50 dark:hover:bg-gray-900'
                   }`}
                 >
                   {option.label}
@@ -748,8 +748,8 @@ export default function TimelineView() {
 
         {/* Error Message */}
         {error && (
-          <div className="mb-6 flex items-center justify-between gap-4 rounded-lg border border-red-200 bg-red-50 p-4">
-            <div className="flex items-center gap-2 text-sm text-red-800">
+          <div className="mb-6 flex items-center justify-between gap-4 rounded-lg border border-red-200 bg-red-50 dark:bg-black dark:border-red-700/40 p-4">
+            <div className="flex items-center gap-2 text-sm text-red-800 dark:text-red-300">
               <AlertCircle className="h-5 w-5 shrink-0" />
               <span>{error}</span>
             </div>
@@ -775,12 +775,12 @@ export default function TimelineView() {
 
         {/* Empty State */}
         {filteredEntries.length === 0 && !loading && (
-          <div className="rounded-xl border border-blue-200 bg-blue-50/50 p-12 text-center shadow-sm">
+          <div className="rounded-xl border border-blue-200 bg-blue-50/50 dark:bg-black dark:border-gray-700 p-12 text-center shadow-sm">
             <Shield className="mx-auto mb-4 h-16 w-16 text-gray-400" />
-            <h3 className="mb-2 text-lg font-semibold text-gray-900">
+            <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-white">
               {entries.length === 0 ? 'No entries yet' : 'No entries match your filters'}
             </h3>
-            <p className="mb-6 text-gray-600">
+            <p className="mb-6 text-gray-600 dark:text-gray-400">
               {entries.length === 0
                 ? 'Start by uploading your first file to the vault.'
                 : 'Try adjusting your search or filter criteria.'}
@@ -800,7 +800,7 @@ export default function TimelineView() {
                   setSearchQuery('')
                   setFilterType('all')
                 }}
-                className="ml-3 inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                className="ml-3 inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white dark:bg-black dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-900 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
               >
                 <X className="h-4 w-4" />
                 Clear Filters
@@ -813,10 +813,10 @@ export default function TimelineView() {
         {filteredEntries.length > 0 && viewMode === 'list' && (
           <div className="space-y-1.5">
             {/* Select All Header */}
-            <div className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2">
+            <div className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white dark:bg-black dark:border-gray-700 px-3 py-2">
               <button
                 onClick={handleSelectAll}
-                className="text-gray-500 hover:text-gray-900 transition-colors p-1"
+                className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors p-1"
               >
                 {selectedIds.size === filteredEntries.length ? (
                   <CheckSquare className="h-4 w-4 text-primary-600" />
@@ -824,7 +824,7 @@ export default function TimelineView() {
                   <Square className="h-4 w-4" />
                 )}
               </button>
-              <span className="text-xs font-medium text-gray-600">
+              <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
                 {selectedIds.size === filteredEntries.length ? 'Deselect All' : 'Select All'}
               </span>
             </div>
@@ -843,13 +843,13 @@ export default function TimelineView() {
                   key={entry.id}
                   className={`group flex items-start gap-3 rounded-lg border px-3 py-2 transition-all ${
                     isSelected
-                      ? 'border-primary-500 bg-primary-50/80'
-                      : 'border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50/50'
+                      ? 'border-primary-500 bg-primary-50/80 dark:bg-primary-900/20'
+                      : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-black hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-50/50 dark:hover:bg-gray-900/50'
                   }`}
                 >
                   <button
                     onClick={() => handleToggleSelect(entry.id)}
-                    className="shrink-0 mt-0.5 text-gray-400 hover:text-gray-600 p-0.5"
+                    className="shrink-0 mt-0.5 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 p-0.5"
                   >
                     {isSelected ? (
                       <CheckSquare className="h-4 w-4 text-primary-600" />
@@ -860,7 +860,7 @@ export default function TimelineView() {
 
                   {/* Thumb or Icon */}
                   <div
-                    className="relative h-12 w-12 shrink-0 overflow-hidden rounded-md bg-gray-100 cursor-pointer flex items-center justify-center"
+                    className="relative h-12 w-12 shrink-0 overflow-hidden rounded-md bg-gray-100 dark:bg-gray-800 cursor-pointer flex items-center justify-center"
                     onClick={async () => {
                       if (entry.encrypted) await getDecryptedUrl(entry)
                       setPreviewEntry(entry)
@@ -873,7 +873,7 @@ export default function TimelineView() {
                       <img src={decryptedUrls[entry.id]} alt="" className="h-full w-full object-cover" loading="lazy" />
                     )}
                     {((entry.type !== 'photo') || (entry.encrypted && !decryptedUrls[entry.id])) && (
-                      <div className={`flex h-full w-full items-center justify-center rounded ${entry.encrypted && !decryptedUrls[entry.id] ? 'bg-green-50 text-green-600' : getTypeColor(entry.type)}`}>
+                      <div className={`flex h-full w-full items-center justify-center rounded ${entry.encrypted && !decryptedUrls[entry.id] ? 'bg-green-50 text-green-600 dark:bg-green-900/30 dark:text-green-400' : getTypeColor(entry.type)}`}>
                         {entry.encrypted && !decryptedUrls[entry.id] ? (
                           <Lock className="h-5 w-5" />
                         ) : (
@@ -891,14 +891,14 @@ export default function TimelineView() {
                   {/* Info - compact 2-line layout */}
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-2 gap-y-0.5">
-                      <p className="truncate text-sm font-medium text-gray-900">
+                      <p className="truncate text-sm font-medium text-gray-900 dark:text-white">
                         {entry.metadata?.filename || 'Untitled'}
                       </p>
                       <span className={`shrink-0 rounded px-1.5 py-0.5 text-[10px] font-medium ${getTypeColor(entry.type)}`}>
                         {getTypeLabel(entry.type)}
                       </span>
                     </div>
-                    <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-gray-500 mt-0.5">
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                       <span>{format(new Date(entry.created_at), 'MMM d, yyyy')}</span>
                       {entry.metadata?.size && (
                         <>
@@ -934,7 +934,7 @@ export default function TimelineView() {
                         if (entry.encrypted) await getDecryptedUrl(entry)
                         setPreviewEntry(entry)
                       }}
-                      className="rounded p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+                      className="rounded p-1.5 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-200"
                       title="View"
                     >
                       <Eye className="h-4 w-4" />
@@ -949,7 +949,7 @@ export default function TimelineView() {
                         a.click()
                         document.body.removeChild(a)
                       }}
-                      className="rounded p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+                      className="rounded p-1.5 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-200"
                       title="Download"
                     >
                       <Download className="h-4 w-4" />
@@ -957,7 +957,7 @@ export default function TimelineView() {
                     <button
                       onClick={() => requestDelete(entry.id)}
                       disabled={deletingId === entry.id}
-                      className="rounded p-1.5 text-gray-500 hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
+                      className="rounded p-1.5 text-gray-500 dark:text-gray-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 disabled:opacity-50"
                       title="Delete"
                     >
                       {deletingId === entry.id ? (
@@ -981,16 +981,16 @@ export default function TimelineView() {
               return (
                 <div
                   key={entry.id}
-                  className={`group relative flex flex-col rounded-lg border bg-white shadow-sm transition-all duration-200 hover:shadow-md overflow-hidden ${
+                  className={`group relative flex flex-col rounded-lg border bg-white dark:bg-black shadow-sm transition-all duration-200 hover:shadow-md overflow-hidden ${
                     isSelected
                       ? 'border-primary-500 ring-2 ring-primary-200'
-                      : 'border-gray-200 hover:border-gray-300'
+                      : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
                   }`}
                 >
                   {/* Selection Checkbox */}
                   <button
                     onClick={() => handleToggleSelect(entry.id)}
-                    className="absolute left-2 top-2 z-10 rounded-md bg-white/95 p-1 shadow-sm text-gray-400 hover:text-gray-600 transition-colors"
+                    className="absolute left-2 top-2 z-10 rounded-md bg-white/95 dark:bg-black/80 p-1 shadow-sm text-gray-400 hover:text-gray-600 transition-colors"
                   >
                     {isSelected ? (
                       <CheckSquare className="h-3.5 w-3.5 text-primary-600" />
@@ -1001,7 +1001,7 @@ export default function TimelineView() {
 
                   {/* Image Preview or Icon */}
                   <div
-                    className="relative aspect-[4/3] w-full cursor-pointer overflow-hidden bg-gray-100"
+                    className="relative aspect-[4/3] w-full cursor-pointer overflow-hidden bg-gray-100 dark:bg-gray-800"
                     onClick={async () => {
                       if (entry.encrypted) await getDecryptedUrl(entry)
                       setPreviewEntry(entry)
@@ -1022,7 +1022,7 @@ export default function TimelineView() {
                         loading="lazy"
                       />
                     ) : entry.type === 'photo' && entry.encrypted ? (
-                      <div className="flex h-full flex-col items-center justify-center bg-green-50/50 text-green-600">
+                      <div className="flex h-full flex-col items-center justify-center bg-green-50/50 text-green-600 dark:bg-green-900/30 dark:text-green-400">
                         <Lock className="h-6 w-6 mb-0.5" />
                         <span className="text-[10px] font-medium">Encrypted</span>
                       </div>
@@ -1046,10 +1046,10 @@ export default function TimelineView() {
 
                   {/* Content - compact */}
                   <div className="p-2 sm:p-3 flex-1 flex flex-col min-w-0">
-                    <h3 className="truncate text-xs sm:text-sm font-medium text-gray-900 mb-0.5">
+                    <h3 className="truncate text-xs sm:text-sm font-medium text-gray-900 dark:text-white mb-0.5">
                       {entry.metadata?.filename || 'Untitled'}
                     </h3>
-                    <div className="flex items-center justify-between text-[10px] sm:text-xs text-gray-500 mb-2">
+                    <div className="flex items-center justify-between text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mb-2">
                       <span>{format(new Date(entry.created_at), 'MMM d')}</span>
                       {entry.metadata && <span>{formatFileSize(entry.metadata.size)}</span>}
                     </div>
@@ -1059,14 +1059,14 @@ export default function TimelineView() {
                           if (entry.encrypted) await getDecryptedUrl(entry)
                           setPreviewEntry(entry)
                         }}
-                        className="flex-1 rounded-md border border-gray-200 bg-white px-2 py-1 text-[10px] sm:text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                        className="flex-1 rounded-md border border-gray-200 bg-white dark:bg-black dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-900 px-2 py-1 text-[10px] sm:text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors"
                       >
                         View
                       </button>
                       <button
                         onClick={() => requestDelete(entry.id)}
                         disabled={deletingId === entry.id}
-                        className="rounded-md border border-red-200 bg-white p-1 text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50"
+                        className="rounded-md border border-red-200 bg-white dark:bg-black dark:border-red-700/40 p-1 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors disabled:opacity-50"
                         title="Delete"
                       >
                         {deletingId === entry.id ? (

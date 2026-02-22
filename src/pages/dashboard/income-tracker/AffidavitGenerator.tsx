@@ -144,7 +144,7 @@ export default function AffidavitGenerator() {
         <div className="flex min-h-[400px] items-center justify-center">
           <div className="text-center">
             <Loader2 className="mb-4 inline-block h-8 w-8 animate-spin text-primary-600" />
-            <p className="text-gray-600">Loading income data...</p>
+            <p className="text-gray-600 dark:text-gray-400">Loading income data...</p>
           </div>
         </div>
       </DashboardLayout>
@@ -156,11 +156,11 @@ export default function AffidavitGenerator() {
       <div className="w-full max-w-4xl mx-auto">
         {/* Success Message */}
         {success && (
-          <div className="mb-6 flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 p-4 text-green-800">
+          <div className="mb-6 flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 p-4 text-green-800 dark:bg-black dark:border-green-700/40 dark:text-green-300">
             <CheckCircle2 className="h-5 w-5 shrink-0" />
             <div className="flex-1">
               <p className="font-semibold">Affidavit generated successfully!</p>
-              <p className="text-sm text-green-700">Your PDF has been downloaded.</p>
+              <p className="text-sm text-green-700 dark:text-green-400">Your PDF has been downloaded.</p>
             </div>
             {downloadUrl && (
               <a
@@ -177,20 +177,20 @@ export default function AffidavitGenerator() {
 
         {/* Error Message */}
         {error && (
-          <div className="mb-6 flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 p-4 text-red-800">
+          <div className="mb-6 flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 p-4 text-red-800 dark:bg-black dark:border-red-700/40 dark:text-red-300">
             <AlertCircle className="h-5 w-5 shrink-0" />
             <span>{error}</span>
           </div>
         )}
 
         {/* Month Selection */}
-        <div className="mb-6 rounded-lg border border-gray-200/20 bg-white/50 hover:bg-white/70 transition-colors p-6 shadow-sm">
-          <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-gray-700">
+        <div className="mb-6 rounded-lg border border-gray-200/20 bg-white/50 hover:bg-white/70 transition-colors p-6 shadow-sm dark:bg-black dark:border-gray-700 dark:hover:bg-gray-900">
+          <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
             <Calendar className="h-4 w-4" />
             Select Month for Affidavit
           </label>
           {entries.length === 0 ? (
-            <div className="mt-4 rounded-lg border border-yellow-200 bg-yellow-50 p-4 text-yellow-800">
+            <div className="mt-4 rounded-lg border border-yellow-200 bg-yellow-50 p-4 text-yellow-800 dark:bg-black dark:border-yellow-700/40 dark:text-yellow-300">
               <p className="font-semibold">No income records found</p>
               <p className="mt-1 text-sm">Please add income data first before generating an affidavit.</p>
               <button
@@ -204,7 +204,7 @@ export default function AffidavitGenerator() {
             <select
               value={selectedMonth}
               onChange={(e) => setSelectedMonth(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none"
+              className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:outline-none dark:bg-black dark:border-gray-600 dark:text-gray-100"
             >
               {entries.map((entry) => {
                 const monthDate = parseMonthYear(entry.month_year)
@@ -220,27 +220,27 @@ export default function AffidavitGenerator() {
 
         {/* Preview */}
         {selectedEntry && (
-          <div className="mb-6 rounded-lg border border-gray-200/20 bg-white/50 p-6 shadow-sm">
-            <h3 className="mb-4 flex items-center gap-2 text-base font-semibold text-gray-900">
+          <div className="mb-6 rounded-lg border border-gray-200/20 bg-white/50 p-6 shadow-sm dark:bg-black dark:border-gray-700">
+            <h3 className="mb-4 flex items-center gap-2 text-base font-semibold text-gray-900 dark:text-white">
               <FileText className="h-4 w-4" />
               Affidavit Preview
             </h3>
             <div className="space-y-3 text-sm">
-              <div className="flex justify-between border-b border-gray-200 pb-2">
-                <span className="font-medium text-gray-600">Month:</span>
-                <span className="font-semibold text-gray-900">
+              <div className="flex justify-between border-b border-gray-200 pb-2 dark:border-gray-700">
+                <span className="font-medium text-gray-600 dark:text-gray-400">Month:</span>
+                <span className="font-semibold text-gray-900 dark:text-white">
                   {(() => {
                     const monthDate = parseMonthYear(selectedEntry.month_year)
                     return monthDate ? format(monthDate, 'MMMM yyyy') : selectedEntry.month_year || 'Unknown'
                   })()}
                 </span>
               </div>
-              <div className="flex justify-between border-b border-gray-200 pb-2">
-                <span className="font-medium text-gray-600">Gross Income:</span>
-                <span className="font-semibold text-gray-900">₹{selectedEntry.gross_income.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+              <div className="flex justify-between border-b border-gray-200 pb-2 dark:border-gray-700">
+                <span className="font-medium text-gray-600 dark:text-gray-400">Gross Income:</span>
+                <span className="font-semibold text-gray-900 dark:text-white">₹{selectedEntry.gross_income.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
               </div>
-              <div className="flex justify-between border-b border-gray-200 pb-2">
-                <span className="font-medium text-gray-600">Total Deductions:</span>
+              <div className="flex justify-between border-b border-gray-200 pb-2 dark:border-gray-700">
+                <span className="font-medium text-gray-600 dark:text-gray-400">Total Deductions:</span>
                 <span className="font-semibold text-red-600">
                   ₹
                   {Object.values(selectedEntry.deductions)
@@ -248,8 +248,8 @@ export default function AffidavitGenerator() {
                     .toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </span>
               </div>
-              <div className="flex justify-between border-b border-gray-200 pb-2">
-                <span className="font-medium text-gray-600">Total Expenses:</span>
+              <div className="flex justify-between border-b border-gray-200 pb-2 dark:border-gray-700">
+                <span className="font-medium text-gray-600 dark:text-gray-400">Total Expenses:</span>
                 <span className="font-semibold text-orange-600">
                   ₹
                   {Object.values(selectedEntry.expenses)
@@ -257,14 +257,14 @@ export default function AffidavitGenerator() {
                     .toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </span>
               </div>
-              <div className="flex justify-between border-b-2 border-primary-200 pb-2 pt-2">
-                <span className="font-semibold text-gray-900">Disposable Income:</span>
+              <div className="flex justify-between border-b-2 border-primary-200 pb-2 pt-2 dark:border-primary-500/30">
+                <span className="font-semibold text-gray-900 dark:text-white">Disposable Income:</span>
                 <span className="text-lg font-bold text-primary-700">₹{selectedEntry.disposable_income.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
               </div>
             </div>
-            <div className="mt-4 rounded-lg bg-blue-50 p-3">
-              <p className="text-xs font-semibold text-blue-900">Legal Compliance</p>
-              <p className="mt-1 text-xs text-blue-800">
+            <div className="mt-4 rounded-lg border border-transparent bg-blue-50 p-3 dark:bg-black dark:border dark:border-blue-700/40">
+              <p className="text-xs font-semibold text-blue-900 dark:text-blue-300">Legal Compliance</p>
+              <p className="mt-1 text-xs text-blue-800 dark:text-blue-300">
                 This affidavit follows the Rajnesh v. Neha guidelines for calculating disposable income for maintenance purposes.
               </p>
             </div>
@@ -293,9 +293,9 @@ export default function AffidavitGenerator() {
         </div>
 
         {/* Info Section */}
-        <div className="mt-8 rounded-lg border border-blue-200 bg-blue-50 p-6">
-          <h3 className="mb-3 text-base font-semibold text-blue-900">About Income Affidavits</h3>
-          <ul className="space-y-2 text-sm text-blue-800">
+        <div className="mt-8 rounded-lg border border-blue-200 bg-blue-50 p-6 dark:bg-black dark:border-blue-700/40">
+          <h3 className="mb-3 text-base font-semibold text-blue-900 dark:text-blue-300">About Income Affidavits</h3>
+          <ul className="space-y-2 text-sm text-blue-800 dark:text-blue-300">
             <li className="flex items-start gap-2">
               <span className="mt-0.5">•</span>
               <span>Affidavits are legally binding documents used in court proceedings</span>

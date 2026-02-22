@@ -30,12 +30,12 @@ const TYPE_LABELS: Record<string, string> = {
 }
 
 const TYPE_COLORS: Record<string, string> = {
-  physical: 'bg-red-100 text-red-700 border-red-200',
-  emotional: 'bg-orange-100 text-orange-700 border-orange-200',
-  financial: 'bg-yellow-100 text-yellow-700 border-yellow-200',
-  sexual: 'bg-rose-100 text-rose-700 border-rose-200',
-  threat: 'bg-purple-100 text-purple-700 border-purple-200',
-  other: 'bg-gray-100 text-gray-700 border-gray-200',
+  physical: 'bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-700',
+  emotional: 'bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:border-orange-700',
+  financial: 'bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-300 dark:border-yellow-700',
+  sexual: 'bg-rose-100 text-rose-700 border-rose-200 dark:bg-rose-900/30 dark:text-rose-300 dark:border-rose-700',
+  threat: 'bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-700',
+  other: 'bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700',
 }
 
 const TIMELINE_COLORS: Record<string, string> = {
@@ -162,7 +162,7 @@ export default function IncidentTimeline() {
     <DashboardLayout title="Incident Timeline" subtitle={`${incidents.length} incident${incidents.length !== 1 ? 's' : ''} documented`} backHref="/dashboard/dv-log">
       <div className="w-full max-w-5xl mx-auto space-y-4">
         {error && (
-          <div className="flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 p-4 text-red-800 shadow-sm">
+          <div className="flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 p-4 text-red-800 shadow-sm dark:bg-black dark:border-red-700/40 dark:text-red-300">
             <AlertCircle className="h-5 w-5 shrink-0" />
             <span>{error}</span>
           </div>
@@ -177,14 +177,14 @@ export default function IncidentTimeline() {
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full rounded-lg border border-gray-200 bg-white/60 py-2 pl-9 pr-3 text-sm focus:border-red-500 focus:ring-1 focus:ring-red-500 focus:outline-none"
+                className="w-full rounded-lg border border-gray-200 bg-white/60 py-2 pl-9 pr-3 text-sm focus:border-red-500 focus:ring-1 focus:ring-red-500 focus:outline-none dark:bg-black dark:border-gray-600 dark:text-gray-100"
                 placeholder="Search incidents..."
               />
             </div>
             <select
               value={typeFilter}
               onChange={(e) => setTypeFilter(e.target.value)}
-              className="rounded-lg border border-gray-200 bg-white/60 px-3 py-2 text-sm focus:border-red-500 focus:outline-none"
+              className="rounded-lg border border-gray-200 bg-white/60 px-3 py-2 text-sm focus:border-red-500 focus:outline-none dark:bg-black dark:border-gray-600 dark:text-gray-100"
             >
               <option value="">All Types</option>
               {Object.entries(TYPE_LABELS).map(([k, v]) => (
@@ -207,12 +207,12 @@ export default function IncidentTimeline() {
             <Loader2 className="h-8 w-8 animate-spin text-red-600" />
           </div>
         ) : filtered.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-gray-300 bg-white/40 p-8 sm:p-12 text-center">
-            <ShieldAlert className="mx-auto mb-4 h-12 w-12 text-gray-300" />
-            <h3 className="text-lg font-semibold text-gray-700">
+          <div className="rounded-xl border border-dashed border-gray-300 bg-white/40 p-8 sm:p-12 text-center dark:bg-black dark:border-gray-700">
+            <ShieldAlert className="mx-auto mb-4 h-12 w-12 text-gray-300 dark:text-gray-600" />
+            <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">
               {incidents.length === 0 ? 'No incidents logged' : 'No matching incidents'}
             </h3>
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
               {incidents.length === 0 ? 'Document incidents as they occur.' : 'Try adjusting your filters.'}
             </p>
             {incidents.length === 0 && (
@@ -228,15 +228,15 @@ export default function IncidentTimeline() {
         ) : (
           <div className="relative">
             {/* Vertical line */}
-            <div className="absolute left-5 top-0 bottom-0 w-0.5 bg-gray-200 hidden sm:block" />
+            <div className="absolute left-5 top-0 bottom-0 w-0.5 bg-gray-200 hidden sm:block dark:bg-gray-700" />
 
             <div className="space-y-4">
               {filtered.map((inc) => (
                 <div key={inc.id} className="group relative sm:pl-12">
                   {/* Timeline dot */}
-                  <div className={`absolute left-3.5 top-5 hidden sm:block h-3 w-3 rounded-full ring-4 ring-white ${TIMELINE_COLORS[inc.incident_type] || 'bg-gray-400'}`} />
+                  <div className={`absolute left-3.5 top-5 hidden sm:block h-3 w-3 rounded-full ring-4 ring-white dark:ring-black ${TIMELINE_COLORS[inc.incident_type] || 'bg-gray-400'}`} />
 
-                  <div className="rounded-lg border border-gray-200/60 bg-white/60 hover:bg-white/90 hover:shadow-sm transition-all">
+                  <div className="rounded-lg border border-gray-200/60 bg-white/60 hover:bg-white/90 hover:shadow-sm transition-all dark:bg-black dark:border-gray-700 dark:hover:bg-gray-900">
                     <div className="p-4 sm:p-5">
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0 flex-1">
@@ -245,12 +245,12 @@ export default function IncidentTimeline() {
                             <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${TYPE_COLORS[inc.incident_type] || TYPE_COLORS.other}`}>
                               {TYPE_LABELS[inc.incident_type] || inc.incident_type}
                             </span>
-                            <span className="inline-flex items-center gap-1 text-xs text-gray-500">
+                            <span className="inline-flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
                               <Calendar className="h-3 w-3" />
                               {formatDate(inc.incident_date)} at {formatTime(inc.incident_date)}
                             </span>
                             {inc.location && (
-                              <span className="inline-flex items-center gap-1 text-xs text-gray-500">
+                              <span className="inline-flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
                                 <MapPin className="h-3 w-3" />
                                 {inc.location}
                               </span>
@@ -258,14 +258,14 @@ export default function IncidentTimeline() {
                           </div>
 
                           {/* Description */}
-                          <p className="text-sm text-gray-700 line-clamp-3 whitespace-pre-wrap">{inc.description}</p>
+                          <p className="text-sm text-gray-700 line-clamp-3 whitespace-pre-wrap dark:text-gray-300">{inc.description}</p>
 
                           {/* Actions row */}
                           <div className="mt-3 flex items-center gap-2 flex-wrap">
                             <button
                               onClick={() => handleGenerateComplaint(inc.id)}
                               disabled={generatingComplaint === inc.id}
-                              className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors disabled:opacity-50"
+                              className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors disabled:opacity-50 dark:bg-black dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-900 dark:hover:text-white"
                             >
                               {generatingComplaint === inc.id ? (
                                 <Loader2 className="h-3 w-3 animate-spin" />
@@ -281,14 +281,14 @@ export default function IncidentTimeline() {
                         <div className="flex items-center gap-1 shrink-0 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                           <button
                             onClick={() => navigate(`/dashboard/dv-log/edit/${inc.id}`)}
-                            className="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors touch-manipulation"
+                            className="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors touch-manipulation dark:hover:bg-gray-800 dark:hover:text-gray-300"
                             aria-label="Edit"
                           >
                             <Edit2 className="h-4 w-4" />
                           </button>
                           <button
                             onClick={() => setDeleteConfirmId(inc.id)}
-                            className="rounded-lg p-2 text-gray-400 hover:bg-red-50 hover:text-red-600 transition-colors touch-manipulation"
+                            className="rounded-lg p-2 text-gray-400 hover:bg-red-50 hover:text-red-600 transition-colors touch-manipulation dark:hover:bg-red-900/30 dark:hover:text-red-400"
                             aria-label="Delete"
                           >
                             <Trash2 className="h-4 w-4" />
