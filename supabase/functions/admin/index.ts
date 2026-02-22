@@ -420,24 +420,32 @@ serve(async (req) => {
       if ('response' in result) return result.response
       const { supabase } = result
 
+      // Use targeted count queries instead of fetching all rows
       const [
-        { data: allSubs },
+        { count: totalSubs },
+        { count: freeCount },
+        { count: premiumCount },
+        { count: activeCount },
+        { count: cancelledCount },
+        { count: pastDueCount },
+        { count: expiredCount },
         { data: recentSubs },
         { data: usageLimits },
       ] = await Promise.all([
-        supabase.from('subscriptions').select('id, user_id, plan, status, current_period_start, current_period_end, cancelled_at, created_at'),
+        supabase.from('subscriptions').select('*', { count: 'exact', head: true }),
+        supabase.from('subscriptions').select('*', { count: 'exact', head: true }).eq('plan', 'free'),
+        supabase.from('subscriptions').select('*', { count: 'exact', head: true }).eq('plan', 'premium'),
+        supabase.from('subscriptions').select('*', { count: 'exact', head: true }).eq('status', 'active'),
+        supabase.from('subscriptions').select('*', { count: 'exact', head: true }).eq('status', 'cancelled'),
+        supabase.from('subscriptions').select('*', { count: 'exact', head: true }).eq('status', 'past_due'),
+        supabase.from('subscriptions').select('*', { count: 'exact', head: true }).eq('status', 'expired'),
         supabase.from('subscriptions').select('id, user_id, plan, status, created_at').order('created_at', { ascending: false }).limit(20),
-        supabase.from('usage_limits').select('user_id, month_year, ai_analyses_count, pdf_exports_count, vault_uploads_count, breakup_count, red_flag_count').order('month_year', { ascending: false }).limit(500),
+        supabase.from('usage_limits').select('month_year, ai_analyses_count, pdf_exports_count, vault_uploads_count, breakup_count, red_flag_count').order('month_year', { ascending: false }).limit(200),
       ])
 
-      const planCounts: Record<string, number> = {}
-      const statusCounts: Record<string, number> = {}
-      ;(allSubs || []).forEach((s: any) => {
-        planCounts[s.plan] = (planCounts[s.plan] || 0) + 1
-        statusCounts[s.status] = (statusCounts[s.status] || 0) + 1
-      })
+      const planCounts: Record<string, number> = { free: freeCount ?? 0, premium: premiumCount ?? 0 }
+      const statusCounts: Record<string, number> = { active: activeCount ?? 0, cancelled: cancelledCount ?? 0, past_due: pastDueCount ?? 0, expired: expiredCount ?? 0 }
 
-      // Aggregate usage across all users
       let totalAnalyses = 0, totalExports = 0, totalUploads = 0, totalBreakups = 0, totalRedFlags = 0
       const monthlyUsage: Record<string, { analyses: number; exports: number; uploads: number }> = {}
       ;(usageLimits || []).forEach((u: any) => {
@@ -466,7 +474,7 @@ serve(async (req) => {
       return new Response(JSON.stringify({
         ok: true,
         data: {
-          totalSubscriptions: allSubs?.length || 0,
+          totalSubscriptions: totalSubs ?? 0,
           planCounts,
           statusCounts,
           usageTotals: { analyses: totalAnalyses, exports: totalExports, uploads: totalUploads, breakups: totalBreakups, redFlags: totalRedFlags },

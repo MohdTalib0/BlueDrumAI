@@ -1,4 +1,4 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.4'
+import { getServiceClient } from './supabase.ts'
 
 // Plan limits
 const PLAN_LIMITS = {
@@ -29,14 +29,6 @@ const LIMIT_TO_COLUMN: Record<LimitKey, string> = {
   vault_uploads: 'vault_uploads_count',
   breakup:      'breakup_count',
   red_flag:     'red_flag_count',
-}
-
-function getServiceClient() {
-  return createClient(
-    Deno.env.get('SUPABASE_URL')!,
-    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
-    { auth: { autoRefreshToken: false, persistSession: false } },
-  )
 }
 
 function currentMonthDate(): string {
@@ -194,6 +186,60 @@ export function limitReachedResponse(
     }),
     { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
   )
+}
+
+/**
+ * Combined check for vault uploads: single subscription lookup, parallel usage + storage check.
+ * Avoids the duplicate getUserSubscription() call that happens when checkUsageLimit and
+ * checkStorageLimit are called independently.
+ */
+export async function checkUploadLimits(
+  userId: string,
+  newFileBytes: number,
+): Promise<{ usageResult: LimitCheckResult; storageResult: StorageLimitResult }> {
+  const sub = await getUserSubscription(userId)
+  const usageCap = PLAN_LIMITS[sub.plan].vault_uploads
+  const storageCap = PLAN_LIMITS[sub.plan].storage_bytes
+  const db = getServiceClient()
+  const monthDate = currentMonthDate()
+
+  // If both unlimited, skip queries entirely
+  if (usageCap === -1 && storageCap === -1) {
+    return {
+      usageResult: { allowed: true, current: 0, limit: -1, plan: sub.plan },
+      storageResult: { allowed: true, usedBytes: 0, limitBytes: -1, plan: sub.plan },
+    }
+  }
+
+  // Run usage + storage queries in parallel
+  const [usageRow, storageRes] = await Promise.all([
+    usageCap === -1 ? null : getOrCreateUsageRow(userId, monthDate),
+    storageCap === -1 ? null : db.from('vault_entries').select('file_size').eq('user_id', userId),
+  ])
+
+  let usageResult: LimitCheckResult
+  if (usageCap === -1) {
+    usageResult = { allowed: true, current: 0, limit: -1, plan: sub.plan }
+  } else {
+    const current = ((usageRow as Record<string, number>)?.vault_uploads_count) || 0
+    usageResult = current >= usageCap
+      ? { allowed: false, current, limit: usageCap, plan: sub.plan, upgradeNeeded: true }
+      : { allowed: true, current, limit: usageCap, plan: sub.plan }
+  }
+
+  let storageResult: StorageLimitResult
+  if (storageCap === -1) {
+    storageResult = { allowed: true, usedBytes: 0, limitBytes: -1, plan: sub.plan }
+  } else {
+    const usedBytes = (storageRes?.data || []).reduce(
+      (s: number, r: { file_size: number | null }) => s + (r.file_size || 0), 0,
+    )
+    storageResult = (usedBytes + newFileBytes > storageCap)
+      ? { allowed: false, usedBytes, limitBytes: storageCap, plan: sub.plan, upgradeNeeded: true }
+      : { allowed: true, usedBytes, limitBytes: storageCap, plan: sub.plan }
+  }
+
+  return { usageResult, storageResult }
 }
 
 export async function getFullUsageSummary(userId: string) {

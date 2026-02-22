@@ -301,13 +301,14 @@ serve(async (req) => {
       )
     }
 
-    // GET /history - Get analysis history
+    // GET /history - Get analysis history (lightweight list — full text fetched per-item via GET /:id)
     if (url.pathname.endsWith('/history') && req.method === 'GET') {
       const { data, error } = await supabase
         .from('chat_analyses')
-        .select('id, user_id, risk_score, red_flags, keywords_detected, analysis_text, platform, patterns_detected, recommendations, created_at')
+        .select('id, user_id, risk_score, red_flags, keywords_detected, platform, created_at')
         .eq('user_id', userId)
         .order('created_at', { ascending: false })
+        .limit(50)
 
       if (error) {
         return new Response(
@@ -506,9 +507,10 @@ serve(async (req) => {
     if (url.pathname.endsWith('/trends') && req.method === 'GET') {
       const { data, error } = await supabase
         .from('chat_analyses')
-        .select('id, risk_score, red_flags, patterns_detected, keywords_detected, platform, created_at')
+        .select('id, risk_score, red_flags, keywords_detected, platform, created_at')
         .eq('user_id', userId)
         .order('created_at', { ascending: true })
+        .limit(100)
 
       if (error) {
         return new Response(

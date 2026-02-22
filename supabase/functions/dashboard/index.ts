@@ -41,7 +41,8 @@ serve(async (req) => {
           .from('income_tracker')
           .select('id, month_year, gross_income, deductions, expenses, created_at', { count: 'exact' })
           .eq('user_id', userId)
-          .order('month_year', { ascending: false }),
+          .order('month_year', { ascending: false })
+          .limit(24),
         supabase
           .from('breakup_messages')
           .select('id, template_type, created_at')

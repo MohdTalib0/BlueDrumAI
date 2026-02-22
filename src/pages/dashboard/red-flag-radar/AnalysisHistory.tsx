@@ -30,7 +30,6 @@ interface ChatAnalysis {
   risk_score: number
   red_flags: any[]
   keywords_detected: string[]
-  analysis_text: string | null
   created_at: string
 }
 
@@ -181,7 +180,6 @@ export default function AnalysisHistory() {
       const lowerQuery = query.toLowerCase()
       filtered = filtered.filter(
         (analysis) =>
-          (analysis.analysis_text || '').toLowerCase().includes(lowerQuery) ||
           (analysis.keywords_detected || []).some((k) => k.toLowerCase().includes(lowerQuery)) ||
           (analysis.red_flags || []).some((f: any) => f.type?.toLowerCase().includes(lowerQuery))
       )
@@ -478,8 +476,12 @@ export default function AnalysisHistory() {
                         </div>
                       </div>
 
-                      {/* Summary */}
-                      <p className="mb-3 sm:mb-4 line-clamp-2 text-xs sm:text-sm text-gray-700 dark:text-gray-300">{analysis.analysis_text || 'No summary available'}</p>
+                      {/* Red flags summary */}
+                      <p className="mb-3 sm:mb-4 line-clamp-2 text-xs sm:text-sm text-gray-700 dark:text-gray-300">
+                        {(analysis.red_flags || []).length > 0
+                          ? (analysis.red_flags || []).slice(0, 3).map((f: any) => f.type || f).join(', ')
+                          : 'No red flags detected'}
+                      </p>
 
                       {/* Stats */}
                       <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-gray-600 dark:text-gray-400">

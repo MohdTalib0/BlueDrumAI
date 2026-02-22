@@ -2,7 +2,7 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createSupabaseClient } from '../_shared/supabase.ts'
 import { getUserId } from '../_shared/auth.ts'
 import { getCorsHeaders } from '../_shared/cors.ts'
-import { checkUsageLimit, checkStorageLimit, incrementUsageSimple, limitReachedResponse } from '../_shared/subscription.ts'
+import { checkUploadLimits, incrementUsageSimple, limitReachedResponse } from '../_shared/subscription.ts'
 
 serve(async (req) => {
   const corsHeaders = getCorsHeaders(req)
@@ -84,12 +84,10 @@ serve(async (req) => {
         )
       }
 
-      // Check subscription limits (file count + storage)
-      const uploadLimit = await checkUsageLimit(userId, 'vault_uploads')
-      if (!uploadLimit.allowed) return limitReachedResponse('vault_uploads', uploadLimit, corsHeaders)
-
-      const storageLimit = await checkStorageLimit(userId, file.size)
-      if (!storageLimit.allowed) return limitReachedResponse('storage', storageLimit, corsHeaders)
+      // Check both limits with a single subscription lookup + parallel queries
+      const { usageResult, storageResult } = await checkUploadLimits(userId, file.size)
+      if (!usageResult.allowed) return limitReachedResponse('vault_uploads', usageResult, corsHeaders)
+      if (!storageResult.allowed) return limitReachedResponse('storage', storageResult, corsHeaders)
 
       // Upload to Supabase Storage
       // Path inside the bucket: userId/timestamp.ext (bucket name is already 'vault-files')

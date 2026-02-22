@@ -395,32 +395,30 @@ export default function TimelineView() {
     if (selectedIds.size === 0) return
     setDeleteConfirm(null)
     const idsToDelete = Array.from(selectedIds)
+    const token = sessionToken
+    if (!token) return
+
+    const headers = authHeaders(token)
+
+    // Delete in parallel batches of 5 to avoid overwhelming the server
+    const BATCH_SIZE = 5
     let successCount = 0
     let failCount = 0
 
-    for (const id of idsToDelete) {
-      try {
-        const token = sessionToken
-        if (!token) continue
-
-        const { getEdgeFunctionUrl, authHeaders } = await import('../../../lib/api.ts')
-        const headers = authHeaders(token)
-        const response = await fetch(`${getEdgeFunctionUrl('vault')}/entry/${id}`, {
-          method: 'DELETE',
-          headers,
-        })
-
-        if (response.ok) {
-          successCount++
-        } else {
-          failCount++
-        }
-      } catch {
-        failCount++
-      }
+    for (let i = 0; i < idsToDelete.length; i += BATCH_SIZE) {
+      const batch = idsToDelete.slice(i, i + BATCH_SIZE)
+      const results = await Promise.allSettled(
+        batch.map(id =>
+          fetch(`${getEdgeFunctionUrl('vault')}/entry/${id}`, { method: 'DELETE', headers })
+            .then(r => r.ok)
+        )
+      )
+      results.forEach(r => {
+        if (r.status === 'fulfilled' && r.value) successCount++
+        else failCount++
+      })
     }
 
-    // Reload entries
     await loadEntries()
 
     if (failCount > 0) {
