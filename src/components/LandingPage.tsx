@@ -248,7 +248,7 @@ export default function LandingPage() {
                 <button onClick={() => navigate('/dashboard')} className="hidden rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-primary-600/20 transition-all hover:bg-primary-700 sm:inline-flex">
                   Dashboard
                 </button>
-                <button onClick={() => signOut().then(() => navigate('/sign-in'))} className="rounded-lg border border-gray-200 dark:border-primary-500/20 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 transition hover:border-gray-300 dark:hover:border-primary-500/30">
+                <button onClick={() => signOut().catch(() => {}).finally(() => navigate('/sign-in'))} className="rounded-lg border border-gray-200 dark:border-primary-500/20 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 transition hover:border-gray-300 dark:hover:border-primary-500/30">
                   Sign out
                 </button>
               </>

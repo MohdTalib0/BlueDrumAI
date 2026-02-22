@@ -5,7 +5,7 @@ import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer } from 'recharts'
 import { format } from 'date-fns'
 import { AdminLayout } from '../../layouts/AdminLayout'
 import { useAuth } from '../../context/AuthContext'
-import { getEdgeFunctionUrl, authHeaders } from '../../lib/api'
+import { getEdgeFunctionUrl, apiFetch } from '../../lib/api'
 import { useDarkMode } from '../../hooks/useDarkMode'
 
 interface RecentUser {
@@ -51,8 +51,7 @@ export default function AdminDashboard() {
       setError('')
 
       try {
-        const res = await fetch(`${getEdgeFunctionUrl('admin')}/stats`, {
-          headers: authHeaders(sessionToken),
+        const res = await apiFetch(`${getEdgeFunctionUrl('admin')}/stats`, sessionToken, {
           signal: controller.signal,
         })
         if (!res.ok) throw new Error('Failed to fetch admin stats')

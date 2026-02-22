@@ -67,7 +67,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   }
 
   if (!user) {
-    return <Navigate to="/" replace />
+    return <Navigate to="/sign-in" replace />
   }
 
   const isOnboardingPage = location.pathname === '/onboarding'
@@ -81,7 +81,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 function MaleRoute({ children }: { children: React.ReactNode }) {
   const { user, loading, profileReady } = useAuth()
   if (loading || (user && !profileReady)) return <PageLoader />
-  if (!user) return <Navigate to="/" replace />
+  if (!user) return <Navigate to="/sign-in" replace />
   if (!user.onboarding_completed) return <Navigate to="/onboarding" replace />
   if (user.gender === 'female') return <Navigate to="/dashboard" replace />
   return <>{children}</>
@@ -90,7 +90,7 @@ function MaleRoute({ children }: { children: React.ReactNode }) {
 function FemaleRoute({ children }: { children: React.ReactNode }) {
   const { user, loading, profileReady } = useAuth()
   if (loading || (user && !profileReady)) return <PageLoader />
-  if (!user) return <Navigate to="/" replace />
+  if (!user) return <Navigate to="/sign-in" replace />
   if (!user.onboarding_completed) return <Navigate to="/onboarding" replace />
   if (user.gender === 'male') return <Navigate to="/dashboard" replace />
   return <>{children}</>
@@ -99,7 +99,7 @@ function FemaleRoute({ children }: { children: React.ReactNode }) {
 function AdminRoute({ children }: { children: React.ReactNode }) {
   const { user, loading, profileReady } = useAuth()
   if (loading || (user && !profileReady)) return <PageLoader />
-  if (!user) return <Navigate to="/" replace />
+  if (!user) return <Navigate to="/sign-in" replace />
   if (user.role !== 'admin' && user.role !== 'super_admin') return <Navigate to="/dashboard" replace />
   return <>{children}</>
 }

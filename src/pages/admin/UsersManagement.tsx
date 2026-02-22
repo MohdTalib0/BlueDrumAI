@@ -5,7 +5,7 @@ import { format } from 'date-fns'
 import toast from 'react-hot-toast'
 import { AdminLayout } from '../../layouts/AdminLayout'
 import { useAuth } from '../../context/AuthContext'
-import { getEdgeFunctionUrl, authHeaders } from '../../lib/api'
+import { getEdgeFunctionUrl, apiFetch } from '../../lib/api'
 
 interface UserRecord {
   id: string
@@ -92,7 +92,7 @@ export default function UsersManagement() {
     setLoading(true)
     try {
       const url = `${getEdgeFunctionUrl('admin')}/users?page=${page}&limit=${limit}&search=${encodeURIComponent(debouncedSearch)}`
-      const res = await fetch(url, { headers: authHeaders(sessionToken) })
+      const res = await apiFetch(url, sessionToken)
       const data = await res.json()
       if (data.ok) {
         setUsers(data.users)
@@ -111,9 +111,8 @@ export default function UsersManagement() {
     if (!sessionToken) return
     setUpdatingRole(userId)
     try {
-      const res = await fetch(`${getEdgeFunctionUrl('admin')}/users/${userId}`, {
+      const res = await apiFetch(`${getEdgeFunctionUrl('admin')}/users/${userId}`, sessionToken, {
         method: 'PATCH',
-        headers: authHeaders(sessionToken),
         body: JSON.stringify({ role: newRole }),
       })
       const data = await res.json()

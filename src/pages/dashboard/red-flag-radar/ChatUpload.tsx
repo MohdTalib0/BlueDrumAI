@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Upload, FileText, AlertTriangle, Loader2, CheckCircle2, Info, X, MessageSquare, Mail, Smartphone, Type, Bot, GitCompare, BookOpen } from 'lucide-react'
 import { useAuth } from '../../../context/AuthContext'
 import { DashboardLayout } from '../../../layouts/DashboardLayout'
-import { getEdgeFunctionUrl, authHeaders } from '../../../lib/api'
+import { getEdgeFunctionUrl, authHeaders, apiFetch } from '../../../lib/api'
 import UpgradePrompt from '../../../components/UpgradePrompt'
 
 type PlatformType = 'whatsapp' | 'sms' | 'email' | 'manual' | 'auto'
@@ -82,14 +82,8 @@ export default function ChatUpload() {
         setStatus('Analyzing text...')
         setProgress(30)
 
-        const headers = authHeaders(sessionToken!)
-
-        const response = await fetch(`${getEdgeFunctionUrl('analyze')}/text`, {
+        const response = await apiFetch(`${getEdgeFunctionUrl('analyze')}/text`, sessionToken!, {
           method: 'POST',
-          headers: {
-            ...headers,
-            'Content-Type': 'application/json',
-          },
           body: JSON.stringify({
             text: manualText,
             platform: platform === 'auto' ? undefined : platform,
@@ -140,6 +134,10 @@ export default function ChatUpload() {
         setStatus('Analyzing with AI...')
 
         if (!response.ok) {
+          if (response.status === 401) {
+            window.dispatchEvent(new CustomEvent('auth:session-expired'))
+            throw new Error('Session expired')
+          }
           const errorData = await response.json().catch(() => ({ error: 'Failed to analyze chat' }))
           if (errorData.error === 'limit_reached') {
             setLimitInfo({ feature: errorData.limitKey, current: errorData.current, limit: errorData.limit })

@@ -76,42 +76,58 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [profileReady, setProfileReady] = useState(false)
   const profileFetchedRef = useRef(false)
 
+  const clearAuth = useCallback(() => {
+    setUser(null)
+    setSessionToken(null)
+    setProfileReady(true)
+    setLoading(false)
+    profileFetchedRef.current = true
+  }, [])
+
   const fetchProfile = useCallback(async (token: string, userId: string, email?: string | null) => {
+    let res: Response | undefined
     try {
-      const res = await fetch(`${getEdgeFunctionUrl('auth')}/me`, {
+      res = await fetch(`${getEdgeFunctionUrl('auth')}/me`, {
         headers: { Authorization: `Bearer ${token}` },
       })
-      if (res.ok) {
-        const data = await res.json()
-        if (data.ok && data.user) {
-          setUser({
-            id: userId,
-            email: data.user.email ?? email,
-            gender: data.user.gender ?? null,
-            first_name: data.user.first_name ?? null,
-            last_name: data.user.last_name ?? null,
-            onboarding_completed: data.user.onboarding_completed ?? false,
-            role: data.user.role ?? 'user',
-          })
-          setProfileReady(true)
-          return
-        }
-      }
+    } catch {
+      // Network error — fall back to basic auth data so user isn't stuck
+      setUser({ id: userId, email, gender: null, onboarding_completed: false })
+      setProfileReady(true)
+      return
+    }
 
-      if (res.status === 401) {
-        console.warn('Session token rejected by server — forcing local sign-out')
-        await supabase.auth.signOut({ scope: 'local' })
-        setUser(null)
-        setSessionToken(null)
+    if (res.ok) {
+      const data = await res.json()
+      if (data.ok && data.user) {
+        setUser({
+          id: userId,
+          email: data.user.email ?? email,
+          gender: data.user.gender ?? null,
+          first_name: data.user.first_name ?? null,
+          last_name: data.user.last_name ?? null,
+          onboarding_completed: data.user.onboarding_completed ?? false,
+          role: data.user.role ?? 'user',
+        })
         setProfileReady(true)
         return
       }
-    } catch {
-      // Network error — fall back to basic auth data
     }
-    setUser({ id: userId, email, gender: null, onboarding_completed: false })
-    setProfileReady(true)
-  }, [])
+
+    // 401 or any non-ok response — clear everything first, THEN sign out
+    // (clearing first prevents onAuthStateChange from resetting state)
+    clearAuth()
+    supabase.auth.signOut({ scope: 'local' }).catch(() => {})
+  }, [clearAuth])
+
+  useEffect(() => {
+    function handleSessionExpired() {
+      clearAuth()
+      supabase.auth.signOut({ scope: 'local' }).catch(() => {})
+    }
+    window.addEventListener('auth:session-expired', handleSessionExpired)
+    return () => window.removeEventListener('auth:session-expired', handleSessionExpired)
+  }, [clearAuth])
 
   useEffect(() => {
     let mounted = true
@@ -123,6 +139,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (error || !data.session) {
         setUser(null)
         setSessionToken(null)
+        setProfileReady(true)
         setLoading(false)
       } else {
         const { access_token, user: sessionUser } = data.session
@@ -158,7 +175,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else {
         setUser(null)
         setSessionToken(null)
-        setProfileReady(false)
+        setProfileReady(true)
         profileFetchedRef.current = false
       }
       setLoading(false)
@@ -221,12 +238,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [recordSession])
 
   const signOut = useCallback(async () => {
-    const { error } = await supabase.auth.signOut()
-    if (error) {
-      // Server session already gone — clear local state so the user isn't stuck
-      await supabase.auth.signOut({ scope: 'local' })
+    clearAuth()
+    try {
+      const { error } = await supabase.auth.signOut()
+      if (error) await supabase.auth.signOut({ scope: 'local' }).catch(() => {})
+    } catch {
+      supabase.auth.signOut({ scope: 'local' }).catch(() => {})
     }
-  }, [])
+  }, [clearAuth])
 
   const resetPassword = useCallback(async (email: string) => {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {

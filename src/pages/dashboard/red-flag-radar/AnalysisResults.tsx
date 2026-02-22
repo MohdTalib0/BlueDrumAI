@@ -20,7 +20,7 @@ import { useAuth } from '../../../context/AuthContext'
 import { DashboardLayout } from '../../../layouts/DashboardLayout'
 import { format } from 'date-fns'
 import toast from 'react-hot-toast'
-import { getEdgeFunctionUrl, authHeaders } from '../../../lib/api'
+import { getEdgeFunctionUrl, apiFetch } from '../../../lib/api'
 import ConfirmModal from '../../../components/ui/ConfirmModal'
 
 interface RedFlag {
@@ -74,10 +74,7 @@ export default function AnalysisResults() {
         throw new Error('Not authenticated')
       }
 
-      const headers = authHeaders(sessionToken!)
-      const response = await fetch(`${getEdgeFunctionUrl('analyze')}/${id}`, {
-        headers,
-      })
+      const response = await apiFetch(`${getEdgeFunctionUrl('analyze')}/${id}`, sessionToken!)
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ error: 'Failed to load analysis' }))
@@ -101,13 +98,8 @@ export default function AnalysisResults() {
 
     try {
       setExporting(true)
-      const headers = authHeaders(sessionToken!)
-      const response = await fetch(`${getEdgeFunctionUrl('export')}/analysis`, {
+      const response = await apiFetch(`${getEdgeFunctionUrl('export')}/analysis`, sessionToken!, {
         method: 'POST',
-        headers: {
-          ...headers,
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({ analysisId: id }),
       })
 
@@ -139,10 +131,8 @@ export default function AnalysisResults() {
         throw new Error('Not authenticated')
       }
 
-      const headers = authHeaders(sessionToken!)
-      const response = await fetch(`${getEdgeFunctionUrl('analyze')}/${id}`, {
+      const response = await apiFetch(`${getEdgeFunctionUrl('analyze')}/${id}`, sessionToken!, {
         method: 'DELETE',
-        headers,
       })
 
       if (!response.ok) {

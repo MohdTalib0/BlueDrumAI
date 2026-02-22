@@ -7,7 +7,7 @@ import { format, parseISO, startOfYear, endOfYear, isWithinInterval, subMonths }
 import { LineChart as RechartsLineChart, Line, BarChart, Bar, PieChart as RechartsPieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 
 import toast from 'react-hot-toast'
-import { getEdgeFunctionUrl } from '../../../lib/api'
+import { getEdgeFunctionUrl, apiFetch } from '../../../lib/api'
 import ConfirmModal from '../../../components/ui/ConfirmModal'
 
 interface IncomeEntry {
@@ -91,10 +91,7 @@ export default function ExpenseTracker() {
         throw new Error('Not authenticated')
       }
 
-      const response = await fetch(`${getEdgeFunctionUrl('income')}/history`, {
-        headers: {
-          Authorization: `Bearer ${sessionToken}`,
-        },
+      const response = await apiFetch(`${getEdgeFunctionUrl('income')}/history`, sessionToken!, {
         signal,
       })
 
@@ -142,11 +139,8 @@ export default function ExpenseTracker() {
         throw new Error('Not authenticated')
       }
 
-      const response = await fetch(`${getEdgeFunctionUrl('income')}/entry/${id}`, {
+      const response = await apiFetch(`${getEdgeFunctionUrl('income')}/entry/${id}`, sessionToken!, {
         method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${sessionToken}`,
-        },
       })
 
       if (!response.ok) {

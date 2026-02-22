@@ -14,7 +14,7 @@ import {
 } from 'lucide-react'
 import { DashboardLayout } from '../../../layouts/DashboardLayout'
 import { useAuth } from '../../../context/AuthContext'
-import { getEdgeFunctionUrl, authHeaders } from '../../../lib/api'
+import { getEdgeFunctionUrl, apiFetch } from '../../../lib/api'
 import { format } from 'date-fns'
 import toast from 'react-hot-toast'
 import ConfirmModal from '../../../components/ui/ConfirmModal'
@@ -91,13 +91,10 @@ export default function MessageGenerator() {
     loadHistory()
   }, [])
 
-  const getHeaders = () => authHeaders(sessionToken!)
-
   const loadHistory = async () => {
     try {
       setLoadingHistory(true)
-      const headers = await getHeaders()
-      const res = await fetch(`${getEdgeFunctionUrl('breakup')}/messages`, { headers })
+      const res = await apiFetch(`${getEdgeFunctionUrl('breakup')}/messages`, sessionToken!)
       if (res.ok) {
         const data = await res.json()
         setSavedMessages(data.messages || [])
@@ -115,10 +112,8 @@ export default function MessageGenerator() {
       setGenerating(true)
       setGenerated(null)
 
-      const headers = await getHeaders()
-      const res = await fetch(`${getEdgeFunctionUrl('breakup')}/generate`, {
+      const res = await apiFetch(`${getEdgeFunctionUrl('breakup')}/generate`, sessionToken!, {
         method: 'POST',
-        headers: { ...headers, 'Content-Type': 'application/json' },
         body: JSON.stringify({
           template_type: templateType,
           tone,
@@ -188,10 +183,8 @@ export default function MessageGenerator() {
     setDeleteConfirmId(null)
     try {
       setDeletingId(id)
-      const headers = await getHeaders()
-      const res = await fetch(`${getEdgeFunctionUrl('breakup')}/message/${id}`, {
+      const res = await apiFetch(`${getEdgeFunctionUrl('breakup')}/message/${id}`, sessionToken!, {
         method: 'DELETE',
-        headers,
       })
       if (!res.ok) throw new Error('Delete failed')
       setSavedMessages((prev) => prev.filter((m) => m.id !== id))

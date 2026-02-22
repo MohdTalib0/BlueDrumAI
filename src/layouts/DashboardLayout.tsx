@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { Home, LogOut, Clock4, Menu, X, TrendingUp, AlertTriangle, History, ArrowLeft, Gift, ShieldAlert, Shield, Calculator, MessageSquare, UserCircle, User, MessageCircle, HelpCircle, Bug, Sparkles, Wrench, AlertCircle, MessageSquarePlus, Send, Crown, FileText, Moon, Sun } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuth, type UserGender } from '../context/AuthContext'
-import { getEdgeFunctionUrl } from '../lib/api'
+import { getEdgeFunctionUrl, apiFetch } from '../lib/api'
 import { useDarkMode } from '../hooks/useDarkMode'
 
 interface Props {
@@ -59,9 +59,8 @@ export function DashboardLayout({ children, title = 'Dashboard', subtitle, right
     if (!sessionToken) return
     setFeedbackSending(true)
     try {
-      const res = await fetch(`${getEdgeFunctionUrl('auth')}/feedback`, {
+      const res = await apiFetch(`${getEdgeFunctionUrl('auth')}/feedback`, sessionToken, {
         method: 'POST',
-        headers: { Authorization: `Bearer ${sessionToken}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ type: feedbackType, title: feedbackTitle.trim(), description: feedbackDesc.trim() }),
       })
       const data = await res.json()
@@ -226,7 +225,7 @@ export function DashboardLayout({ children, title = 'Dashboard', subtitle, right
                       </button>
 
                       <button
-                        onClick={() => { signOut().then(() => navigate('/sign-in')); setUserMenuOpen(false) }}
+                        onClick={() => { signOut().catch(() => {}); setUserMenuOpen(false) }}
                         className="gap-2 bg-transparent w-full flex items-center justify-start space-x-2 px-2 py-1 rounded-md hover:bg-gray-900/10 dark:hover:bg-gray-900 transition-colors text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white -tracking-[.08em] text-left cursor-pointer"
                       >
                         <LogOut className="w-4 h-4 text-red-400" aria-hidden="true" />
@@ -292,9 +291,7 @@ export function DashboardLayout({ children, title = 'Dashboard', subtitle, right
         </nav>
         <div className="border-t border-gray-200/50 dark:border-primary-500/10 px-4 py-4">
           <button
-            onClick={() => {
-              signOut().then(() => navigate('/sign-in'))
-            }}
+            onClick={() => signOut().catch(() => {})}
             className="group flex w-full items-center gap-3 p-3 rounded-xl text-sm font-medium text-red-600 dark:text-red-400 hover:bg-gradient-to-tr hover:from-red-50/40 hover:to-red-100/30 dark:hover:from-red-900/10 dark:hover:to-red-900/20 hover:shadow-sm transition-all -tracking-[0.08em]"
           >
             <LogOut className="h-5 w-5 group-hover:scale-110 transition-all" />

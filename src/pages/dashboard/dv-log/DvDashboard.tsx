@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { ShieldAlert, Plus, Clock, FileHeart, AlertCircle } from 'lucide-react'
 import { useAuth } from '../../../context/AuthContext'
 import { DashboardLayout } from '../../../layouts/DashboardLayout'
-import { getEdgeFunctionUrl } from '../../../lib/api'
+import { getEdgeFunctionUrl, apiFetch } from '../../../lib/api'
 
 interface DvSummary {
   totalIncidents: number
@@ -46,8 +46,7 @@ export default function DvDashboard() {
   const loadSummary = async (signal?: AbortSignal) => {
     try {
       if (!sessionToken) return
-      const res = await fetch(`${getEdgeFunctionUrl('dv')}/summary`, {
-        headers: { Authorization: `Bearer ${sessionToken}` },
+      const res = await apiFetch(`${getEdgeFunctionUrl('dv')}/summary`, sessionToken, {
         signal,
       })
       if (!res.ok) throw new Error('Failed to load summary')

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import { Shield, AlertTriangle, ArrowRight } from 'lucide-react'
-import { getEdgeFunctionUrl, authHeaders } from '../lib/api'
+import { getEdgeFunctionUrl, apiFetch } from '../lib/api'
 
 
 export default function Onboarding() {
@@ -35,11 +35,8 @@ export default function Onboarding() {
         throw new Error('Not authenticated')
       }
 
-      // Update user profile (user should already be synced from useEffect)
-      const headers = authHeaders(token!)
-      const resp = await fetch(`${getEdgeFunctionUrl('auth')}/me`, {
+      const resp = await apiFetch(`${getEdgeFunctionUrl('auth')}/me`, token, {
         method: 'PATCH',
-        headers,
         body: JSON.stringify({
           gender,
           relationship_status: relationshipStatus,

@@ -4,7 +4,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recha
 import { format } from 'date-fns'
 import { AdminLayout } from '../../layouts/AdminLayout'
 import { useAuth } from '../../context/AuthContext'
-import { getEdgeFunctionUrl, authHeaders } from '../../lib/api'
+import { getEdgeFunctionUrl, apiFetch } from '../../lib/api'
 import { useDarkMode } from '../../hooks/useDarkMode'
 
 interface RecentSubscription {
@@ -72,8 +72,7 @@ export default function SubscriptionsAdmin() {
       setError('')
 
       try {
-        const res = await fetch(`${getEdgeFunctionUrl('admin')}/subscriptions`, {
-          headers: authHeaders(sessionToken),
+        const res = await apiFetch(`${getEdgeFunctionUrl('admin')}/subscriptions`, sessionToken, {
           signal: controller.signal,
         })
         if (!res.ok) throw new Error('Failed to fetch subscription data')

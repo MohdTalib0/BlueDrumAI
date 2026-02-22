@@ -15,7 +15,7 @@ import {
 import { useAuth } from '../../../context/AuthContext'
 import { DashboardLayout } from '../../../layouts/DashboardLayout'
 import { format } from 'date-fns'
-import { getEdgeFunctionUrl, authHeaders } from '../../../lib/api'
+import { getEdgeFunctionUrl, apiFetch } from '../../../lib/api'
 
 interface ChatAnalysis {
   id: string
@@ -75,10 +75,7 @@ export default function CompareAnalyses() {
         throw new Error('Not authenticated')
       }
 
-      const headers = authHeaders(sessionToken!)
-      const response = await fetch(`${getEdgeFunctionUrl('analyze')}/history`, {
-        headers,
-      })
+      const response = await apiFetch(`${getEdgeFunctionUrl('analyze')}/history`, sessionToken!)
 
       if (!response.ok) {
         throw new Error('Failed to load analyses')
@@ -127,13 +124,8 @@ export default function CompareAnalyses() {
         throw new Error('Not authenticated')
       }
 
-      const headers = authHeaders(sessionToken!)
-      const response = await fetch(`${getEdgeFunctionUrl('analyze')}/compare`, {
+      const response = await apiFetch(`${getEdgeFunctionUrl('analyze')}/compare`, sessionToken!, {
         method: 'POST',
-        headers: {
-          ...headers,
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({
           analysisIds: Array.from(selectedIds),
         }),

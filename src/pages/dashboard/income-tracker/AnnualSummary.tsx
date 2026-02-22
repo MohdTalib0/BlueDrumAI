@@ -7,7 +7,7 @@ import { format, parseISO, startOfYear, endOfYear, isWithinInterval } from 'date
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
 
 import toast from 'react-hot-toast'
-import { getEdgeFunctionUrl } from '../../../lib/api'
+import { getEdgeFunctionUrl, apiFetch } from '../../../lib/api'
 
 interface IncomeEntry {
   id: string
@@ -71,10 +71,7 @@ export default function AnnualSummary() {
         throw new Error('Not authenticated')
       }
 
-      const response = await fetch(`${getEdgeFunctionUrl('income')}/history`, {
-        headers: {
-          Authorization: `Bearer ${sessionToken}`,
-        },
+      const response = await apiFetch(`${getEdgeFunctionUrl('income')}/history`, sessionToken, {
         signal,
       })
 

@@ -7,7 +7,7 @@ import {
 import { format, formatDistanceToNow } from 'date-fns'
 import { AdminLayout } from '../../layouts/AdminLayout'
 import { useAuth } from '../../context/AuthContext'
-import { getEdgeFunctionUrl, authHeaders } from '../../lib/api'
+import { getEdgeFunctionUrl, apiFetch } from '../../lib/api'
 
 interface TimelineEvent {
   type: string
@@ -80,8 +80,7 @@ export default function UserTrajectory() {
       setLoading(true)
       setError('')
       try {
-        const res = await fetch(`${getEdgeFunctionUrl('admin')}/users/${id}/trajectory`, {
-          headers: authHeaders(sessionToken),
+        const res = await apiFetch(`${getEdgeFunctionUrl('admin')}/users/${id}/trajectory`, sessionToken, {
           signal: controller.signal,
         })
         if (!res.ok) throw new Error('Failed to fetch user trajectory')

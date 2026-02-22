@@ -4,7 +4,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 
 import { format } from 'date-fns'
 import { AdminLayout } from '../../layouts/AdminLayout'
 import { useAuth } from '../../context/AuthContext'
-import { getEdgeFunctionUrl, authHeaders } from '../../lib/api'
+import { getEdgeFunctionUrl, apiFetch } from '../../lib/api'
 import { useDarkMode } from '../../hooks/useDarkMode'
 
 interface Feature {
@@ -55,8 +55,7 @@ export default function FeatureUsagePage() {
       setLoading(true)
       setError('')
       try {
-        const res = await fetch(`${getEdgeFunctionUrl('admin')}/feature-usage`, {
-          headers: authHeaders(sessionToken),
+        const res = await apiFetch(`${getEdgeFunctionUrl('admin')}/feature-usage`, sessionToken, {
           signal: controller.signal,
         })
         if (!res.ok) throw new Error('Failed to fetch')

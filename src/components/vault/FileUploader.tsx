@@ -289,6 +289,10 @@ export default function FileUploader({ onUploadSuccess, onLimitReached, module =
       clearInterval(progressInterval)
 
       if (!response.ok) {
+        if (response.status === 401) {
+          window.dispatchEvent(new CustomEvent('auth:session-expired'))
+          throw new Error('Session expired')
+        }
         const data = await response.json().catch(() => null)
         if (data?.error === 'limit_reached') {
           throw new Error(`LIMIT:${data.limitKey}:${data.current}:${data.limit}`)

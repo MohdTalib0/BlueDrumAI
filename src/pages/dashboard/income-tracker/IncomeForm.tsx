@@ -24,7 +24,7 @@ interface IncomeData {
   notes?: string
 }
 
-import { getEdgeFunctionUrl } from '../../../lib/api'
+import { getEdgeFunctionUrl, apiFetch } from '../../../lib/api'
 
 export default function IncomeForm() {
   const { sessionToken } = useAuth()
@@ -72,10 +72,7 @@ export default function IncomeForm() {
         throw new Error('Not authenticated')
       }
 
-      const response = await fetch(`${getEdgeFunctionUrl('income')}/history`, {
-        headers: {
-          Authorization: `Bearer ${sessionToken}`,
-        },
+      const response = await apiFetch(`${getEdgeFunctionUrl('income')}/history`, sessionToken!, {
         signal,
       })
 
@@ -106,10 +103,7 @@ export default function IncomeForm() {
     try {
       if (!sessionToken) return
 
-      const response = await fetch(`${getEdgeFunctionUrl('income')}/history`, {
-        headers: {
-          Authorization: `Bearer ${sessionToken}`,
-        },
+      const response = await apiFetch(`${getEdgeFunctionUrl('income')}/history`, sessionToken!, {
         signal,
       })
 
@@ -134,12 +128,8 @@ export default function IncomeForm() {
         throw new Error('Not authenticated')
       }
 
-      const response = await fetch(`${getEdgeFunctionUrl('income')}/log`, {
+      const response = await apiFetch(`${getEdgeFunctionUrl('income')}/log`, sessionToken!, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${sessionToken}`,
-        },
         body: JSON.stringify(formData),
       })
 

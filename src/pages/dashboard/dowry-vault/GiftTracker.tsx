@@ -4,7 +4,7 @@ import { Gift, Plus, Search, Trash2, Edit2, IndianRupee, Calendar, Tag, Loader2,
 import toast from 'react-hot-toast'
 import { useAuth } from '../../../context/AuthContext'
 import { DashboardLayout } from '../../../layouts/DashboardLayout'
-import { getEdgeFunctionUrl } from '../../../lib/api'
+import { getEdgeFunctionUrl, apiFetch } from '../../../lib/api'
 import ConfirmModal from '../../../components/ui/ConfirmModal'
 
 interface DowryEntry {
@@ -59,8 +59,7 @@ export default function GiftTracker() {
   const loadEntries = async (signal?: AbortSignal) => {
     try {
       if (!sessionToken) return
-      const res = await fetch(`${getEdgeFunctionUrl('dowry')}/entries`, {
-        headers: { Authorization: `Bearer ${sessionToken}` },
+      const res = await apiFetch(`${getEdgeFunctionUrl('dowry')}/entries`, sessionToken, {
         signal,
       })
       if (!res.ok) throw new Error('Failed to load entries')
@@ -81,9 +80,8 @@ export default function GiftTracker() {
 
     try {
       if (!sessionToken) throw new Error('Not authenticated')
-      const res = await fetch(`${getEdgeFunctionUrl('dowry')}/entry/${entryId}`, {
+      const res = await apiFetch(`${getEdgeFunctionUrl('dowry')}/entry/${entryId}`, sessionToken, {
         method: 'DELETE',
-        headers: { Authorization: `Bearer ${sessionToken}` },
       })
       if (!res.ok) throw new Error('Failed to delete')
       toast.success('Entry deleted')

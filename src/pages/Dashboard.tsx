@@ -19,7 +19,7 @@ import {
   Calculator,
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
-import { getEdgeFunctionUrl, authHeaders } from '../lib/api'
+import { getEdgeFunctionUrl, apiFetch } from '../lib/api'
 import { DashboardLayout } from '../layouts/DashboardLayout'
 import { useDarkMode } from '../hooks/useDarkMode'
 import { format, parseISO } from 'date-fns'
@@ -111,11 +111,11 @@ export default function Dashboard() {
         setLoadingStats(true)
         setError('')
 
-        const headers = authHeaders(sessionToken)
-        const response = await fetch(`${getEdgeFunctionUrl('dashboard')}/stats`, {
-          headers,
-          signal: controller.signal,
-        })
+        const response = await apiFetch(
+          `${getEdgeFunctionUrl('dashboard')}/stats`,
+          sessionToken,
+          { signal: controller.signal },
+        )
 
         if (!response.ok) {
           throw new Error('Failed to fetch dashboard stats')

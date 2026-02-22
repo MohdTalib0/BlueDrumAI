@@ -3,7 +3,7 @@ import { Users, Plus, Trash2, Phone, Mail, MapPin, UserPlus, Loader2, AlertCircl
 import toast from 'react-hot-toast'
 import { useAuth } from '../../../context/AuthContext'
 import { DashboardLayout } from '../../../layouts/DashboardLayout'
-import { getEdgeFunctionUrl } from '../../../lib/api'
+import { getEdgeFunctionUrl, apiFetch } from '../../../lib/api'
 import ConfirmModal from '../../../components/ui/ConfirmModal'
 
 interface Witness {
@@ -63,8 +63,7 @@ export default function WitnessManager() {
   const loadWitnesses = async (signal?: AbortSignal) => {
     try {
       if (!sessionToken) return
-      const res = await fetch(`${getEdgeFunctionUrl('dowry')}/witnesses`, {
-        headers: { Authorization: `Bearer ${sessionToken}` },
+      const res = await apiFetch(`${getEdgeFunctionUrl('dowry')}/witnesses`, sessionToken, {
         signal,
       })
       if (!res.ok) throw new Error('Failed to load witnesses')
@@ -85,12 +84,8 @@ export default function WitnessManager() {
 
     try {
       if (!sessionToken) throw new Error('Not authenticated')
-      const res = await fetch(`${getEdgeFunctionUrl('dowry')}/witness`, {
+      const res = await apiFetch(`${getEdgeFunctionUrl('dowry')}/witness`, sessionToken, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${sessionToken}`,
-        },
         body: JSON.stringify({
           name: form.name.trim(),
           phone: form.phone.trim() || null,
@@ -126,9 +121,8 @@ export default function WitnessManager() {
 
     try {
       if (!sessionToken) throw new Error('Not authenticated')
-      const res = await fetch(`${getEdgeFunctionUrl('dowry')}/witness/${witnessId}`, {
+      const res = await apiFetch(`${getEdgeFunctionUrl('dowry')}/witness/${witnessId}`, sessionToken, {
         method: 'DELETE',
-        headers: { Authorization: `Bearer ${sessionToken}` },
       })
       if (!res.ok) throw new Error('Failed to delete')
       toast.success('Witness removed')

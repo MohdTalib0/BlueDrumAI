@@ -23,6 +23,30 @@ export function authHeaders(token: string): Record<string, string> {
 }
 
 /**
+ * Fetch wrapper that auto-detects 401 responses and dispatches a global
+ * 'auth:session-expired' event so AuthContext can redirect to sign-in.
+ * Use this instead of raw `fetch` for any authenticated API call.
+ */
+export async function apiFetch(
+  url: string,
+  token: string,
+  init?: RequestInit,
+): Promise<Response> {
+  const res = await fetch(url, {
+    ...init,
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+      ...((init?.headers as Record<string, string>) || {}),
+    },
+  })
+  if (res.status === 401) {
+    window.dispatchEvent(new CustomEvent('auth:session-expired'))
+  }
+  return res
+}
+
+/**
  * @deprecated Use `authHeaders(token)` with the token from useAuth().sessionToken instead.
  */
 export async function getAuthHeadersWithSession(): Promise<Record<string, string>> {

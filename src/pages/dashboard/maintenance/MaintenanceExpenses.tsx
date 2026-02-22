@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Receipt, Plus, Trash2, X, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react'
 import { useAuth } from '../../../context/AuthContext'
 import { DashboardLayout } from '../../../layouts/DashboardLayout'
-import { getEdgeFunctionUrl } from '../../../lib/api'
+import { getEdgeFunctionUrl, apiFetch } from '../../../lib/api'
 
 interface Expense {
   id: string
@@ -79,8 +79,7 @@ export default function MaintenanceExpenses() {
     try {
       if (!sessionToken) return
       setLoading(true)
-      const res = await fetch(`${getEdgeFunctionUrl('maintenance')}/expenses`, {
-        headers: { Authorization: `Bearer ${sessionToken}` },
+      const res = await apiFetch(`${getEdgeFunctionUrl('maintenance')}/expenses`, sessionToken, {
         signal,
       })
       if (!res.ok) throw new Error('Failed to load expenses')
@@ -110,12 +109,8 @@ export default function MaintenanceExpenses() {
     setSuccess('')
 
     try {
-      const res = await fetch(`${getEdgeFunctionUrl('maintenance')}/expense`, {
+      const res = await apiFetch(`${getEdgeFunctionUrl('maintenance')}/expense`, sessionToken, {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${sessionToken}`,
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({
           ...form,
           amount: form.amount,
@@ -147,9 +142,8 @@ export default function MaintenanceExpenses() {
     setError('')
 
     try {
-      const res = await fetch(`${getEdgeFunctionUrl('maintenance')}/expense/${id}`, {
+      const res = await apiFetch(`${getEdgeFunctionUrl('maintenance')}/expense/${id}`, sessionToken, {
         method: 'DELETE',
-        headers: { Authorization: `Bearer ${sessionToken}` },
       })
       if (!res.ok) throw new Error('Failed to delete expense')
       setExpenses((prev) => prev.filter((e) => e.id !== id))

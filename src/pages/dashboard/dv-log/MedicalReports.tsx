@@ -3,7 +3,7 @@ import { FileHeart, Plus, Trash2, Calendar, Building2, Stethoscope, Loader2, Ale
 import toast from 'react-hot-toast'
 import { useAuth } from '../../../context/AuthContext'
 import { DashboardLayout } from '../../../layouts/DashboardLayout'
-import { getEdgeFunctionUrl } from '../../../lib/api'
+import { getEdgeFunctionUrl, apiFetch } from '../../../lib/api'
 import ConfirmModal from '../../../components/ui/ConfirmModal'
 
 interface MedicalReport {
@@ -45,8 +45,7 @@ export default function MedicalReports() {
   const loadReports = async (signal?: AbortSignal) => {
     try {
       if (!sessionToken) return
-      const res = await fetch(`${getEdgeFunctionUrl('dv')}/medical-reports`, {
-        headers: { Authorization: `Bearer ${sessionToken}` },
+      const res = await apiFetch(`${getEdgeFunctionUrl('dv')}/medical-reports`, sessionToken, {
         signal,
       })
       if (!res.ok) throw new Error('Failed to load reports')
@@ -67,12 +66,8 @@ export default function MedicalReports() {
 
     try {
       if (!sessionToken) throw new Error('Not authenticated')
-      const res = await fetch(`${getEdgeFunctionUrl('dv')}/medical-report`, {
+      const res = await apiFetch(`${getEdgeFunctionUrl('dv')}/medical-report`, sessionToken, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${sessionToken}`,
-        },
         body: JSON.stringify({
           report_date: form.report_date,
           hospital_name: form.hospital_name.trim() || null,
@@ -107,9 +102,8 @@ export default function MedicalReports() {
 
     try {
       if (!sessionToken) throw new Error('Not authenticated')
-      const res = await fetch(`${getEdgeFunctionUrl('dv')}/medical-report/${reportId}`, {
+      const res = await apiFetch(`${getEdgeFunctionUrl('dv')}/medical-report/${reportId}`, sessionToken, {
         method: 'DELETE',
-        headers: { Authorization: `Bearer ${sessionToken}` },
       })
       if (!res.ok) throw new Error('Failed to delete')
       toast.success('Report deleted')

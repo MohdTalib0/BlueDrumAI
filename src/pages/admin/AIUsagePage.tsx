@@ -3,7 +3,7 @@ import { format } from 'date-fns'
 import { Activity, ChevronLeft, ChevronRight, Clock, Coins, Hash, Zap } from 'lucide-react'
 import { AdminLayout } from '../../layouts/AdminLayout'
 import { useAuth } from '../../context/AuthContext'
-import { getEdgeFunctionUrl, authHeaders } from '../../lib/api'
+import { getEdgeFunctionUrl, apiFetch } from '../../lib/api'
 
 interface UsageLog {
   id: string
@@ -72,9 +72,9 @@ export default function AIUsagePage() {
     setLoading(true)
     setError(null)
     try {
-      const res = await fetch(
+      const res = await apiFetch(
         `${getEdgeFunctionUrl('admin')}/ai-usage?page=${p}&limit=${limit}`,
-        { headers: authHeaders(sessionToken) },
+        sessionToken,
       )
       if (!res.ok) throw new Error(`Server responded with ${res.status}`)
       const data: UsageResponse = await res.json()

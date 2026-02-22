@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Gift, Users, Plus, List, TrendingUp, AlertCircle } from 'lucide-react'
 import { useAuth } from '../../../context/AuthContext'
 import { DashboardLayout } from '../../../layouts/DashboardLayout'
-import { getEdgeFunctionUrl } from '../../../lib/api'
+import { getEdgeFunctionUrl, apiFetch } from '../../../lib/api'
 
 interface DowrySummary {
   totalEntries: number
@@ -39,8 +39,7 @@ export default function DowryDashboard() {
   const loadSummary = async (signal?: AbortSignal) => {
     try {
       if (!sessionToken) return
-      const res = await fetch(`${getEdgeFunctionUrl('dowry')}/summary`, {
-        headers: { Authorization: `Bearer ${sessionToken}` },
+      const res = await apiFetch(`${getEdgeFunctionUrl('dowry')}/summary`, sessionToken, {
         signal,
       })
       if (!res.ok) throw new Error('Failed to load summary')

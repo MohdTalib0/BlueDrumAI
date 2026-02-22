@@ -4,7 +4,7 @@ import { Gift, Save, Calendar, IndianRupee, FileText, Loader2, AlertCircle, Chec
 import toast from 'react-hot-toast'
 import { useAuth } from '../../../context/AuthContext'
 import { DashboardLayout } from '../../../layouts/DashboardLayout'
-import { getEdgeFunctionUrl } from '../../../lib/api'
+import { getEdgeFunctionUrl, apiFetch } from '../../../lib/api'
 
 interface DowryData {
   item_description: string
@@ -59,8 +59,7 @@ export default function DowryForm() {
       setLoading(true)
       if (!sessionToken) throw new Error('Not authenticated')
 
-      const res = await fetch(`${getEdgeFunctionUrl('dowry')}/entry/${id}`, {
-        headers: { Authorization: `Bearer ${sessionToken}` },
+      const res = await apiFetch(`${getEdgeFunctionUrl('dowry')}/entry/${id}`, sessionToken, {
         signal,
       })
       if (!res.ok) throw new Error('Failed to load entry')
@@ -101,12 +100,8 @@ export default function DowryForm() {
         ? `${getEdgeFunctionUrl('dowry')}/entry/${id}`
         : `${getEdgeFunctionUrl('dowry')}/entry`
 
-      const res = await fetch(url, {
+      const res = await apiFetch(url, sessionToken, {
         method: isEditMode ? 'PATCH' : 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${sessionToken}`,
-        },
         body: JSON.stringify(payload),
       })
 

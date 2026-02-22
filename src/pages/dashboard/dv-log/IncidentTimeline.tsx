@@ -4,7 +4,7 @@ import { ShieldAlert, Plus, Search, Trash2, Edit2, MapPin, Calendar, Loader2, Al
 import toast from 'react-hot-toast'
 import { useAuth } from '../../../context/AuthContext'
 import { DashboardLayout } from '../../../layouts/DashboardLayout'
-import { getEdgeFunctionUrl } from '../../../lib/api'
+import { getEdgeFunctionUrl, apiFetch } from '../../../lib/api'
 import ConfirmModal from '../../../components/ui/ConfirmModal'
 
 interface Incident {
@@ -67,8 +67,7 @@ export default function IncidentTimeline() {
   const loadIncidents = async (signal?: AbortSignal) => {
     try {
       if (!sessionToken) return
-      const res = await fetch(`${getEdgeFunctionUrl('dv')}/incidents`, {
-        headers: { Authorization: `Bearer ${sessionToken}` },
+      const res = await apiFetch(`${getEdgeFunctionUrl('dv')}/incidents`, sessionToken, {
         signal,
       })
       if (!res.ok) throw new Error('Failed to load incidents')
@@ -89,9 +88,8 @@ export default function IncidentTimeline() {
 
     try {
       if (!sessionToken) throw new Error('Not authenticated')
-      const res = await fetch(`${getEdgeFunctionUrl('dv')}/incident/${incidentId}`, {
+      const res = await apiFetch(`${getEdgeFunctionUrl('dv')}/incident/${incidentId}`, sessionToken, {
         method: 'DELETE',
-        headers: { Authorization: `Bearer ${sessionToken}` },
       })
       if (!res.ok) throw new Error('Failed to delete')
       toast.success('Incident deleted')
@@ -106,12 +104,8 @@ export default function IncidentTimeline() {
       setGeneratingComplaint(incidentId)
       if (!sessionToken) throw new Error('Not authenticated')
 
-      const res = await fetch(`${getEdgeFunctionUrl('dv')}/generate-complaint`, {
+      const res = await apiFetch(`${getEdgeFunctionUrl('dv')}/generate-complaint`, sessionToken, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${sessionToken}`,
-        },
         body: JSON.stringify({ incident_id: incidentId }),
       })
 

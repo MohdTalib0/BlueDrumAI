@@ -4,7 +4,7 @@ import { format, formatDistanceToNow } from 'date-fns'
 import toast from 'react-hot-toast'
 import { AdminLayout } from '../../layouts/AdminLayout'
 import { useAuth } from '../../context/AuthContext'
-import { getEdgeFunctionUrl, authHeaders } from '../../lib/api'
+import { getEdgeFunctionUrl, apiFetch } from '../../lib/api'
 
 interface FeedbackItem {
   id: string
@@ -60,7 +60,7 @@ function FeedbackManagement() {
     setLoading(true)
     try {
       const url = `${getEdgeFunctionUrl('admin')}/feedback?page=${page}&limit=${limit}&status=${statusFilter}`
-      const res = await fetch(url, { headers: authHeaders(sessionToken) })
+      const res = await apiFetch(url, sessionToken)
       if (!res.ok) throw new Error('Failed to fetch feedback')
       const data = await res.json()
       if (data.ok) {
@@ -83,9 +83,8 @@ function FeedbackManagement() {
     setUpdatingId(id)
     setStatusMenuId(null)
     try {
-      const res = await fetch(`${getEdgeFunctionUrl('admin')}/feedback/${id}`, {
+      const res = await apiFetch(`${getEdgeFunctionUrl('admin')}/feedback/${id}`, sessionToken, {
         method: 'PATCH',
-        headers: authHeaders(sessionToken),
         body: JSON.stringify({ status: newStatus }),
       })
       if (!res.ok) throw new Error('Failed to update status')

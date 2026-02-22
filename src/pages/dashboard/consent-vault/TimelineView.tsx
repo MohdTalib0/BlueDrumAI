@@ -35,7 +35,7 @@ import { format } from 'date-fns'
 import DocumentViewer from '../../../components/vault/DocumentViewer'
 import { DashboardLayout } from '../../../layouts/DashboardLayout'
 import ExportButton from '../../../components/export/ExportButton'
-import { getEdgeFunctionUrl, authHeaders } from '../../../lib/api'
+import { getEdgeFunctionUrl, apiFetch } from '../../../lib/api'
 import { decryptFile } from '../../../lib/encryption/clientEncryption'
 import ConfirmModal from '../../../components/ui/ConfirmModal'
 import toast from 'react-hot-toast'
@@ -319,10 +319,7 @@ export default function TimelineView() {
         throw new Error('Not authenticated')
       }
 
-      const headers = authHeaders(token)
-
-      const response = await fetch(`${getEdgeFunctionUrl('vault')}/entries`, {
-        headers,
+      const response = await apiFetch(`${getEdgeFunctionUrl('vault')}/entries`, token, {
         signal,
       })
 
@@ -373,11 +370,8 @@ export default function TimelineView() {
         throw new Error('Not authenticated')
       }
 
-      const headers = authHeaders(token)
-
-      const response = await fetch(`${getEdgeFunctionUrl('vault')}/entry/${id}`, {
+      const response = await apiFetch(`${getEdgeFunctionUrl('vault')}/entry/${id}`, token, {
         method: 'DELETE',
-        headers,
       })
 
       if (!response.ok) {
@@ -398,9 +392,6 @@ export default function TimelineView() {
     const token = sessionToken
     if (!token) return
 
-    const headers = authHeaders(token)
-
-    // Delete in parallel batches of 5 to avoid overwhelming the server
     const BATCH_SIZE = 5
     let successCount = 0
     let failCount = 0
@@ -409,7 +400,7 @@ export default function TimelineView() {
       const batch = idsToDelete.slice(i, i + BATCH_SIZE)
       const results = await Promise.allSettled(
         batch.map(id =>
-          fetch(`${getEdgeFunctionUrl('vault')}/entry/${id}`, { method: 'DELETE', headers })
+          apiFetch(`${getEdgeFunctionUrl('vault')}/entry/${id}`, token, { method: 'DELETE' })
             .then(r => r.ok)
         )
       )

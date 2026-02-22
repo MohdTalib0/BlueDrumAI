@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+
 import { User, Mail, Shield, Calendar, LogOut, Key, Save, Edit2, CheckCircle } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { DashboardLayout } from '../../../layouts/DashboardLayout'
 import { useAuth } from '../../../context/AuthContext'
-import { getEdgeFunctionUrl } from '../../../lib/api'
+import { getEdgeFunctionUrl, apiFetch } from '../../../lib/api'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -56,7 +56,6 @@ function memberSince(dateStr: string): string {
 
 export default function ProfilePage() {
   const { user, sessionToken, signOut, refreshProfile, resetPassword } = useAuth()
-  const navigate = useNavigate()
 
   const [profile, setProfile] = useState<FullProfile | null>(null)
   const [loadingProfile, setLoadingProfile] = useState(true)
@@ -75,9 +74,7 @@ export default function ProfilePage() {
   useEffect(() => {
     if (!sessionToken) return
     setLoadingProfile(true)
-    fetch(`${getEdgeFunctionUrl('auth')}/me`, {
-      headers: { Authorization: `Bearer ${sessionToken}` },
-    })
+    apiFetch(`${getEdgeFunctionUrl('auth')}/me`, sessionToken)
       .then(r => r.json())
       .then(data => {
         if (data.ok && data.user) {
@@ -103,9 +100,8 @@ export default function ProfilePage() {
       if (lastName.trim())  body.last_name  = lastName.trim().slice(0, 100)
       if (relationshipStatus) body.relationship_status = relationshipStatus
 
-      const res = await fetch(`${getEdgeFunctionUrl('auth')}/me`, {
+      const res = await apiFetch(`${getEdgeFunctionUrl('auth')}/me`, sessionToken, {
         method: 'PATCH',
-        headers: { Authorization: `Bearer ${sessionToken}`, 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
       })
       const data = await res.json()
@@ -139,8 +135,7 @@ export default function ProfilePage() {
 
   // ── Sign out ───────────────────────────────────────────────────────────────
   async function handleSignOut() {
-    await signOut()
-    navigate('/sign-in')
+    try { await signOut() } catch { /* clearAuth already handled */ }
   }
 
   // ── Render ─────────────────────────────────────────────────────────────────

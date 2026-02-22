@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Calculator, Loader2, CheckCircle2, AlertCircle, Info } from 'lucide-react'
 import { useAuth } from '../../../context/AuthContext'
 import { DashboardLayout } from '../../../layouts/DashboardLayout'
-import { getEdgeFunctionUrl } from '../../../lib/api'
+import { getEdgeFunctionUrl, apiFetch } from '../../../lib/api'
 
 interface CalculationResult {
   id: string
@@ -77,12 +77,8 @@ export default function MaintenanceCalculator() {
     setResult(null)
 
     try {
-      const res = await fetch(`${getEdgeFunctionUrl('maintenance')}/calculate`, {
+      const res = await apiFetch(`${getEdgeFunctionUrl('maintenance')}/calculate`, sessionToken, {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${sessionToken}`,
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({
           husband_gross_income: husbandGross,
           husband_deductions: deductions,

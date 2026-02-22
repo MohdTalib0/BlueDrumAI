@@ -5,7 +5,7 @@ import { useAuth } from '../../../context/AuthContext'
 import { DashboardLayout } from '../../../layouts/DashboardLayout'
 import { format, parseISO } from 'date-fns'
 
-import { getEdgeFunctionUrl } from '../../../lib/api'
+import { getEdgeFunctionUrl, apiFetch } from '../../../lib/api'
 
 interface IncomeEntry {
   id: string
@@ -65,11 +65,7 @@ export default function AffidavitGenerator() {
         throw new Error('Not authenticated')
       }
 
-      const response = await fetch(`${getEdgeFunctionUrl('income')}/history`, {
-        headers: {
-          Authorization: `Bearer ${sessionToken}`,
-        },
-      })
+      const response = await apiFetch(`${getEdgeFunctionUrl('income')}/history`, sessionToken)
 
       if (!response.ok) {
         throw new Error('Failed to load income history')
@@ -103,12 +99,8 @@ export default function AffidavitGenerator() {
         throw new Error('Not authenticated')
       }
 
-      const response = await fetch(`${getEdgeFunctionUrl('income')}/generate-affidavit`, {
+      const response = await apiFetch(`${getEdgeFunctionUrl('income')}/generate-affidavit`, sessionToken, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${sessionToken}`,
-        },
         body: JSON.stringify({ month_year: selectedMonth }),
       })
 

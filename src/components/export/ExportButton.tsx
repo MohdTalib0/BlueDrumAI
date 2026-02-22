@@ -2,7 +2,7 @@ import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { Download, Loader2 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
-import { getEdgeFunctionUrl, authHeaders } from '../../lib/api'
+import { getEdgeFunctionUrl, apiFetch } from '../../lib/api'
 
 interface ExportButtonProps {
   exportType: 'vault' | 'affidavit' | 'analysis'
@@ -25,8 +25,6 @@ export default function ExportButton({ exportType, monthYear, analysisId, classN
     try {
       setExporting(true)
 
-      const headers = authHeaders(sessionToken!)
-      
       let url = ''
       let body: any = {}
 
@@ -52,11 +50,8 @@ export default function ExportButton({ exportType, monthYear, analysisId, classN
           break
       }
 
-      headers['Content-Type'] = 'application/json'
-
-      const response = await fetch(url, {
+      const response = await apiFetch(url, sessionToken!, {
         method: 'POST',
-        headers,
         body: Object.keys(body).length > 0 ? JSON.stringify(body) : undefined,
       })
 

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { ChevronDown, ChevronUp, Scale, Lightbulb, FileText, Loader2, AlertCircle } from 'lucide-react'
 import { useAuth } from '../../../context/AuthContext'
 import { DashboardLayout } from '../../../layouts/DashboardLayout'
-import { getEdgeFunctionUrl } from '../../../lib/api'
+import { getEdgeFunctionUrl, apiFetch } from '../../../lib/api'
 
 interface LegalSection {
   title: string
@@ -39,8 +39,7 @@ export default function MaintenanceRights() {
   const loadRights = async (signal?: AbortSignal) => {
     try {
       if (!sessionToken) return
-      const res = await fetch(`${getEdgeFunctionUrl('maintenance')}/rights`, {
-        headers: { Authorization: `Bearer ${sessionToken}` },
+      const res = await apiFetch(`${getEdgeFunctionUrl('maintenance')}/rights`, sessionToken, {
         signal,
       })
       if (!res.ok) throw new Error('Failed to load rights information')

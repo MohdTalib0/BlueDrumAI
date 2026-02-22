@@ -4,7 +4,7 @@ import { ShieldAlert, Save, Calendar, MapPin, FileText, Loader2, AlertCircle, Ch
 import toast from 'react-hot-toast'
 import { useAuth } from '../../../context/AuthContext'
 import { DashboardLayout } from '../../../layouts/DashboardLayout'
-import { getEdgeFunctionUrl } from '../../../lib/api'
+import { getEdgeFunctionUrl, apiFetch } from '../../../lib/api'
 
 interface IncidentData {
   incident_date: string
@@ -61,8 +61,7 @@ export default function IncidentForm() {
     try {
       setLoading(true)
       if (!sessionToken) throw new Error('Not authenticated')
-      const res = await fetch(`${getEdgeFunctionUrl('dv')}/incident/${id}`, {
-        headers: { Authorization: `Bearer ${sessionToken}` },
+      const res = await apiFetch(`${getEdgeFunctionUrl('dv')}/incident/${id}`, sessionToken, {
         signal,
       })
       if (!res.ok) throw new Error('Failed to load incident')
@@ -104,12 +103,8 @@ export default function IncidentForm() {
         ? `${getEdgeFunctionUrl('dv')}/incident/${id}`
         : `${getEdgeFunctionUrl('dv')}/incident`
 
-      const res = await fetch(url, {
+      const res = await apiFetch(url, sessionToken, {
         method: isEditMode ? 'PATCH' : 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${sessionToken}`,
-        },
         body: JSON.stringify(payload),
       })
 

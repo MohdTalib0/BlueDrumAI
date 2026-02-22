@@ -7,7 +7,7 @@ import {
 import toast from 'react-hot-toast'
 import { DashboardLayout } from '../../../layouts/DashboardLayout'
 import { useAuth } from '../../../context/AuthContext'
-import { getEdgeFunctionUrl } from '../../../lib/api'
+import { getEdgeFunctionUrl, apiFetch } from '../../../lib/api'
 
 interface UsageItem {
   used: number
@@ -108,9 +108,7 @@ export default function SubscriptionPage() {
   useEffect(() => {
     if (!sessionToken) return
     setLoading(true)
-    fetch(`${getEdgeFunctionUrl('subscription')}/status`, {
-      headers: { Authorization: `Bearer ${sessionToken}` },
-    })
+    apiFetch(`${getEdgeFunctionUrl('subscription')}/status`, sessionToken)
       .then(r => r.json())
       .then(d => { if (d.ok) setData(d) })
       .catch(() => toast.error('Failed to load subscription'))
@@ -121,9 +119,8 @@ export default function SubscriptionPage() {
     if (!sessionToken) return
     setUpgrading(true)
     try {
-      const res = await fetch(`${getEdgeFunctionUrl('subscription')}/create`, {
+      const res = await apiFetch(`${getEdgeFunctionUrl('subscription')}/create`, sessionToken, {
         method: 'POST',
-        headers: { Authorization: `Bearer ${sessionToken}`, 'Content-Type': 'application/json' },
       })
       const d = await res.json()
       if (!d.ok) throw new Error(d.error || 'Failed to create subscription')
@@ -140,9 +137,8 @@ export default function SubscriptionPage() {
         theme: { color: '#2563eb' },
         handler: async (response: { razorpay_payment_id: string; razorpay_subscription_id: string; razorpay_signature: string }) => {
           try {
-            const verifyRes = await fetch(`${getEdgeFunctionUrl('subscription')}/verify`, {
+            const verifyRes = await apiFetch(`${getEdgeFunctionUrl('subscription')}/verify`, sessionToken, {
               method: 'POST',
-              headers: { Authorization: `Bearer ${sessionToken}`, 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 razorpay_payment_id: response.razorpay_payment_id,
                 razorpay_subscription_id: response.razorpay_subscription_id,
@@ -152,9 +148,7 @@ export default function SubscriptionPage() {
             const verifyData = await verifyRes.json()
             if (verifyData.ok) {
               toast.success('Welcome to Premium! All limits unlocked.')
-              const refreshRes = await fetch(`${getEdgeFunctionUrl('subscription')}/status`, {
-                headers: { Authorization: `Bearer ${sessionToken}` },
-              })
+              const refreshRes = await apiFetch(`${getEdgeFunctionUrl('subscription')}/status`, sessionToken)
               const refreshData = await refreshRes.json()
               if (refreshData.ok) setData(refreshData)
             } else {
@@ -181,17 +175,14 @@ export default function SubscriptionPage() {
     if (!sessionToken) return
     setCancelling(true)
     try {
-      const res = await fetch(`${getEdgeFunctionUrl('subscription')}/cancel`, {
+      const res = await apiFetch(`${getEdgeFunctionUrl('subscription')}/cancel`, sessionToken, {
         method: 'POST',
-        headers: { Authorization: `Bearer ${sessionToken}`, 'Content-Type': 'application/json' },
       })
       const d = await res.json()
       if (!d.ok) throw new Error(d.error || 'Failed to cancel')
       toast.success(d.message || 'Subscription cancelled')
       setShowCancelConfirm(false)
-      const refreshRes = await fetch(`${getEdgeFunctionUrl('subscription')}/status`, {
-        headers: { Authorization: `Bearer ${sessionToken}` },
-      })
+      const refreshRes = await apiFetch(`${getEdgeFunctionUrl('subscription')}/status`, sessionToken)
       const refreshData = await refreshRes.json()
       if (refreshData.ok) setData(refreshData)
     } catch (err: any) {
