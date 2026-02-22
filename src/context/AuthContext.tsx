@@ -148,11 +148,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setUser({ id: sessionUser.id, email: sessionUser.email, gender: null })
         }
         setLoading(false)
-        if (!profileFetchedRef.current) {
-          fetchProfile(access_token, sessionUser.id, sessionUser.email).then(() => {
-            profileFetchedRef.current = true
-          })
-        }
+        // Don't call fetchProfile here — onAuthStateChange INITIAL_SESSION handles it.
+        // Calling from both creates a race: clearAuth→signOut→onAuthStateChange(null)
+        // resets profileFetchedRef, then loadSession re-creates user without profile.
       }
     }
 
@@ -176,7 +174,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(null)
         setSessionToken(null)
         setProfileReady(true)
-        profileFetchedRef.current = false
+        // Don't reset profileFetchedRef here — signOut triggered by clearAuth
+        // would reset it, causing loadSession to re-create user without profile.
+        // It's reset in signIn/signUp instead (when a new session starts).
       }
       setLoading(false)
     })
@@ -206,6 +206,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const signIn = useCallback(async (email: string, password: string) => {
+    profileFetchedRef.current = false // Reset so onAuthStateChange fetches profile for new session
     const { data, error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) {
       const emailNotConfirmed =
@@ -221,6 +222,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [recordSession])
 
   const signUp = useCallback(async (email: string, password: string, firstName?: string, lastName?: string) => {
+    profileFetchedRef.current = false // Reset so onAuthStateChange fetches profile for new session
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
