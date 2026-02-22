@@ -2,8 +2,7 @@ import { useEffect, useState, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import {
   ArrowLeft, Shield, AlertTriangle, TrendingUp, MessageSquare, Gift,
-  ShieldAlert, Calculator, UserPlus, CheckCircle, Bug, Cpu, Loader2,
-  ChevronDown, ChevronUp,
+  ShieldAlert, Calculator, UserPlus, Bug, Cpu, Loader2,
 } from 'lucide-react'
 import { format, formatDistanceToNow } from 'date-fns'
 import { AdminLayout } from '../../layouts/AdminLayout'

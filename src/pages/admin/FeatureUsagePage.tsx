@@ -87,7 +87,6 @@ export default function FeatureUsagePage() {
   const cursorStyle = { fill: dark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)' }
 
   const mostUsed = data?.features[0]
-  const totalFeatureUsers = data ? new Set(data.topUsers.map(u => u.id)).size : 0
 
   return (
     <AdminLayout title="Feature Usage" subtitle="What users are using and how often">
