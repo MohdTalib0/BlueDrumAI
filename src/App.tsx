@@ -38,6 +38,14 @@ const MaintenanceRights = lazy(() => import('./pages/dashboard/maintenance/Maint
 const MessageGenerator = lazy(() => import('./pages/dashboard/breakup-generator/MessageGenerator'))
 const ProfilePage = lazy(() => import('./pages/dashboard/profile/ProfilePage'))
 const SubscriptionPage = lazy(() => import('./pages/dashboard/subscription/SubscriptionPage'))
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'))
+const UsersManagement = lazy(() => import('./pages/admin/UsersManagement'))
+const FeedbackManagement = lazy(() => import('./pages/admin/FeedbackManagement'))
+const AIUsagePage = lazy(() => import('./pages/admin/AIUsagePage'))
+const FeatureUsagePage = lazy(() => import('./pages/admin/FeatureUsagePage'))
+const UserTrajectory = lazy(() => import('./pages/admin/UserTrajectory'))
+const SubscriptionsAdmin = lazy(() => import('./pages/admin/SubscriptionsAdmin'))
+const GeoAnalytics = lazy(() => import('./pages/admin/GeoAnalytics'))
 
 function PageLoader() {
   return (
@@ -85,6 +93,14 @@ function FemaleRoute({ children }: { children: React.ReactNode }) {
   if (!user) return <Navigate to="/" replace />
   if (!user.onboarding_completed) return <Navigate to="/onboarding" replace />
   if (user.gender === 'male') return <Navigate to="/dashboard" replace />
+  return <>{children}</>
+}
+
+function AdminRoute({ children }: { children: React.ReactNode }) {
+  const { user, loading, profileReady } = useAuth()
+  if (loading || (user && !profileReady)) return <PageLoader />
+  if (!user) return <Navigate to="/" replace />
+  if (user.role !== 'admin' && user.role !== 'super_admin') return <Navigate to="/dashboard" replace />
   return <>{children}</>
 }
 
@@ -147,6 +163,15 @@ function App() {
           {/* Profile — accessible to all */}
           <Route path="/dashboard/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
           <Route path="/dashboard/subscription" element={<ProtectedRoute><SubscriptionPage /></ProtectedRoute>} />
+          {/* Admin routes */}
+          <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+          <Route path="/admin/users" element={<AdminRoute><UsersManagement /></AdminRoute>} />
+          <Route path="/admin/users/:id" element={<AdminRoute><UserTrajectory /></AdminRoute>} />
+          <Route path="/admin/feature-usage" element={<AdminRoute><FeatureUsagePage /></AdminRoute>} />
+          <Route path="/admin/feedback" element={<AdminRoute><FeedbackManagement /></AdminRoute>} />
+          <Route path="/admin/ai-usage" element={<AdminRoute><AIUsagePage /></AdminRoute>} />
+          <Route path="/admin/subscriptions" element={<AdminRoute><SubscriptionsAdmin /></AdminRoute>} />
+          <Route path="/admin/geo" element={<AdminRoute><GeoAnalytics /></AdminRoute>} />
         </Routes>
       </Suspense>
     </>

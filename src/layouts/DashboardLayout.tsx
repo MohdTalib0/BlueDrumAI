@@ -1,6 +1,6 @@
 import { ReactNode, useMemo, useRef, useState, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { Home, LogOut, Clock4, Menu, X, TrendingUp, AlertTriangle, History, ArrowLeft, Gift, ShieldAlert, Calculator, MessageSquare, UserCircle, User, MessageCircle, HelpCircle, Bug, Sparkles, Wrench, AlertCircle, MessageSquarePlus, Send, Crown, FileText, Moon, Sun } from 'lucide-react'
+import { Home, LogOut, Clock4, Menu, X, TrendingUp, AlertTriangle, History, ArrowLeft, Gift, ShieldAlert, Shield, Calculator, MessageSquare, UserCircle, User, MessageCircle, HelpCircle, Bug, Sparkles, Wrench, AlertCircle, MessageSquarePlus, Send, Crown, FileText, Moon, Sun } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuth, type UserGender } from '../context/AuthContext'
 import { getEdgeFunctionUrl } from '../lib/api'
@@ -206,6 +206,16 @@ export function DashboardLayout({ children, title = 'Dashboard', subtitle, right
                         <User className="w-4 h-4" aria-hidden="true" />
                         <span>Profile Settings</span>
                       </button>
+
+                      {(user?.role === 'admin' || user?.role === 'super_admin') && (
+                        <button
+                          onClick={() => { navigate('/admin'); setUserMenuOpen(false) }}
+                          className="gap-2 bg-transparent w-full flex items-center justify-start space-x-2 px-2 py-1 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors text-sm font-medium text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 -tracking-[.08em] text-left cursor-pointer"
+                        >
+                          <Shield className="w-4 h-4" aria-hidden="true" />
+                          <span>Admin Portal</span>
+                        </button>
+                      )}
 
                       <button
                         onClick={() => { setUserMenuOpen(false); openFeedback() }}

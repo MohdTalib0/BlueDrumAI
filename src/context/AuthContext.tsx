@@ -4,6 +4,8 @@ import { getEdgeFunctionUrl } from '../lib/api'
 
 export type UserGender = 'male' | 'female' | 'both' | null
 
+export type UserRole = 'user' | 'admin' | 'super_admin'
+
 interface UserProfile {
   id: string
   email?: string | null
@@ -11,6 +13,7 @@ interface UserProfile {
   first_name?: string | null
   last_name?: string | null
   onboarding_completed?: boolean
+  role?: UserRole
 }
 
 interface AuthContextValue {
@@ -32,6 +35,39 @@ interface AuthContextValue {
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined)
+
+function captureAttribution() {
+  try {
+    const params = new URLSearchParams(window.location.search)
+    const utm_source = params.get('utm_source')
+    const utm_medium = params.get('utm_medium')
+    const utm_campaign = params.get('utm_campaign')
+    const referrer = document.referrer || null
+
+    if (utm_source || utm_medium || utm_campaign || referrer) {
+      const stored = sessionStorage.getItem('attribution')
+      if (!stored) {
+        sessionStorage.setItem('attribution', JSON.stringify({
+          utm_source, utm_medium, utm_campaign, referrer,
+          source: /Mobi|Android/i.test(navigator.userAgent) ? 'mobile_web' : 'web',
+        }))
+      }
+    } else if (!sessionStorage.getItem('attribution')) {
+      sessionStorage.setItem('attribution', JSON.stringify({
+        source: /Mobi|Android/i.test(navigator.userAgent) ? 'mobile_web' : 'web',
+      }))
+    }
+  } catch { /* sessionStorage unavailable */ }
+}
+
+function getAttribution(): Record<string, string | null> | null {
+  try {
+    const raw = sessionStorage.getItem('attribution')
+    return raw ? JSON.parse(raw) : null
+  } catch { return null }
+}
+
+captureAttribution()
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthContextValue['user']>(null)
@@ -55,6 +91,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             first_name: data.user.first_name ?? null,
             last_name: data.user.last_name ?? null,
             onboarding_completed: data.user.onboarding_completed ?? false,
+            role: data.user.role ?? 'user',
           })
           setProfileReady(true)
           return
@@ -138,8 +175,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await fetchProfile(sessionToken, user.id, user.email)
   }, [sessionToken, user?.id, user?.email, fetchProfile])
 
+  const recordSession = useCallback(async (token: string) => {
+    try {
+      const attribution = getAttribution()
+      await fetch(`${getEdgeFunctionUrl('auth')}/session`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ attribution }),
+      })
+    } catch {
+      // Non-critical — login tracking failure should not block user
+    }
+  }, [])
+
   const signIn = useCallback(async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) {
       const emailNotConfirmed =
         error.code === 'email_not_confirmed' ||
@@ -147,8 +197,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         error.message?.toLowerCase().includes('verify')
       return { error: error.message, emailNotConfirmed }
     }
+    if (data.session?.access_token) {
+      recordSession(data.session.access_token)
+    }
     return {}
-  }, [])
+  }, [recordSession])
 
   const signUp = useCallback(async (email: string, password: string, firstName?: string, lastName?: string) => {
     const { data, error } = await supabase.auth.signUp({
@@ -161,8 +214,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     })
     if (error) return { error: error.message }
     const emailConfirmationRequired = !data.session
+    if (data.session?.access_token) {
+      recordSession(data.session.access_token)
+    }
     return { emailConfirmationRequired }
-  }, [])
+  }, [recordSession])
 
   const signOut = useCallback(async () => {
     const { error } = await supabase.auth.signOut()

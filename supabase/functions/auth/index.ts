@@ -25,7 +25,7 @@ serve(async (req) => {
       const supabase = createSupabaseClient(req)
       const { data, error: dbError } = await supabase
         .from('users')
-        .select('id, email, first_name, last_name, gender, relationship_status, onboarding_completed, login_count, created_at')
+        .select('id, email, first_name, last_name, gender, relationship_status, onboarding_completed, login_count, role, created_at')
         .eq('id', user.id)
         .single()
 
@@ -126,6 +126,127 @@ serve(async (req) => {
 
       return new Response(
         JSON.stringify({ ok: true, user: data }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // POST /session — Record login activity, update tracking fields, create session record
+    if (url.pathname.endsWith('/session') && req.method === 'POST') {
+      const { user, error } = await verifyAuth(req)
+      if (error || !user) {
+        return new Response(
+          JSON.stringify({ ok: false, error: 'Unauthorized' }),
+          { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+
+      const supabase = createSupabaseClient(req)
+
+      // Parse optional attribution from body
+      let attribution: Record<string, string | null> | null = null
+      try {
+        const body = await req.json()
+        attribution = body?.attribution || null
+      } catch { /* no body or invalid JSON */ }
+
+      // Read current user fields to handle first-time attribution + login_count
+      const { data: current } = await supabase
+        .from('users')
+        .select('login_count, source, referrer, utm_source, utm_medium, utm_campaign')
+        .eq('id', user.id)
+        .single()
+
+      const now = new Date().toISOString()
+      const updatePayload: Record<string, unknown> = {
+        last_login_at: now,
+        last_activity_at: now,
+        login_count: (current?.login_count || 0) + 1,
+        email_verified: true,
+        is_active: true,
+      }
+
+      // Only set attribution fields if they're currently null (preserve first-touch)
+      if (attribution) {
+        if (!current?.source && attribution.source)
+          updatePayload.source = attribution.source
+        if (!current?.referrer && attribution.referrer)
+          updatePayload.referrer = attribution.referrer
+        if (!current?.utm_source && attribution.utm_source)
+          updatePayload.utm_source = attribution.utm_source
+        if (!current?.utm_medium && attribution.utm_medium)
+          updatePayload.utm_medium = attribution.utm_medium
+        if (!current?.utm_campaign && attribution.utm_campaign)
+          updatePayload.utm_campaign = attribution.utm_campaign
+      }
+
+      await supabase
+        .from('users')
+        .update(updatePayload)
+        .eq('id', user.id)
+
+      // Extract IP and User-Agent
+      const forwarded = req.headers.get('x-forwarded-for')
+      const ip = forwarded ? forwarded.split(',')[0].trim() : (req.headers.get('x-real-ip') || null)
+      const userAgent = req.headers.get('user-agent') || ''
+
+      // Basic User-Agent parsing
+      const deviceInfo: Record<string, string> = { device_type: 'Desktop', browser: 'Unknown', os: 'Unknown' }
+      if (/Mobile|Android|iPhone|iPad/i.test(userAgent)) {
+        deviceInfo.device_type = /iPad|Tablet/i.test(userAgent) ? 'Tablet' : 'Mobile'
+      }
+      if (/Chrome/i.test(userAgent) && !/Edg/i.test(userAgent)) deviceInfo.browser = 'Chrome'
+      else if (/Safari/i.test(userAgent) && !/Chrome/i.test(userAgent)) deviceInfo.browser = 'Safari'
+      else if (/Firefox/i.test(userAgent)) deviceInfo.browser = 'Firefox'
+      else if (/Edg/i.test(userAgent)) deviceInfo.browser = 'Edge'
+      else if (/Opera|OPR/i.test(userAgent)) deviceInfo.browser = 'Opera'
+
+      if (/Windows/i.test(userAgent)) deviceInfo.os = 'Windows'
+      else if (/Mac OS|Macintosh/i.test(userAgent)) deviceInfo.os = 'macOS'
+      else if (/Android/i.test(userAgent)) deviceInfo.os = 'Android'
+      else if (/iPhone|iPad|iOS/i.test(userAgent)) deviceInfo.os = 'iOS'
+      else if (/Linux/i.test(userAgent)) deviceInfo.os = 'Linux'
+
+      // IP geolocation (best-effort, non-blocking)
+      let locationInfo: Record<string, string> | null = null
+      if (ip && ip !== '127.0.0.1' && !ip.startsWith('192.168.') && !ip.startsWith('10.')) {
+        try {
+          const geoRes = await fetch(`http://ip-api.com/json/${ip}?fields=status,country,countryCode,city,regionName,timezone`)
+          if (geoRes.ok) {
+            const geo = await geoRes.json()
+            if (geo.status === 'success') {
+              locationInfo = {
+                country: geo.country,
+                country_code: geo.countryCode,
+                city: geo.city,
+                region: geo.regionName,
+                timezone: geo.timezone,
+              }
+            }
+          }
+        } catch {
+          // Geolocation failed — proceed without it
+        }
+      }
+
+      // Mark any existing active sessions for this user as inactive
+      await supabase
+        .from('user_sessions')
+        .update({ is_active: false })
+        .eq('user_id', user.id)
+        .eq('is_active', true)
+
+      // Create new session record
+      await supabase.from('user_sessions').insert({
+        user_id: user.id,
+        ip_address: ip,
+        user_agent: userAgent,
+        device_info: deviceInfo,
+        location_info: locationInfo,
+        is_active: true,
+      })
+
+      return new Response(
+        JSON.stringify({ ok: true }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
