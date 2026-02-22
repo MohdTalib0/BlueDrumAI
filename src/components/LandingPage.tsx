@@ -934,11 +934,10 @@ export default function LandingPage() {
       {/* ──────────────────────── FINAL CTA ──────────────────────────────── */}
       <section className="py-20 sm:py-24">
         <div className="mx-auto max-w-7xl px-5">
-          <div className="fade-in-up relative mx-auto max-w-5xl rounded-3xl p-[2px] bg-gradient-to-r from-primary-400 via-blue-300 to-indigo-400">
-            <div className="relative overflow-hidden rounded-[22px] bg-gradient-to-br from-blue-100/80 via-blue-50/60 to-yellow-50/40 dark:from-primary-900/20 dark:via-black/80 dark:to-black/50 px-8 py-20 text-center md:px-16">
-              <div className="pointer-events-none absolute -left-24 -top-24 h-80 w-80 rounded-full bg-blue-200/20 blur-3xl" />
-              <div className="pointer-events-none absolute -bottom-24 -right-24 h-80 w-80 rounded-full bg-yellow-100/30 blur-3xl" />
-              <img src="/drum.svg" alt="" aria-hidden="true" className="pointer-events-none absolute right-8 top-8 h-32 w-32 opacity-[0.06]" />
+          <div className="fade-in-up relative mx-auto max-w-6xl rounded-3xl p-[2px] bg-gradient-to-r from-blue-200 via-blue-100 to-yellow-100/80">
+            <div className="relative overflow-hidden rounded-[22px] bg-gradient-to-br from-blue-100 via-white/90 to-yellow-50/60 dark:from-primary-900/20 dark:via-black/80 dark:to-black/50 px-8 py-20 text-center md:px-16">
+              <div className="pointer-events-none absolute -left-24 -top-24 h-80 w-80 rounded-full bg-blue-200/30 blur-3xl" />
+              <div className="pointer-events-none absolute -bottom-24 -right-24 h-80 w-80 rounded-full bg-yellow-100/40 blur-3xl" />
 
               <h2 className="relative text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-4xl md:text-5xl">
                 Don&apos;t wait until it&apos;s too late.
