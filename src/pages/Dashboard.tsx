@@ -17,11 +17,19 @@ import {
   ShieldAlert,
   FileHeart,
   Calculator,
+  CheckCircle2,
+  Lock,
+  Brain,
+  Download,
+  HelpCircle,
+  X,
+  ChevronRight,
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { getEdgeFunctionUrl, apiFetch } from '../lib/api'
 import { DashboardLayout } from '../layouts/DashboardLayout'
 import { useDarkMode } from '../hooks/useDarkMode'
+import SampleCasePreview from '../components/SampleCasePreview'
 import { format, parseISO } from 'date-fns'
 import { LineChart, Line, BarChart, Bar, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 
@@ -74,8 +82,18 @@ export default function Dashboard() {
   const lastFetchRef = useRef<number>(0)
 
   const { dark } = useDarkMode()
+  const [showHelp, setShowHelp] = useState(false)
+  const [showSample, setShowSample] = useState(false)
+
+  useEffect(() => {
+    if (!showHelp) return
+    const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setShowHelp(false) }
+    window.addEventListener('keydown', handleKey)
+    return () => window.removeEventListener('keydown', handleKey)
+  }, [showHelp])
   const gender = user?.gender ?? null
   const isMale = gender === 'male' || gender === 'both' || gender === null
+  const isZeroState = stats !== null && !loadingStats && stats.vault.total === 0 && stats.chatAnalysis.total === 0 && (!isMale || stats.income.totalEntries === 0)
 
   const tooltipStyle = {
     backgroundColor: dark ? '#000' : '#1f2937',
@@ -190,7 +208,7 @@ export default function Dashboard() {
     )
   }
 
-  const displayName = user?.first_name || user?.last_name
+  const displayName = (user?.first_name || user?.last_name)
     ? [user.first_name, user.last_name].filter(Boolean).join(' ')
     : user?.email || 'User'
 
@@ -300,32 +318,137 @@ export default function Dashboard() {
           )}
         </div>
 
-      {/* Getting Started — shown when user has no data */}
-      {stats && !loadingStats && stats.vault.total === 0 && stats.chatAnalysis.total === 0 && (!isMale || stats.income.totalEntries === 0) && (
-        <div className="mb-6 sm:mb-8 rounded-xl border border-blue-200/50 dark:border-primary-500/20 bg-gradient-to-br from-blue-50/80 via-white/60 to-yellow-50/30 dark:from-primary-900/20 dark:via-black/60 dark:to-black/30 p-5 sm:p-8 shadow-sm">
-          <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-1">Welcome to Blue Drum AI</h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mb-5 sm:mb-6">Get started by completing these steps to build your case.</p>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
+      {/* ─── Your First Case File — compact zero-state wizard ─── */}
+      {isZeroState && (
+        <div className="mb-6 sm:mb-8 rounded-xl border border-primary-200/60 dark:border-primary-500/20 bg-gradient-to-br from-primary-50/80 via-white to-blue-50/50 dark:from-primary-900/20 dark:via-black dark:to-black/80 p-4 sm:p-6 shadow-sm">
+          <div className="flex items-center gap-2.5 mb-4">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-600 shadow-sm">
+              <FileText className="h-4 w-4 text-white" />
+            </div>
+            <div>
+              <h2 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white">Get Started — Build Your Case File</h2>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             {[
-              { step: '1', title: 'Upload Evidence', desc: 'Add documents, photos, or chat exports to your encrypted vault.', path: '/dashboard/vault/upload', icon: Shield, color: 'text-primary-600', bg: 'bg-primary-50' },
-              { step: '2', title: 'Analyze a Chat', desc: 'Upload a conversation and let AI detect red flags and risks.', path: '/dashboard/red-flag-radar', icon: AlertTriangle, color: 'text-red-600', bg: 'bg-red-50' },
+              {
+                step: 1,
+                title: 'Upload Evidence',
+                desc: 'Add a screenshot, document, or chat export. Encrypted & timestamped.',
+                path: '/dashboard/vault/upload',
+                icon: Shield,
+                color: 'from-primary-500 to-blue-600',
+                done: stats.vault.total > 0,
+              },
+              {
+                step: 2,
+                title: 'Analyze a Chat',
+                desc: 'Paste a WhatsApp or SMS conversation. AI finds key patterns.',
+                path: '/dashboard/red-flag-radar',
+                icon: Brain,
+                color: 'from-purple-500 to-pink-600',
+                done: stats.chatAnalysis.total > 0,
+              },
               ...(isMale
-                ? [{ step: '3', title: 'Log Your Income', desc: 'Track income and expenses for court-ready affidavits.', path: '/dashboard/income-tracker', icon: TrendingUp, color: 'text-emerald-600', bg: 'bg-emerald-50' }]
-                : [{ step: '3', title: 'Document Incidents', desc: 'Log dowry or DV incidents with evidence attachments.', path: gender === 'female' ? '/dashboard/dv-log/add' : '/dashboard/dowry-vault/add', icon: ShieldAlert, color: 'text-purple-600', bg: 'bg-purple-50' }]
+                ? [{
+                    step: 3,
+                    title: 'Track Finances',
+                    desc: 'Log income & expenses. Auto-generates court-format affidavits.',
+                    path: '/dashboard/income-tracker',
+                    icon: TrendingUp,
+                    color: 'from-emerald-500 to-teal-600',
+                    done: stats.income.totalEntries > 0,
+                  }]
+                : [{
+                    step: 3,
+                    title: 'Log an Incident',
+                    desc: 'Record incidents with dates, details, and evidence attachments.',
+                    path: gender === 'female' ? '/dashboard/dv-log/add' : '/dashboard/dowry-vault/add',
+                    icon: ShieldAlert,
+                    color: 'from-purple-500 to-violet-600',
+                    done: false,
+                  }]
               ),
-            ].map(({ step, title, desc, path, icon: Icon, color, bg }) => (
+            ].map(({ step, title, desc, path, icon: Icon, color, done }) => (
               <button
                 key={step}
-                onClick={() => navigate(path)}
-                className="flex items-start gap-3 rounded-xl border border-gray-200/60 dark:border-primary-500/20 bg-white/80 dark:bg-black p-4 text-left shadow-sm transition-all hover:shadow-md hover:border-blue-200 dark:hover:border-primary-500/30 touch-manipulation"
+                onClick={() => !done && navigate(path)}
+                className={`group flex items-start gap-3 rounded-xl border text-left transition-all duration-200 p-4 ${
+                  done
+                    ? 'border-green-200 dark:border-green-800/40 bg-green-50/50 dark:bg-green-900/10 cursor-default'
+                    : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-black hover:shadow-md hover:border-gray-300 dark:hover:border-gray-600'
+                }`}
               >
-                <div className={`rounded-lg ${bg} dark:bg-gray-800 p-2 shrink-0`}>
-                  <Icon className={`h-5 w-5 ${color}`} />
+                <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br ${color} shadow-sm ${done ? 'opacity-50' : ''}`}>
+                  {done ? <CheckCircle2 className="h-4 w-4 text-white" /> : <Icon className="h-4 w-4 text-white" />}
                 </div>
-                <div>
-                  <p className="text-sm font-semibold text-gray-900 dark:text-white">Step {step}: {title}</p>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500">{step}</span>
+                    <h3 className={`text-sm font-semibold ${done ? 'text-gray-400 dark:text-gray-500 line-through' : 'text-gray-900 dark:text-white'}`}>{title}</h3>
+                    {done && <CheckCircle2 className="h-3.5 w-3.5 text-green-500 shrink-0" />}
+                  </div>
                   <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400 leading-relaxed">{desc}</p>
                 </div>
+                {!done && <ChevronRight className="h-4 w-4 text-gray-300 dark:text-gray-600 mt-0.5 shrink-0 group-hover:text-gray-400" />}
+              </button>
+            ))}
+          </div>
+
+          <button
+            onClick={() => setShowSample(true)}
+            className="mt-3 flex items-center gap-2 text-xs font-medium text-primary-600 dark:text-primary-400 transition-colors hover:text-primary-700 dark:hover:text-primary-300"
+          >
+            <FileText className="h-3.5 w-3.5" />
+            See what a finished case file looks like
+          </button>
+        </div>
+      )}
+
+      <SampleCasePreview open={showSample} onClose={() => setShowSample(false)} />
+
+      {/* ─── Case Readiness Milestones ─── */}
+      {stats && !loadingStats && !isZeroState && (stats.readinessScore || 0) < 100 && (
+        <div className="mb-6 sm:mb-8 rounded-xl border border-gray-200/40 dark:border-primary-500/20 bg-white/50 dark:bg-black p-4 sm:p-5 shadow-sm">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Zap className="h-4 w-4 text-primary-500" />
+              <h3 className="text-sm font-bold text-gray-900 dark:text-white">Case File Progress</h3>
+            </div>
+            <span className="text-xs font-medium text-gray-500 dark:text-gray-400">{stats.readinessScore}/100</span>
+          </div>
+          <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800 mb-4">
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-primary-500 to-emerald-500 transition-all duration-700"
+              style={{ width: `${stats.readinessScore}%` }}
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            {[
+              { label: 'Evidence uploaded', done: stats.vault.total > 0, tip: 'Upload a document or screenshot', path: '/dashboard/vault/upload' },
+              { label: 'Conversation analyzed', done: stats.chatAnalysis.total > 0, tip: 'Analyze a WhatsApp or SMS chat', path: '/dashboard/red-flag-radar' },
+              ...(isMale
+                ? [{ label: 'Finances documented', done: stats.income.totalEntries > 0, tip: 'Log your monthly income', path: '/dashboard/income-tracker' }]
+                : [{ label: 'Incident logged', done: false, tip: 'Document an incident', path: gender === 'female' ? '/dashboard/dv-log/add' : '/dashboard/dowry-vault/add' }]
+              ),
+              { label: 'Case file exported', done: false, tip: 'Export PDF for your lawyer', path: '/dashboard/vault/timeline' },
+            ].map((m) => (
+              <button
+                key={m.label}
+                onClick={() => !m.done && navigate(m.path)}
+                className={`flex items-center gap-2 rounded-lg p-2.5 text-left text-xs transition-all ${
+                  m.done
+                    ? 'bg-green-50 dark:bg-green-900/10 text-green-700 dark:text-green-400 cursor-default'
+                    : 'bg-gray-50 dark:bg-gray-900 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+                }`}
+              >
+                {m.done ? (
+                  <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" />
+                ) : (
+                  <div className="h-4 w-4 rounded-full border-2 border-gray-300 dark:border-gray-600 shrink-0" />
+                )}
+                <span className={m.done ? 'line-through' : 'font-medium'}>{m.done ? m.label : m.tip}</span>
               </button>
             ))}
           </div>
@@ -605,6 +728,69 @@ export default function Dashboard() {
             </div>
           )}
         </div>
+      </div>
+
+      {/* ─── "What Can I Do" Floating Bubble ─── */}
+      <div className="fixed bottom-6 right-6 z-[60]">
+        {showHelp && (
+          <>
+            <div className="fixed inset-0" onClick={() => setShowHelp(false)} />
+            <div className="absolute bottom-14 right-0 w-[340px] sm:w-[380px] max-h-[70vh] overflow-y-auto rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 shadow-2xl shadow-black/15 dark:shadow-black/40">
+              <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 px-4 py-3">
+                <h2 className="text-sm font-bold text-gray-900 dark:text-white">What You Can Do</h2>
+                <button onClick={() => setShowHelp(false)} className="rounded-lg p-1 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-600 dark:hover:text-gray-200 transition-colors">
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              <div className="p-3 space-y-1.5">
+                {[
+                  { icon: Lock, title: 'Store evidence securely', desc: 'Encrypted uploads with automatic timestamps', path: '/dashboard/vault/upload', color: 'from-blue-500 to-cyan-600' },
+                  { icon: Brain, title: 'Analyze conversations', desc: 'AI finds key patterns in WhatsApp, SMS, email', path: '/dashboard/red-flag-radar', color: 'from-purple-500 to-pink-600' },
+                  { icon: TrendingUp, title: 'Track income & expenses', desc: 'Court-format affidavits generated automatically', path: '/dashboard/income-tracker', color: 'from-emerald-500 to-teal-600', access: 'male' as const },
+                  { icon: Download, title: 'Export case file', desc: 'Structured PDF ready for your lawyer', path: '/dashboard/vault/timeline', color: 'from-amber-500 to-orange-600' },
+                  { icon: AlertTriangle, title: 'Document incidents', desc: 'Log with dates, details, and evidence', path: gender === 'female' ? '/dashboard/dv-log/add' : '/dashboard/vault/upload', color: 'from-red-500 to-rose-600', access: 'female' as const },
+                  { icon: MessageSquare, title: 'Draft breakup messages', desc: 'Structured, legally considered messaging', path: '/dashboard/breakup-generator', color: 'from-indigo-500 to-violet-600', access: 'male' as const },
+                ].filter(item => {
+                  if (!item.access) return true
+                  if (!gender || gender === 'both') return true
+                  return item.access === gender
+                }).map((item) => (
+                  <button
+                    key={item.title}
+                    onClick={() => { setShowHelp(false); navigate(item.path) }}
+                    className="group w-full flex items-center gap-3 rounded-xl p-3 text-left transition-all hover:bg-gray-50 dark:hover:bg-gray-900"
+                  >
+                    <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br ${item.color} shadow-sm`}>
+                      <item.icon className="h-4 w-4 text-white" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-sm font-medium text-gray-900 dark:text-white">{item.title}</h3>
+                      <p className="text-[11px] text-gray-400 dark:text-gray-500">{item.desc}</p>
+                    </div>
+                    <ChevronRight className="h-3.5 w-3.5 text-gray-300 dark:text-gray-600 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </button>
+                ))}
+              </div>
+
+              <div className="border-t border-gray-100 dark:border-gray-800 px-4 py-2.5">
+                <p className="text-[10px] text-gray-400 dark:text-gray-500 text-center">
+                  Documentation tool only — not legal advice
+                </p>
+              </div>
+            </div>
+          </>
+        )}
+
+        <button
+          onClick={() => setShowHelp(!showHelp)}
+          className={`flex items-center gap-2 rounded-full px-4 py-3 text-sm font-semibold text-white shadow-lg transition-all hover:shadow-xl sm:px-5 ${
+            showHelp ? 'bg-gray-700 hover:bg-gray-600' : 'bg-primary-600 shadow-primary-600/20 hover:bg-primary-700'
+          }`}
+        >
+          {showHelp ? <X className="h-4 w-4" /> : <HelpCircle className="h-4 w-4" />}
+          <span className="hidden sm:inline">{showHelp ? 'Close' : 'What can I do?'}</span>
+        </button>
       </div>
 
     </DashboardLayout>

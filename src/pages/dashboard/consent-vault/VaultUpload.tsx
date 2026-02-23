@@ -21,7 +21,7 @@ export default function VaultUpload() {
   }
 
   return (
-    <DashboardLayout title="Consent Vault" subtitle="Upload and organize your evidence" backHref="/dashboard/vault/timeline">
+    <DashboardLayout title="Evidence Vault" subtitle="Organized, timestamped evidence is the foundation of any legal case" backHref="/dashboard/vault/timeline">
       <div className="w-full">
         {/* Success Banner */}
         {uploadSuccess && (

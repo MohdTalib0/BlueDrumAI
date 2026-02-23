@@ -526,9 +526,16 @@ export default function FileUploader({ onUploadSuccess, onLimitReached, module =
 
           {/* Success Summary */}
           {allSuccess && (
-            <div className="flex items-center gap-2 rounded-lg bg-green-50 p-3 text-sm text-green-800">
-              <CheckCircle2 className="h-5 w-5 shrink-0" />
-              <span>All files uploaded successfully!</span>
+            <div className="rounded-xl border border-green-200 bg-gradient-to-r from-green-50 to-emerald-50 p-4 shadow-sm dark:bg-black dark:border-green-700/40 dark:from-green-900/10 dark:to-emerald-900/10">
+              <div className="flex items-start gap-3">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-green-500 shadow-sm">
+                  <CheckCircle2 className="h-4 w-4 text-white" />
+                </div>
+                <div>
+                  <p className="font-bold text-green-800 dark:text-green-300">Evidence uploaded & encrypted!</p>
+                  <p className="mt-1 text-sm text-green-700 dark:text-green-400">Your files are now securely stored with timestamps and encryption. They appear in your evidence timeline and will be included when you export your case file.</p>
+                </div>
+              </div>
             </div>
           )}
 

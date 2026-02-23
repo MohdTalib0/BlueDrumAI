@@ -12,7 +12,6 @@ import {
   Users,
   MessageSquare,
   Brain,
-  Eye,
   Upload,
   BarChart3,
   Download,
@@ -24,7 +23,6 @@ import {
   Clock,
   Sparkles,
   Star,
-  Play,
   Zap,
   Heart,
   Gift,
@@ -39,6 +37,7 @@ import { BlurIn } from './magicui/BlurIn'
 import { ShimmerButton } from './magicui/ShimmerButton'
 import { Marquee } from './magicui/Marquee'
 import { FadeIn } from './magicui/FadeIn'
+import SampleCasePreview from './SampleCasePreview'
 
 /* ═══════════════════════════════════════════════════════════════════
    HOOKS
@@ -93,87 +92,88 @@ function BrowserChrome({ url = 'app.bluedrumai.com' }: { url?: string }) {
    ═══════════════════════════════════════════════════════════════════ */
 
 const navLinks = [
-  { label: 'Features', id: 'features' },
-  { label: 'How it works', id: 'how-it-works' },
-  { label: 'Security', id: 'security' },
+  { label: 'What You Can Do', id: 'features' },
+  { label: 'How It Works', id: 'how-it-works' },
+  { label: 'Privacy', id: 'security' },
   { label: 'Pricing', id: 'pricing' },
 ]
 
 const stats = [
-  { value: 2500, suffix: '+', label: 'Evidence files secured', icon: Shield },
-  { value: 98, suffix: '%', label: 'Client-side encrypted', icon: Lock },
+  { value: 2500, suffix: '+', label: 'Evidence files organized', icon: Shield },
   { value: 500, suffix: '+', label: 'Cases documented', icon: Scale },
   { value: 4.9, suffix: '/5', label: 'User satisfaction', icon: Star, isDecimal: true },
+  { value: 2, suffix: ' min', label: 'Average setup time', icon: Zap },
 ]
 
-const problems = [
-  { icon: AlertTriangle, title: 'Scattered evidence', desc: 'Screenshots across 5 apps, deleted messages, no timeline.', color: 'from-red-500 to-rose-600', bg: 'bg-red-50', border: 'hover:border-red-200' },
-  { icon: Clock, title: 'No time to organize', desc: "You're already stressed. Sorting files is the last thing you want.", color: 'from-amber-500 to-orange-600', bg: 'bg-amber-50', border: 'hover:border-amber-200' },
-  { icon: Scale, title: 'Lawyers need structure', desc: 'Unorganized evidence = weak case. Structured files = faster resolution.', color: 'from-blue-500 to-indigo-600', bg: 'bg-blue-50', border: 'hover:border-blue-200' },
+const isThisForYou = [
+  { icon: Scale, title: 'Going through a divorce or separation', desc: 'You need to organize months or years of conversations, financial records, and documents before your hearing.', color: 'from-blue-500 to-indigo-600', bg: 'bg-blue-50', border: 'hover:border-blue-200' },
+  { icon: FileText, title: 'Your lawyer asked for organized evidence', desc: 'They need a timeline, structured documents, and financial summaries — not a folder of screenshots.', color: 'from-amber-500 to-orange-600', bg: 'bg-amber-50', border: 'hover:border-amber-200' },
+  { icon: Clock, title: 'You want to be prepared, just in case', desc: "Things aren't great, and you want to start documenting now — before a situation escalates.", color: 'from-emerald-500 to-teal-600', bg: 'bg-emerald-50', border: 'hover:border-emerald-200' },
 ]
 
 const showcaseFeatures = [
   {
+    icon: Lock, screenshot: '/screenshots/vault-timeline.png', alt: 'Encrypted Evidence Vault',
+    title: 'Store Evidence Securely', accent: 'from-blue-500 to-cyan-500',
+    desc: 'Upload screenshots, documents, photos, and chat exports. Everything is encrypted on your device and timestamped automatically. Build a visual timeline of all your evidence.',
+    highlights: ['Encrypted before upload — even we can\'t read your files', 'Automatic timestamps for every file', 'Visual timeline to see your full history'],
+  },
+  {
     icon: Brain, screenshot: '/screenshots/chat-analyzer.png', alt: 'AI Chat Analyzer',
-    title: 'AI Chat Analysis', accent: 'from-purple-500 to-pink-500',
-    desc: 'Upload WhatsApp, SMS, or email exports. AI detects manipulation, threats, and escalation patterns across thousands of messages in seconds.',
-    highlights: ['Auto-detects chat format', 'Risk score per conversation', 'Red flag timeline extraction'],
+    title: 'Analyze Conversations with AI', accent: 'from-purple-500 to-pink-500',
+    desc: 'Paste or upload WhatsApp, SMS, or email conversations. AI identifies important patterns, concerning language, and key moments — so you know what matters before your lawyer does.',
+    highlights: ['Works with WhatsApp, SMS, email, and more', 'Highlights key moments and patterns', 'Generates a summary you can share with your lawyer'],
   },
   {
     icon: TrendingUp, screenshot: '/screenshots/income-tracker.png', alt: 'Income & Expense Tracker',
-    title: 'Income & Expense Tracker', accent: 'from-emerald-500 to-teal-500',
-    desc: 'Auto-calculates disposable income per Rajnesh v. Neha guidelines. Generate court-ready affidavits with one click.',
-    highlights: ['Rajnesh v. Neha compliant', 'One-click affidavit generation', 'Monthly trend analysis'],
-  },
-  {
-    icon: Lock, screenshot: '/screenshots/vault-timeline.png', alt: 'Encrypted Evidence Vault',
-    title: 'Encrypted Evidence Vault', accent: 'from-blue-500 to-cyan-500',
-    desc: 'AES-256 client-side encryption with SHA-256 hashing. Your files never leave your browser unencrypted. Visual timeline of all evidence.',
-    highlights: ['Client-side AES-256 encryption', 'Visual evidence timeline', 'SHA-256 integrity hashing'],
+    title: 'Track Income & Expenses', accent: 'from-emerald-500 to-teal-500',
+    desc: 'Log your financial records for maintenance or alimony calculations. Follows court guidelines and generates formatted affidavits with one click.',
+    highlights: ['Follows Rajnesh v. Neha court guidelines', 'One-click affidavit generation', 'Monthly income and expense trends'],
   },
 ]
 
 const supportingFeatures = [
-  { icon: Scale, title: 'PDF Case File Export', desc: 'Structured case files with timelines, evidence index, and AI summaries — ready for your lawyer in minutes.', accent: 'from-amber-500 to-orange-500' },
-  { icon: MessageSquare, title: 'Universal Chat Parser', desc: 'WhatsApp .txt, Android SMS .csv, iOS Messages, .eml emails — auto-detected and parsed.', accent: 'from-rose-500 to-red-500' },
-  { icon: Eye, title: 'Red Flag Experience', desc: 'Interactive AI simulations that teach you to recognize manipulation tactics in real-time.', accent: 'from-indigo-500 to-violet-500' },
+  { icon: Download, title: 'Export Case Files for Your Lawyer', desc: 'Generate a structured PDF with your evidence timeline, AI analysis summaries, and financial records — ready to hand to your lawyer.', accent: 'from-amber-500 to-orange-500' },
+  { icon: MessageSquare, title: 'Works with Any Chat Format', desc: 'WhatsApp exports, SMS backups, iOS Messages, email threads — just upload or paste. The format is detected automatically.', accent: 'from-rose-500 to-red-500' },
+  { icon: AlertTriangle, title: 'Document Incidents', desc: 'Record incidents with dates, descriptions, and attached evidence. Build a chronological log that holds up under scrutiny.', accent: 'from-indigo-500 to-violet-500' },
 ]
 
 const howItWorks = [
-  { num: '01', icon: Upload, title: 'Upload & Document', desc: 'Add chats, photos, documents, and financials. Everything is encrypted and timestamped automatically.', screenshot: '/screenshots/vault-timeline.png', imgAlt: 'Evidence vault upload interface', direction: 'left' as const, tags: ['WhatsApp', 'SMS', 'Email', 'Photos', 'Documents'] },
-  { num: '02', icon: BarChart3, title: 'AI Organizes & Analyzes', desc: 'AI structures evidence into timelines, detects risk patterns, and highlights what matters legally.', screenshot: '/screenshots/chat-analyzer.png', imgAlt: 'AI chat analysis results', direction: 'right' as const },
-  { num: '03', icon: Download, title: 'Export & Share', desc: 'Generate a structured PDF with evidence, analysis, and recommendations. Share securely with your lawyer.', screenshot: '/screenshots/income-tracker.png', imgAlt: 'Income tracker and export interface', direction: 'left' as const },
+  { num: '01', icon: Upload, title: 'Upload Your Evidence', desc: 'Add chats, screenshots, documents, and financial records. Everything is encrypted on your device and organized automatically.', screenshot: '/screenshots/vault-timeline.png', imgAlt: 'Evidence vault upload interface', direction: 'left' as const, tags: ['WhatsApp', 'SMS', 'Email', 'Photos', 'Documents'] },
+  { num: '02', icon: BarChart3, title: 'AI Organizes & Analyzes', desc: 'AI builds timelines, identifies important patterns in conversations, and calculates financial summaries — saving you hours of manual work.', screenshot: '/screenshots/chat-analyzer.png', imgAlt: 'AI chat analysis results', direction: 'right' as const },
+  { num: '03', icon: Download, title: 'Share with Your Lawyer', desc: 'Export a structured case file as PDF — with evidence index, conversation analysis, and financial summaries. Your lawyer gets what they need, fast.', screenshot: '/screenshots/income-tracker.png', imgAlt: 'Case file export', direction: 'left' as const },
 ]
 
 const menFeatures = [
-  { text: 'Evidence vault with encrypted timeline', icon: Lock },
-  { text: 'Income & expense tracker with affidavits', icon: TrendingUp },
-  { text: 'AI chat analysis and risk scoring', icon: Brain },
-  { text: 'Breakup message generator (legally safe)', icon: MessageSquare },
-  { text: 'Lawyer-ready PDF case file export', icon: FileText },
+  { text: 'Encrypted evidence vault with visual timeline', icon: Lock },
+  { text: 'Income & expense tracker with court-format affidavits', icon: TrendingUp },
+  { text: 'AI conversation analysis and pattern detection', icon: Brain },
+  { text: 'Structured breakup message drafting', icon: MessageSquare },
+  { text: 'PDF case file export for your lawyer', icon: FileText },
 ]
 
 const womenFeatures = [
-  { text: 'Dowry documentation (gifts, receipts, transfers)', icon: Gift },
-  { text: 'DV incident log with evidence attachments', icon: AlertTriangle },
-  { text: 'Maintenance calculator with legal factors', icon: Scale },
+  { text: 'Dowry documentation — gifts, receipts, transfers', icon: Gift },
+  { text: 'Incident log with dates and evidence attachments', icon: AlertTriangle },
+  { text: 'Maintenance calculator based on legal guidelines', icon: Scale },
   { text: 'Medical report organizer', icon: Heart },
-  { text: 'Lawyer-ready PDF case file export', icon: FileText },
+  { text: 'PDF case file export for your lawyer', icon: FileText },
 ]
 
 const securityCards = [
-  { icon: KeyRound, title: 'AES-256 Encryption', desc: 'Files encrypted in your browser before upload.', glow: 'hover:shadow-blue-500/10' },
-  { icon: Fingerprint, title: 'SHA-256 Hashing', desc: 'Tamper-proof integrity verification for every file.', glow: 'hover:shadow-purple-500/10' },
-  { icon: Lock, title: 'PBKDF2 Key Derivation', desc: 'Your key comes from your account. We never see it.', glow: 'hover:shadow-emerald-500/10' },
-  { icon: Server, title: 'Row Level Security', desc: 'Database policies ensure you only access your data.', glow: 'hover:shadow-amber-500/10' },
+  { icon: Lock, title: 'Encrypted on Your Device', desc: 'Your files are encrypted in your browser before they ever leave your device. Even we cannot read them.', glow: 'hover:shadow-blue-500/10' },
+  { icon: Fingerprint, title: 'Tamper-Proof Records', desc: 'Every file gets a unique digital fingerprint. If anything is altered, it shows immediately.', glow: 'hover:shadow-purple-500/10' },
+  { icon: KeyRound, title: 'Only You Have the Key', desc: 'Your encryption key is derived from your account. We never store it, never see it, never have access.', glow: 'hover:shadow-emerald-500/10' },
+  { icon: Server, title: 'Your Data, Only Yours', desc: 'Database-level policies ensure no one — not even our team — can access another user\'s data.', glow: 'hover:shadow-amber-500/10' },
 ]
 
 const faqs = [
-  { q: 'Is this legal advice?', a: 'No. Blue Drum AI is a documentation and organization tool. Always consult a qualified lawyer for legal advice specific to your situation.' },
-  { q: 'How is my data protected?', a: 'All files are encrypted client-side with AES-256 before upload. We use SHA-256 hashing for integrity verification. Your encryption key is derived from your account — even we cannot read your files.' },
-  { q: 'Who is this platform for?', a: "Anyone navigating a relationship dispute in India — alimony, maintenance, dowry documentation, DV incident logging. Dedicated modules for both men and women." },
-  { q: 'What chat formats are supported?', a: 'WhatsApp exports (.txt), Android SMS backups (.csv), iOS Messages, email threads (.eml), and manual text paste. The universal parser auto-detects the format.' },
-  { q: 'Can I try it before committing?', a: 'Yes! The free plan includes all core features — evidence vault, AI analysis, income tracking, and PDF export. No credit card required.' },
+  { q: 'Is this legal advice?', a: 'No. Blue Drum AI is a documentation and organization tool — not a law firm. It helps you collect and structure your evidence so your lawyer can work more effectively. Always consult a qualified lawyer for legal advice specific to your situation.' },
+  { q: 'Who is this for?', a: 'Anyone in India going through or preparing for a family dispute — divorce, separation, custody, maintenance, or domestic issues. We have dedicated tools for both men and women, covering different legal contexts like alimony, dowry, and DV documentation.' },
+  { q: 'How is my data kept private?', a: 'Your files are encrypted on your device before upload — we literally cannot read them. Each account has its own encryption key, and database-level security ensures only you can access your records.' },
+  { q: 'What chat formats can I upload?', a: 'WhatsApp exports (.txt), Android SMS backups (.csv), iOS Messages, email threads (.eml), and manual text paste. Just upload or paste — the format is detected automatically.' },
+  { q: 'Is it really free?', a: 'Yes. The free plan includes the evidence vault (50 files), AI conversation analysis (5/month), income tracking, and PDF export. No credit card required. Premium (₹199/month) removes all limits.' },
+  { q: 'Will my lawyer accept this?', a: 'Blue Drum AI generates structured PDFs with timestamped evidence, organized timelines, and financial summaries — exactly what lawyers ask clients to prepare. Many users report that their lawyers were impressed by the level of organization.' },
 ]
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -189,6 +189,7 @@ export default function LandingPage() {
   const [scrolled, setScrolled] = useState(false)
   const [activeScreenshot, setActiveScreenshot] = useState(0)
   const [activeModule, setActiveModule] = useState<'men' | 'women'>('men')
+  const [showSample, setShowSample] = useState(false)
 
   useScrollReveal()
 
@@ -222,7 +223,7 @@ export default function LandingPage() {
               </div>
               <div className="leading-tight">
                 <div className="text-sm sm:text-base font-bold text-gray-900 dark:text-white">Blue Drum AI</div>
-                <div className="hidden sm:block text-xs text-gray-500 dark:text-gray-400">Evidence-based legal vigilance</div>
+                <div className="hidden sm:block text-xs text-gray-500 dark:text-gray-400">Organize your evidence. Strengthen your case.</div>
               </div>
             </Link>
           </div>
@@ -300,18 +301,18 @@ export default function LandingPage() {
                   <span className="live-dot absolute inline-flex h-full w-full rounded-full bg-primary-400" />
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-primary-500" />
                 </span>
-                AI-Powered Legal Protection for India
+                For people navigating family disputes in India
               </div>
             </BlurIn>
 
             <BlurIn delay={0.25}>
               <h1 className="text-[2.25rem] font-extrabold leading-[1.12] tracking-tight sm:text-5xl md:text-6xl lg:text-[4.25rem]">
-                Stop scrambling.
+                Your evidence is everywhere.
                 <br />
-                <span className="animate-gradient-text bg-gradient-to-r from-primary-600 via-blue-500 to-indigo-600">Start</span>{' '}
+                <span className="animate-gradient-text bg-gradient-to-r from-primary-600 via-blue-500 to-indigo-600">Your lawyer</span>{' '}
                 <WordRotate
-                  words={['documenting.', 'protecting.', 'organizing.', 'building your case.']}
-                  duration={3000}
+                  words={['needs it in one place.', 'needs it organized.', 'needs it structured.', 'needs it now.']}
+                  duration={3500}
                   className="inline-flex"
                 />
               </h1>
@@ -319,9 +320,9 @@ export default function LandingPage() {
 
             <BlurIn delay={0.45}>
               <p className="mx-auto mt-6 max-w-2xl px-4 sm:px-0 text-base leading-relaxed text-gray-500 dark:text-gray-400 sm:text-lg md:text-xl">
-                Blue Drum AI encrypts your evidence, analyzes your chats with AI, and
-                generates lawyer-ready case files — so you walk into court prepared.
-                <span className="font-medium text-gray-700 dark:text-gray-200"> Built for Indian law.</span>
+                Blue Drum AI helps you collect your chats, documents, and financial records — then
+                organizes them into a structured case file your lawyer can actually use.
+                <span className="font-medium text-gray-700 dark:text-gray-200"> No legal knowledge required.</span>
               </p>
             </BlurIn>
 
@@ -343,9 +344,7 @@ export default function LandingPage() {
             </BlurIn>
 
             <BlurIn delay={0.75}>
-              <button onClick={() => scrollTo('features')} className="mt-4 inline-flex items-center gap-1.5 text-xs font-medium text-gray-400 dark:text-gray-500 transition-colors hover:text-primary-600">
-                <Play className="h-3 w-3" /> See it in action
-              </button>
+              <p className="mt-5 text-xs text-gray-400 dark:text-gray-500">Free plan available — no credit card needed</p>
             </BlurIn>
           </div>
 
@@ -377,8 +376,8 @@ export default function LandingPage() {
                   <Lock className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <div className="text-sm font-bold text-gray-900 dark:text-white">AES-256 Encrypted</div>
-                  <div className="text-xs text-gray-400">Client-side, before upload</div>
+                  <div className="text-sm font-bold text-gray-900 dark:text-white">Fully Encrypted</div>
+                  <div className="text-xs text-gray-400">Files protected on your device</div>
                 </div>
               </div>
             </div>
@@ -390,8 +389,8 @@ export default function LandingPage() {
                   <Brain className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <div className="text-sm font-bold text-gray-900 dark:text-white">AI-Powered Analysis</div>
-                  <div className="text-xs text-gray-400">Red flags detected instantly</div>
+                  <div className="text-sm font-bold text-gray-900 dark:text-white">AI-Powered Insights</div>
+                  <div className="text-xs text-gray-400">Key patterns found instantly</div>
                 </div>
               </div>
             </div>
@@ -403,8 +402,8 @@ export default function LandingPage() {
                   <FileText className="h-4 w-4 text-white" />
                 </div>
                 <div>
-                  <div className="text-sm font-bold text-gray-900 dark:text-white">PDF Export Ready</div>
-                  <div className="text-xs text-gray-400">Court-formatted case files</div>
+                  <div className="text-sm font-bold text-gray-900 dark:text-white">Lawyer-Ready Export</div>
+                  <div className="text-xs text-gray-400">Structured PDF case files</div>
                 </div>
               </div>
             </div>
@@ -435,14 +434,14 @@ export default function LandingPage() {
       <section className="overflow-hidden border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-black py-6">
         <Marquee speed={30} pauseOnHover>
           {[
-            { icon: Shield, text: 'AES-256 Encrypted' },
-            { icon: Lock, text: 'Zero-Knowledge Architecture' },
-            { icon: Scale, text: 'Indian Family Law Compliant' },
-            { icon: Brain, text: 'AI-Powered Risk Analysis' },
-            { icon: FileText, text: 'Court-Ready PDF Export' },
-            { icon: Fingerprint, text: 'SHA-256 Integrity Hashing' },
-            { icon: Server, text: 'Supabase Row Level Security' },
-            { icon: Sparkles, text: 'Smart Chat Parsing' },
+            { icon: Lock, text: 'Encrypted on your device' },
+            { icon: Shield, text: 'Only you can access your files' },
+            { icon: Scale, text: 'Built for Indian family law' },
+            { icon: Brain, text: 'AI organizes your evidence' },
+            { icon: FileText, text: 'PDF case files for your lawyer' },
+            { icon: Fingerprint, text: 'Tamper-proof records' },
+            { icon: Users, text: 'Tools for both men and women' },
+            { icon: Sparkles, text: 'Works with WhatsApp, SMS, and email' },
           ].map((item) => (
             <div key={item.text} className="mx-4 flex items-center gap-2 text-sm font-medium text-gray-400">
               <item.icon className="h-4 w-4 text-primary-400/60" />
@@ -452,27 +451,26 @@ export default function LandingPage() {
         </Marquee>
       </section>
 
-      {/* ──────────────── THE PROBLEM → SOLUTION ─────────────────────────── */}
+      {/* ──────────────── IS THIS FOR YOU? ─────────────────────────── */}
       <section className="py-20 sm:py-24">
         <div className="mx-auto max-w-7xl px-5">
           <div className="mx-auto max-w-3xl text-center">
-            <FadeIn><SectionLabel>The Problem</SectionLabel></FadeIn>
+            <FadeIn><SectionLabel>Is This For You?</SectionLabel></FadeIn>
             <FadeIn delay={0.1}>
               <h2 className="text-3xl font-bold tracking-tight sm:text-4xl dark:text-white">
-                Disputes don&apos;t wait for you to get organized
+                Blue Drum AI is built for people who need to get organized — fast
               </h2>
             </FadeIn>
             <FadeIn delay={0.2}>
               <p className="mt-5 text-base leading-relaxed text-gray-500 dark:text-gray-400 sm:text-lg">
-                When a relationship turns into a legal battle, most people realize too late that their
-                evidence is scattered across phones, emails, and memory.
-                <strong className="text-gray-700 dark:text-gray-200"> Your lawyer needs structured facts — not a mess.</strong>
+                Whether you&apos;re already working with a lawyer or just starting to prepare,
+                having structured evidence makes everything easier.
               </p>
             </FadeIn>
           </div>
 
           <div className="mx-auto mt-12 grid max-w-4xl grid-cols-1 gap-5 sm:grid-cols-3">
-            {problems.map((p, i) => (
+            {isThisForYou.map((p, i) => (
               <FadeIn key={p.title} delay={0.1 * i}>
                 <div className={`group rounded-2xl border border-gray-100 dark:border-primary-500/20 ${p.bg}/30 dark:bg-primary-900/20 p-7 text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-lg ${p.border}`}>
                   <div className={`mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${p.color} shadow-lg transition-transform duration-300 group-hover:scale-110`}>
@@ -487,19 +485,118 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ──────────────────────── FEATURES SHOWCASE ──────────────────────── */}
-      <section id="features" className="border-t border-blue-100/40 dark:border-gray-800 py-20 sm:py-28">
+      {/* ──────────────────────── SEE IT IN ACTION ──────────────────────── */}
+      <section className="border-t border-blue-100/40 dark:border-gray-800 py-20 sm:py-28 overflow-hidden">
         <div className="mx-auto max-w-7xl px-5">
           <div className="mx-auto max-w-2xl text-center">
-            <FadeIn><SectionLabel>Platform Features</SectionLabel></FadeIn>
+            <FadeIn><SectionLabel>See It In Action</SectionLabel></FadeIn>
             <FadeIn delay={0.1}>
               <h2 className="text-3xl font-bold tracking-tight sm:text-4xl dark:text-white">
-                See what Blue Drum AI can do
+                Paste a conversation. AI does the rest.
               </h2>
             </FadeIn>
             <FadeIn delay={0.2}>
               <p className="mt-4 text-base text-gray-500 dark:text-gray-400 sm:text-lg">
-                Three core modules working together to build your case.
+                Here&apos;s what happens when you upload a WhatsApp chat to Blue Drum AI.
+              </p>
+            </FadeIn>
+          </div>
+
+          <FadeIn delay={0.3}>
+            <div className="mx-auto mt-14 max-w-4xl grid grid-cols-1 gap-6 lg:grid-cols-2">
+              {/* Simulated Chat */}
+              <div className="rounded-2xl border border-gray-200/70 dark:border-gray-700 bg-white dark:bg-black shadow-lg overflow-hidden">
+                <div className="border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 px-4 py-2.5 flex items-center gap-2">
+                  <MessageSquare className="h-4 w-4 text-gray-400" />
+                  <span className="text-xs font-medium text-gray-500 dark:text-gray-400">WhatsApp Chat Export</span>
+                </div>
+                <div className="p-4 space-y-3 text-sm font-mono">
+                  {[
+                    { time: '9:15 AM', sender: 'Priya', msg: 'Can we discuss the maintenance? Haven\'t heard back in a week.', flag: false },
+                    { time: '9:18 AM', sender: 'Rahul', msg: 'I told you I can\'t afford more than 15k. Stop asking.', flag: false },
+                    { time: '9:21 AM', sender: 'Rahul', msg: 'Court order doesn\'t matter. I have nothing.', flag: true },
+                    { time: '9:24 AM', sender: 'Rahul', msg: 'Keep pushing and you\'ll regret it.', flag: true },
+                    { time: '9:26 AM', sender: 'Rahul', msg: 'I\'m done being nice about this.', flag: true },
+                  ].map((m, i) => (
+                    <div key={i} className={`rounded-lg p-2.5 ${m.flag ? 'bg-red-50 dark:bg-red-900/15 border border-red-200/60 dark:border-red-800/30' : 'bg-gray-50 dark:bg-gray-900'}`}>
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-[10px] text-gray-400">{m.time}</span>
+                        <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">{m.sender}</span>
+                        {m.flag && <span className="rounded-full bg-red-100 dark:bg-red-900/30 px-1.5 py-0.5 text-[9px] font-bold text-red-600 dark:text-red-400">AI FLAGGED</span>}
+                      </div>
+                      <p className={`text-xs ${m.flag ? 'text-red-800 dark:text-red-300' : 'text-gray-600 dark:text-gray-400'}`}>{m.msg}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* AI Analysis Output */}
+              <div className="rounded-2xl border border-gray-200/70 dark:border-gray-700 bg-white dark:bg-black shadow-lg overflow-hidden">
+                <div className="border-b border-gray-100 dark:border-gray-800 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 px-4 py-2.5 flex items-center gap-2">
+                  <Brain className="h-4 w-4 text-purple-500" />
+                  <span className="text-xs font-medium text-purple-700 dark:text-purple-300">AI Analysis Result</span>
+                </div>
+                <div className="p-4 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-semibold text-gray-900 dark:text-white">Risk Score</span>
+                    <span className="rounded-full bg-amber-100 dark:bg-amber-900/30 px-3 py-1 text-sm font-bold text-amber-700 dark:text-amber-400">68 / 100</span>
+                  </div>
+
+                  <div>
+                    <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">Key Findings</p>
+                    <div className="space-y-2">
+                      {[
+                        'Threatening language detected in 3 messages',
+                        'Financial non-compliance — contradicts court order',
+                        'Escalating tone across the conversation',
+                      ].map((f, i) => (
+                        <div key={i} className="flex items-start gap-2 text-xs">
+                          <AlertTriangle className="h-3.5 w-3.5 text-amber-500 mt-0.5 shrink-0" />
+                          <span className="text-gray-600 dark:text-gray-400">{f}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="rounded-lg bg-gray-50 dark:bg-gray-900 p-3">
+                    <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">AI Summary</p>
+                    <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-relaxed">
+                      Pattern of intimidation with financial pressure as a recurring theme. Three statements may be relevant for legal proceedings.
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-2 text-[11px] text-gray-400">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
+                    <span>Added to your case file automatically</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </FadeIn>
+
+          <FadeIn delay={0.4}>
+            <div className="mt-10 text-center">
+              <Link to="/sign-up" className="group inline-flex items-center gap-2 text-sm font-bold text-primary-600 transition-colors hover:text-primary-700">
+                Try it with your own conversations <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+              </Link>
+            </div>
+          </FadeIn>
+        </div>
+      </section>
+
+      {/* ──────────────────────── FEATURES SHOWCASE ──────────────────────── */}
+      <section id="features" className="border-t border-blue-100/40 dark:border-gray-800 py-20 sm:py-28">
+        <div className="mx-auto max-w-7xl px-5">
+          <div className="mx-auto max-w-2xl text-center">
+            <FadeIn><SectionLabel>What You Can Do</SectionLabel></FadeIn>
+            <FadeIn delay={0.1}>
+              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl dark:text-white">
+                Everything you need to build a structured case
+              </h2>
+            </FadeIn>
+            <FadeIn delay={0.2}>
+              <p className="mt-4 text-base text-gray-500 dark:text-gray-400 sm:text-lg">
+                Upload your evidence, let AI organize it, and hand your lawyer a case file they can work with immediately.
               </p>
             </FadeIn>
           </div>
@@ -567,7 +664,7 @@ export default function LandingPage() {
           {/* Supporting features grid */}
           <div className="mx-auto mt-16 max-w-5xl border-t border-gray-100 dark:border-gray-800 pt-16">
             <FadeIn>
-              <h3 className="mb-8 text-center text-lg font-bold text-gray-900 dark:text-white">Plus these powerful tools</h3>
+              <h3 className="mb-8 text-center text-lg font-bold text-gray-900 dark:text-white">And more tools to help you prepare</h3>
             </FadeIn>
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
               {supportingFeatures.map((f, i) => (
@@ -597,12 +694,12 @@ export default function LandingPage() {
             <FadeIn><SectionLabel>How It Works</SectionLabel></FadeIn>
             <FadeIn delay={0.1}>
               <h2 className="text-3xl font-bold tracking-tight sm:text-4xl dark:text-white">
-                From chaos to case file in 3 steps
+                From scattered files to a structured case — in minutes
               </h2>
             </FadeIn>
             <FadeIn delay={0.2}>
               <p className="mt-4 text-base text-gray-500 dark:text-gray-400 sm:text-lg">
-                No learning curve. Upload evidence, let AI organize, export for your lawyer.
+                No technical knowledge needed. Just upload, let AI do the heavy lifting, and share with your lawyer.
               </p>
             </FadeIn>
           </div>
@@ -639,28 +736,37 @@ export default function LandingPage() {
           </div>
 
           <FadeIn>
-            <div className="mt-16 text-center">
-              <Link to="/sign-up" className="group inline-flex items-center gap-2.5 rounded-xl bg-gray-900 px-8 py-4 text-base font-bold text-white shadow-xl transition-all duration-300 hover:bg-gray-800 hover:shadow-2xl">
-                Start in Under 2 Minutes <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+            <div className="mt-16 flex flex-col items-center justify-center gap-4 sm:flex-row">
+              <Link to="/sign-up" className="group inline-flex items-center gap-2.5 rounded-xl bg-gray-900 dark:bg-white px-8 py-4 text-base font-bold text-white dark:text-gray-900 shadow-xl transition-all duration-300 hover:bg-gray-800 dark:hover:bg-gray-100 hover:shadow-2xl">
+                Get Started Free <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Link>
+              <button
+                onClick={() => setShowSample(true)}
+                className="group inline-flex items-center gap-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-black px-8 py-4 text-base font-semibold text-gray-700 dark:text-gray-300 shadow-sm transition-all duration-300 hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-md"
+              >
+                <FileText className="h-4 w-4 text-primary-500" />
+                See a Sample Case File
+              </button>
             </div>
           </FadeIn>
         </div>
       </section>
 
+      <SampleCasePreview open={showSample} onClose={() => setShowSample(false)} />
+
       {/* ──────────────────────── MODULES ─────────────────────────────────── */}
       <section className="border-t border-blue-100/40 dark:border-gray-800 py-20 sm:py-28">
         <div className="mx-auto max-w-7xl px-5">
           <div className="mx-auto max-w-2xl text-center">
-            <FadeIn><SectionLabel>Modules</SectionLabel></FadeIn>
+            <FadeIn><SectionLabel>Built for Both Sides</SectionLabel></FadeIn>
             <FadeIn delay={0.1}>
               <h2 className="text-3xl font-bold tracking-tight sm:text-4xl dark:text-white">
-                Built for both sides of the table
+                Dedicated tools for your specific situation
               </h2>
             </FadeIn>
             <FadeIn delay={0.2}>
               <p className="mt-4 text-base text-gray-500 dark:text-gray-400 sm:text-lg">
-                Dedicated modules for men and women — because fair outcomes require documented truth from everyone.
+                Different legal contexts need different tools. We have specialized features for both men and women navigating family disputes.
               </p>
             </FadeIn>
           </div>
@@ -696,7 +802,7 @@ export default function LandingPage() {
                     </div>
                     <div>
                       <h3 className="text-xl font-bold text-gray-900 dark:text-white">For Men</h3>
-                      <p className="text-xs text-gray-400">Alimony clarity & false case protection</p>
+                      <p className="text-xs text-gray-400">Evidence organization & financial documentation</p>
                     </div>
                   </div>
                   <ul className="space-y-3.5">
@@ -729,7 +835,7 @@ export default function LandingPage() {
                     </div>
                     <div>
                       <h3 className="text-xl font-bold text-gray-900 dark:text-white">For Women</h3>
-                      <p className="text-xs text-gray-400">DV documentation & maintenance rights</p>
+                      <p className="text-xs text-gray-400">Incident documentation & financial tracking</p>
                     </div>
                   </div>
                   <ul className="space-y-3.5">
@@ -763,7 +869,7 @@ export default function LandingPage() {
         <div className="relative mx-auto max-w-7xl px-5">
           <div className="mx-auto max-w-2xl text-center">
             <FadeIn>
-              <p className="mb-4 text-sm font-bold uppercase tracking-[0.15em] text-primary-400">Security</p>
+              <p className="mb-4 text-sm font-bold uppercase tracking-[0.15em] text-primary-400">Your Privacy</p>
             </FadeIn>
             <FadeIn delay={0.1}>
               <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary-500/20 to-primary-600/10 ring-1 ring-primary-500/30">
@@ -771,11 +877,11 @@ export default function LandingPage() {
               </div>
             </FadeIn>
             <FadeIn delay={0.15}>
-              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Your data is yours. Period.</h2>
+              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Your files are private. Even from us.</h2>
             </FadeIn>
             <FadeIn delay={0.2}>
               <p className="mt-4 text-base text-gray-400 sm:text-lg">
-                Zero-trust architecture. Even we cannot read your files.
+                Everything is encrypted on your device before it leaves your browser. We designed it so that even our own team cannot access your files.
               </p>
             </FadeIn>
           </div>
@@ -795,7 +901,7 @@ export default function LandingPage() {
           </div>
 
           <div className="mx-auto mt-10 flex max-w-3xl flex-wrap items-center justify-center gap-x-8 gap-y-3 text-xs text-gray-500">
-            {['SOC 2 Architecture', 'GDPR Ready', 'Supabase RLS', 'Zero-Knowledge Design'].map((b) => (
+            {['Enterprise-grade encryption', 'GDPR-compliant design', 'Database-level access control', 'No third-party data sharing'].map((b) => (
               <span key={b} className="flex items-center gap-1.5">
                 <CheckCircle2 className="h-3.5 w-3.5 text-primary-500/60" /> {b}
               </span>
@@ -940,17 +1046,16 @@ export default function LandingPage() {
               <div className="pointer-events-none absolute -bottom-24 -right-24 h-80 w-80 rounded-full bg-yellow-100/40 blur-3xl" />
 
               <h2 className="relative text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-4xl md:text-5xl">
-                Don&apos;t wait until it&apos;s too late.
+                Your lawyer needs organized evidence.
                 <br className="hidden sm:block" />
-                <span className="mt-2 block text-primary-600 sm:mt-3">Start documenting today.</span>
+                <span className="mt-2 block text-primary-600 sm:mt-3">Let&apos;s get you ready.</span>
               </h2>
               <p className="relative mx-auto mt-5 max-w-xl text-base text-gray-500 dark:text-gray-400 sm:text-lg">
-                Sign up in under 2 minutes. Upload your first evidence.
-                Generate your first case file. Free forever on the core plan.
+                Create a free account, upload your first document, and see how Blue Drum AI turns your scattered files into a structured case file.
               </p>
               <div className="relative mt-5 flex items-center justify-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-300">
                 <Sparkles className="h-4 w-4 text-primary-500" />
-                Join 500+ users already documenting their cases
+                Takes less than 2 minutes to get started
               </div>
               <div className="relative mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
                 <Link to="/sign-up" className="group inline-flex w-full items-center justify-center gap-2.5 rounded-xl bg-primary-600 px-8 py-4 text-base font-bold text-white shadow-lg shadow-primary-600/20 transition-all duration-300 hover:bg-primary-700 hover:shadow-xl sm:w-auto">
@@ -977,15 +1082,15 @@ export default function LandingPage() {
                 <img src="/logo.svg" alt="Blue Drum AI" className="h-9 w-9" />
                 <div>
                   <div className="text-base font-bold dark:text-white">Blue Drum AI</div>
-                  <div className="text-xs text-gray-400">Truth. Evidence. Fair outcomes.</div>
+                  <div className="text-xs text-gray-400">Organize your evidence. Strengthen your case.</div>
                 </div>
               </Link>
               <div className="mt-3 flex items-center gap-4 text-xs text-gray-400">
                 <span className="flex items-center gap-1.5">
-                  <Shield className="h-3.5 w-3.5 text-primary-400" /> AES-256 Encrypted
+                  <Shield className="h-3.5 w-3.5 text-primary-400" /> Encrypted on your device
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <Lock className="h-3.5 w-3.5 text-primary-400" /> Zero-Knowledge
+                  <Lock className="h-3.5 w-3.5 text-primary-400" /> Private by design
                 </span>
               </div>
             </div>

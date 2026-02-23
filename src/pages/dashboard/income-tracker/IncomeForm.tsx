@@ -217,15 +217,20 @@ export default function IncomeForm() {
   }
 
   return (
-    <DashboardLayout title={isEditMode ? 'Edit Income Entry' : 'Income Tracker'} subtitle={isEditMode ? 'Update your income and expense data' : 'Log your monthly income and expenses'} backHref="/dashboard/income-tracker/history">
+    <DashboardLayout title={isEditMode ? 'Edit Income Entry' : 'Income Tracker'} subtitle={isEditMode ? 'Update your income and expense data' : 'Maintenance and alimony are calculated from documented income — this is what judges review'} backHref="/dashboard/income-tracker/history">
       <div className="w-full max-w-5xl mx-auto">
         {/* Success Message */}
         {success && (
-          <div className="mb-6 animate-in slide-in-from-top-5 flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 p-4 text-green-800 shadow-sm dark:bg-black dark:border-green-700/40 dark:text-green-300">
-            <CheckCircle2 className="h-5 w-5 shrink-0" />
-            <div className="flex-1">
-              <p className="font-semibold">Income data saved successfully!</p>
-              <p className="text-sm text-green-700 dark:text-green-300">Redirecting to history...</p>
+          <div className="mb-6 animate-in slide-in-from-top-5 rounded-xl border border-green-200 bg-gradient-to-r from-green-50 to-emerald-50 p-5 shadow-sm dark:bg-black dark:border-green-700/40 dark:from-green-900/10 dark:to-emerald-900/10">
+            <div className="flex items-start gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-green-500 shadow-sm">
+                <CheckCircle2 className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <p className="font-bold text-green-800 dark:text-green-300">Financial record saved!</p>
+                <p className="mt-1 text-sm text-green-700 dark:text-green-400">Your income and expenses are now documented. A court-format affidavit can be generated from this data — exactly what judges review for maintenance decisions.</p>
+                <p className="mt-2 text-xs text-green-600 dark:text-green-500">Redirecting to your history...</p>
+              </div>
             </div>
           </div>
         )}

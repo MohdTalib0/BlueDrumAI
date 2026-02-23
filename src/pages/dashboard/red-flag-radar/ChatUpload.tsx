@@ -182,15 +182,20 @@ export default function ChatUpload() {
   ]
 
   return (
-    <DashboardLayout title="Red Flag Radar" subtitle="Analyze conversations for red flags and threats" backHref="/dashboard">
+    <DashboardLayout title="Red Flag Radar" subtitle="Courts consider patterns in conversations — let AI find what matters" backHref="/dashboard">
       <div className="w-full max-w-4xl mx-auto">
         {/* Success Message */}
         {success && (
-          <div className="mb-6 animate-in slide-in-from-top-5 flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 p-4 text-green-800 shadow-sm dark:bg-black dark:border-green-700/40 dark:text-green-300">
-            <CheckCircle2 className="h-5 w-5 shrink-0" />
-            <div className="flex-1">
-              <p className="font-semibold">Chat analyzed successfully!</p>
-              <p className="text-sm text-green-700 dark:text-green-300">Redirecting to results...</p>
+          <div className="mb-6 animate-in slide-in-from-top-5 rounded-xl border border-green-200 bg-gradient-to-r from-green-50 to-emerald-50 p-5 shadow-sm dark:bg-black dark:border-green-700/40 dark:from-green-900/10 dark:to-emerald-900/10">
+            <div className="flex items-start gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-green-500 shadow-sm">
+                <CheckCircle2 className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <p className="font-bold text-green-800 dark:text-green-300">Conversation analyzed!</p>
+                <p className="mt-1 text-sm text-green-700 dark:text-green-400">AI has identified key patterns and moments in this conversation. This analysis is now part of your case file — your lawyer can review it immediately.</p>
+                <p className="mt-2 text-xs text-green-600 dark:text-green-500">Redirecting to your results...</p>
+              </div>
             </div>
           </div>
         )}
@@ -363,9 +368,46 @@ export default function ChatUpload() {
                   className="w-full min-h-[200px] rounded-lg border border-gray-300 bg-white p-4 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:bg-black dark:border-gray-700 dark:text-gray-100"
                   disabled={uploading}
                 />
-                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                  Paste any conversation format. We'll detect and parse it automatically.
-                </p>
+                <div className="mt-2 flex items-center justify-between">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Paste any conversation format. We'll detect and parse it automatically.
+                  </p>
+                  {!manualText && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setManualText(
+                          `12/10/2024, 9:15 AM - Priya: Can we talk about the maintenance amount? I've been trying to reach you for a week.\n` +
+                          `12/10/2024, 9:18 AM - Rahul: I already told you I can't afford more than 15k. Stop asking.\n` +
+                          `12/10/2024, 9:19 AM - Priya: The court order says 25,000. You haven't paid last month either.\n` +
+                          `12/10/2024, 9:21 AM - Rahul: Court order doesn't matter. I lost my job. I have nothing.\n` +
+                          `12/10/2024, 9:22 AM - Priya: You posted vacation photos last week. Your LinkedIn still shows your company.\n` +
+                          `12/10/2024, 9:24 AM - Rahul: That's none of your business. Keep pushing and you'll regret it.\n` +
+                          `12/10/2024, 9:25 AM - Priya: Are you threatening me?\n` +
+                          `12/10/2024, 9:26 AM - Rahul: Take it however you want. I'm done being nice about this.\n` +
+                          `12/10/2024, 9:30 AM - Priya: I'm saving all of this for my lawyer.\n` +
+                          `12/10/2024, 9:31 AM - Rahul: Go ahead. No one will believe you anyway.\n` +
+                          `12/15/2024, 2:10 PM - Priya: My lawyer sent you a notice about the missed payments. Please respond.\n` +
+                          `12/15/2024, 2:15 PM - Rahul: I told you, I have no money. Your lawyer can do whatever they want.\n` +
+                          `12/15/2024, 2:17 PM - Priya: The bank statement shows regular salary deposits. Why are you lying?\n` +
+                          `12/15/2024, 2:20 PM - Rahul: You've been snooping? That's illegal. I'll file a case against you.\n` +
+                          `12/15/2024, 2:22 PM - Priya: It was submitted in court discovery. It's public record now.\n` +
+                          `12/15/2024, 2:25 PM - Rahul: Whatever. I'm transferring everything to my brother's account. Good luck collecting.\n` +
+                          `12/20/2024, 11:00 AM - Priya: The kids need their school fees paid. It's due next week.\n` +
+                          `12/20/2024, 11:05 AM - Rahul: Not my problem anymore. You wanted custody, you deal with it.\n` +
+                          `12/20/2024, 11:07 AM - Priya: They're your children too. The court included education expenses in the order.\n` +
+                          `12/20/2024, 11:10 AM - Rahul: I don't care what the court says. File another case, waste more money.`
+                        )
+                        setFile(null)
+                        setPreview('')
+                        setError('')
+                      }}
+                      className="text-xs font-medium text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors whitespace-nowrap"
+                    >
+                      Try with a sample conversation →
+                    </button>
+                  )}
+                </div>
               </div>
               <div className="flex items-center gap-4">
                 <div className="flex-1 border-t border-gray-200 dark:border-gray-700"></div>
