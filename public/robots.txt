@@ -1,5 +1,10 @@
 User-agent: *
 Allow: /
+Allow: /sign-in
+Allow: /sign-up
+Disallow: /dashboard
+Disallow: /onboarding
+Disallow: /admin
 
 Sitemap: https://bluedrumai.com/sitemap.xml
 

@@ -4,6 +4,7 @@ import { Toaster } from 'react-hot-toast'
 import { useAuth } from './context/AuthContext'
 
 import LandingPage from './components/LandingPage'
+import { DocumentTitle } from './components/DocumentTitle'
 import SignInPage from './pages/auth/SignIn'
 import SignUpPage from './pages/auth/SignUp'
 import ForgotPassword from './pages/auth/ForgotPassword'
@@ -107,6 +108,7 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
 function App() {
   return (
     <>
+      <DocumentTitle />
       <Toaster
         position="top-center"
         toastOptions={{

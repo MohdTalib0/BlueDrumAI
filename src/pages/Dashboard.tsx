@@ -730,8 +730,8 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* ─── "What Can I Do" Floating Bubble ─── */}
-      <div className="fixed bottom-6 right-6 z-[60]">
+      {/* ─── "What Can I Do" Floating Bubble (offset left of Crisp chat widget) ─── */}
+      <div className="fixed bottom-6 right-24 z-[60]">
         {showHelp && (
           <>
             <div className="fixed inset-0" onClick={() => setShowHelp(false)} />
