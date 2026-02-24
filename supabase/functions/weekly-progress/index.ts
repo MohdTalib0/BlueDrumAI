@@ -4,7 +4,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
-const FROM_EMAIL = Deno.env.get('FROM_EMAIL') || 'Blue Drum AI <noreply@bluedrumai.com>'
+const FROM_EMAIL = Deno.env.get('FROM_EMAIL') || 'Blue Drum AI <noreply@mail.bluedrumai.com>'
 const APP_URL = Deno.env.get('APP_URL') || 'https://beta.bluedrumai.com'
 
 interface UserProgress {
@@ -32,126 +32,189 @@ function buildEmailHtml(user: UserProgress): string {
     : `${APP_URL}/dashboard/income-tracker`
     : `${APP_URL}/dashboard/vault/timeline`
 
-  return `
-<!DOCTYPE html>
+  const scoreColor = user.readiness_score >= 70 ? '#10b981' : user.readiness_score >= 40 ? '#f59e0b' : '#2563eb'
+
+  return `<!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Your Weekly Case File Update</title>
+  <title>Your BlueDrumAI Weekly Preparedness Update</title>
 </head>
-<body style="margin: 0; padding: 0; background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-  <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f8fafc;">
-    <tr>
-      <td align="center" style="padding: 40px 16px;">
-        <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="max-width: 520px;">
+<body style="margin: 0; padding: 0; background-color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
 
-          <!-- Logo -->
-          <tr>
-            <td align="center" style="padding-bottom: 24px;">
-              <img src="${APP_URL}/logo.svg" alt="Blue Drum AI" width="40" height="40" style="display: block;">
-            </td>
-          </tr>
+<table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f1f5f9;">
+<tr>
+<td align="center" style="padding: 40px 16px;">
 
-          <!-- Main Card -->
-          <tr>
-            <td style="background-color: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; overflow: hidden;">
+<table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="max-width: 560px;">
 
-              <!-- Header -->
-              <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
-                <tr>
-                  <td style="padding: 28px 28px 20px; border-bottom: 1px solid #f1f5f9;">
-                    <h1 style="margin: 0; font-size: 20px; font-weight: 700; color: #0f172a;">
-                      Hi ${name}, here's your weekly update
-                    </h1>
-                    <p style="margin: 8px 0 0; font-size: 14px; color: #64748b; line-height: 1.5;">
-                      Your case file status as of this week.
-                    </p>
-                  </td>
-                </tr>
-              </table>
+  <!-- Logo + Brand -->
+  <tr>
+    <td align="center" style="padding-bottom: 32px;">
+      <a href="${APP_URL}" style="text-decoration: none;">
+        <img src="https://i.ibb.co/WvFF3DKn/logo.png" alt="BlueDrumAI" width="48" height="48" style="display: block; border-radius: 12px; margin: 0 auto 10px;">
+        <span style="font-size: 16px; font-weight: 700; color: #0f172a; letter-spacing: -0.3px;">Blue</span><span style="font-size: 16px; font-weight: 700; color: #2563eb; letter-spacing: -0.3px;">Drum</span><span style="font-size: 16px; font-weight: 700; color: #0f172a; letter-spacing: -0.3px;">AI</span>
+      </a>
+    </td>
+  </tr>
 
-              <!-- Stats Grid -->
-              <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
-                <tr>
-                  <td style="padding: 24px 28px;">
-                    <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
-                      <tr>
-                        <td width="33%" style="text-align: center; padding: 12px; background-color: #f8fafc; border-radius: 12px;">
-                          <div style="font-size: 28px; font-weight: 800; color: #0f172a;">${user.vault_count}</div>
-                          <div style="font-size: 11px; color: #64748b; margin-top: 4px;">Evidence Files</div>
-                        </td>
-                        <td width="8"></td>
-                        <td width="33%" style="text-align: center; padding: 12px; background-color: #f8fafc; border-radius: 12px;">
-                          <div style="font-size: 28px; font-weight: 800; color: #0f172a;">${user.analysis_count}</div>
-                          <div style="font-size: 11px; color: #64748b; margin-top: 4px;">Chats Analyzed</div>
-                        </td>
-                        <td width="8"></td>
-                        <td width="33%" style="text-align: center; padding: 12px; background-color: #f8fafc; border-radius: 12px;">
-                          <div style="font-size: 28px; font-weight: 800; color: #0f172a;">${user.income_count}</div>
-                          <div style="font-size: 11px; color: #64748b; margin-top: 4px;">Financial Records</div>
-                        </td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
-              </table>
+  <!-- Main Card -->
+  <tr>
+    <td style="background-color: #ffffff; border-radius: 18px; border: 1px solid #e2e8f0; overflow: hidden;">
 
-              <!-- Readiness Score -->
-              <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
-                <tr>
-                  <td style="padding: 0 28px 24px;">
-                    <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom: 8px;">
-                      <tr>
-                        <td style="font-size: 13px; font-weight: 600; color: #0f172a;">Case Readiness</td>
-                        <td align="right" style="font-size: 13px; font-weight: 700; color: #3b82f6;">${user.readiness_score}/100</td>
-                      </tr>
-                    </table>
-                    <div style="height: 8px; background-color: #e2e8f0; border-radius: 999px; overflow: hidden;">
-                      <div style="height: 100%; width: ${user.readiness_score}%; background: linear-gradient(90deg, #3b82f6, #10b981); border-radius: 999px;"></div>
-                    </div>
-                  </td>
-                </tr>
-              </table>
+      <!-- Header -->
+      <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+        <tr>
+          <td style="padding: 32px 32px 24px; border-bottom: 1px solid #f1f5f9;">
+            <h1 style="margin: 0; font-size: 22px; font-weight: 700; color: #0f172a; line-height: 1.3;">
+              Hi ${name}, here's your weekly preparedness summary
+            </h1>
+            <p style="margin: 10px 0 0; font-size: 14px; color: #64748b; line-height: 1.6;">
+              A snapshot of the records and documentation you've structured inside BlueDrumAI this week.
+            </p>
+          </td>
+        </tr>
+      </table>
 
-              <!-- Next Step -->
-              <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
-                <tr>
-                  <td style="padding: 0 28px 28px;">
-                    <div style="background-color: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 16px;">
-                      <p style="margin: 0 0 4px; font-size: 11px; font-weight: 700; color: #3b82f6; text-transform: uppercase; letter-spacing: 0.5px;">
-                        Suggested Next Step
-                      </p>
-                      <p style="margin: 0 0 12px; font-size: 14px; font-weight: 600; color: #1e3a5f;">
-                        ${nextStep}
-                      </p>
-                      <a href="${nextStepUrl}" style="display: inline-block; background-color: #3b82f6; color: #ffffff; text-decoration: none; font-size: 13px; font-weight: 600; padding: 10px 20px; border-radius: 8px;">
-                        Do it now →
-                      </a>
-                    </div>
-                  </td>
-                </tr>
-              </table>
+      <!-- Stats Section -->
+      <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+        <tr>
+          <td style="padding: 28px 32px;">
+            <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+              <tr>
+                <td width="33%" style="text-align: center; padding: 16px 8px; background-color: #f8fafc; border-radius: 14px;">
+                  <div style="font-size: 30px; font-weight: 800; color: #0f172a;">${user.vault_count}</div>
+                  <div style="font-size: 11px; color: #64748b; margin-top: 6px; font-weight: 500;">Stored Records</div>
+                </td>
+                <td width="10"></td>
+                <td width="33%" style="text-align: center; padding: 16px 8px; background-color: #f8fafc; border-radius: 14px;">
+                  <div style="font-size: 30px; font-weight: 800; color: #0f172a;">${user.analysis_count}</div>
+                  <div style="font-size: 11px; color: #64748b; margin-top: 6px; font-weight: 500;">Communication Reviews</div>
+                </td>
+                <td width="10"></td>
+                <td width="33%" style="text-align: center; padding: 16px 8px; background-color: #f8fafc; border-radius: 14px;">
+                  <div style="font-size: 30px; font-weight: 800; color: #0f172a;">${user.income_count}</div>
+                  <div style="font-size: 11px; color: #64748b; margin-top: 6px; font-weight: 500;">Financial Entries</div>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
 
-            </td>
-          </tr>
+      <!-- Readiness Score -->
+      <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+        <tr>
+          <td style="padding: 0 32px 28px;">
+            <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom: 10px;">
+              <tr>
+                <td style="font-size: 14px; font-weight: 600; color: #0f172a;">Documentation Readiness</td>
+                <td align="right" style="font-size: 14px; font-weight: 700; color: ${scoreColor};">${user.readiness_score}/100</td>
+              </tr>
+            </table>
+            <div style="height: 10px; background-color: #e2e8f0; border-radius: 999px; overflow: hidden;">
+              <div style="height: 100%; width: ${user.readiness_score}%; background: linear-gradient(90deg, #2563eb, #10b981); border-radius: 999px;"></div>
+            </div>
+            <p style="margin: 10px 0 0; font-size: 12px; color: #94a3b8; line-height: 1.6;">
+              Reflects how structured and complete your documentation is. A higher score means stronger organization.
+            </p>
+          </td>
+        </tr>
+      </table>
 
-          <!-- Footer -->
-          <tr>
-            <td style="padding: 24px 0; text-align: center;">
-              <p style="margin: 0; font-size: 12px; color: #94a3b8; line-height: 1.6;">
-                Blue Drum AI — Organize your evidence. Strengthen your case.
+      <!-- Divider -->
+      <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+        <tr><td style="padding: 0 32px;"><div style="height: 1px; background-color: #f1f5f9;"></div></td></tr>
+      </table>
+
+      <!-- Recommended Action -->
+      <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+        <tr>
+          <td style="padding: 28px 32px 32px;">
+            <div style="background-color: #eff6ff; border: 1px solid #bfdbfe; border-radius: 14px; padding: 20px;">
+              <p style="margin: 0 0 6px; font-size: 11px; font-weight: 700; color: #2563eb; text-transform: uppercase; letter-spacing: 0.6px;">
+                Recommended Action
               </p>
-              <p style="margin: 8px 0 0; font-size: 11px; color: #cbd5e1;">
-                Not legal advice. For documentation purposes only.
+              <p style="margin: 0 0 16px; font-size: 15px; font-weight: 600; color: #0f172a; line-height: 1.5;">
+                ${nextStep}
               </p>
-            </td>
-          </tr>
+              <!--[if mso]>
+              <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" href="${nextStepUrl}" style="height:44px;v-text-anchor:middle;width:200px;" arcsize="23%" fillcolor="#2563eb" stroke="f">
+                <w:anchorlock/>
+                <center style="color:#ffffff;font-family:sans-serif;font-size:14px;font-weight:600;">Strengthen My Record &rarr;</center>
+              </v:roundrect>
+              <![endif]-->
+              <!--[if !mso]><!-->
+              <a href="${nextStepUrl}" style="display: inline-block; background-color: #2563eb; color: #ffffff; text-decoration: none; font-size: 14px; font-weight: 600; padding: 12px 24px; border-radius: 10px; line-height: 1;">
+                Strengthen My Record &rarr;
+              </a>
+              <!--<![endif]-->
+            </div>
+          </td>
+        </tr>
+      </table>
 
-        </table>
-      </td>
-    </tr>
-  </table>
+      <!-- Reinforcement -->
+      <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+        <tr>
+          <td style="padding: 0 32px 32px;">
+            <div style="background-color: #f8fafc; border-radius: 14px; padding: 18px;">
+              <p style="margin: 0; font-size: 13px; color: #334155; line-height: 1.7;">
+                BlueDrumAI helps you organize timelines, preserve records, and maintain structured documentation &mdash; so important details remain clear and accessible if disputes arise in the future.
+              </p>
+            </div>
+          </td>
+        </tr>
+      </table>
+
+    </td>
+  </tr>
+
+  <!-- Footer -->
+  <tr>
+    <td style="padding: 32px 20px; text-align: center;">
+      <p style="margin: 0; font-size: 14px; font-weight: 700; color: #0f172a;">
+        <span>Blue</span><span style="color: #2563eb;">Drum</span><span>AI</span>
+      </p>
+      <p style="margin: 6px 0 0; font-size: 12px; color: #64748b; line-height: 1.5;">
+        Structured documentation for life's sensitive moments.
+      </p>
+
+      <!-- Footer Links -->
+      <table role="presentation" cellpadding="0" cellspacing="0" style="margin: 16px auto 0;">
+        <tr>
+          <td style="padding: 0 8px;">
+            <a href="${APP_URL}/dashboard" style="font-size: 12px; color: #2563eb; text-decoration: none; font-weight: 500;">Dashboard</a>
+          </td>
+          <td style="color: #cbd5e1; font-size: 12px;">|</td>
+          <td style="padding: 0 8px;">
+            <a href="${APP_URL}/dashboard/vault/upload" style="font-size: 12px; color: #2563eb; text-decoration: none; font-weight: 500;">Upload</a>
+          </td>
+          <td style="color: #cbd5e1; font-size: 12px;">|</td>
+          <td style="padding: 0 8px;">
+            <a href="${APP_URL}/dashboard/profile" style="font-size: 12px; color: #2563eb; text-decoration: none; font-weight: 500;">Settings</a>
+          </td>
+        </tr>
+      </table>
+
+      <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid #e2e8f0;">
+        <p style="margin: 0; font-size: 11px; color: #94a3b8; line-height: 1.6;">
+          This platform provides documentation tools only and does not offer legal advice.
+        </p>
+        <p style="margin: 8px 0 0; font-size: 11px; color: #cbd5e1;">
+          &copy; ${new Date().getFullYear()} BlueDrumAI. All rights reserved.
+        </p>
+      </div>
+    </td>
+  </tr>
+
+</table>
+
+</td>
+</tr>
+</table>
+
 </body>
 </html>`
 }

@@ -107,8 +107,8 @@ const stats = [
 
 const isThisForYou = [
   { icon: Scale, title: 'Going through a divorce or separation', desc: 'You need to organize months or years of conversations, financial records, and documents before your hearing.', color: 'from-blue-500 to-indigo-600', bg: 'bg-blue-50', border: 'hover:border-blue-200' },
-  { icon: FileText, title: 'Your lawyer asked for organized evidence', desc: 'They need a timeline, structured documents, and financial summaries — not a folder of screenshots.', color: 'from-amber-500 to-orange-600', bg: 'bg-amber-50', border: 'hover:border-amber-200' },
-  { icon: Clock, title: 'You want to be prepared, just in case', desc: "Things aren't great, and you want to start documenting now — before a situation escalates.", color: 'from-emerald-500 to-teal-600', bg: 'bg-emerald-50', border: 'hover:border-emerald-200' },
+  { icon: FileText, title: 'Your lawyer asked for organized evidence', desc: 'They need a timeline, structured documents, and financial summaries - not a folder of screenshots.', color: 'from-amber-500 to-orange-600', bg: 'bg-amber-50', border: 'hover:border-amber-200' },
+  { icon: Clock, title: 'You want to be prepared, just in case', desc: "Things aren't great, and you want to start documenting now - before a situation escalates.", color: 'from-emerald-500 to-teal-600', bg: 'bg-emerald-50', border: 'hover:border-emerald-200' },
 ]
 
 const showcaseFeatures = [
@@ -116,12 +116,12 @@ const showcaseFeatures = [
     icon: Lock, screenshot: '/screenshots/vault-timeline.png', alt: 'Encrypted Evidence Vault',
     title: 'Store Evidence Securely', accent: 'from-blue-500 to-cyan-500',
     desc: 'Upload screenshots, documents, photos, and chat exports. Everything is encrypted on your device and timestamped automatically. Build a visual timeline of all your evidence.',
-    highlights: ['Encrypted before upload — even we can\'t read your files', 'Automatic timestamps for every file', 'Visual timeline to see your full history'],
+    highlights: ['Encrypted before upload - even we can\'t read your files', 'Automatic timestamps for every file', 'Visual timeline to see your full history'],
   },
   {
     icon: Brain, screenshot: '/screenshots/chat-analyzer.png', alt: 'AI Chat Analyzer',
     title: 'Analyze Conversations with AI', accent: 'from-purple-500 to-pink-500',
-    desc: 'Paste or upload WhatsApp, SMS, or email conversations. AI identifies important patterns, concerning language, and key moments — so you know what matters before your lawyer does.',
+    desc: 'Paste or upload WhatsApp, SMS, or email conversations. AI identifies important patterns, concerning language, and key moments - so you know what matters before your lawyer does.',
     highlights: ['Works with WhatsApp, SMS, email, and more', 'Highlights key moments and patterns', 'Generates a summary you can share with your lawyer'],
   },
   {
@@ -133,15 +133,15 @@ const showcaseFeatures = [
 ]
 
 const supportingFeatures = [
-  { icon: Download, title: 'Export Case Files for Your Lawyer', desc: 'Generate a structured PDF with your evidence timeline, AI analysis summaries, and financial records — ready to hand to your lawyer.', accent: 'from-amber-500 to-orange-500' },
-  { icon: MessageSquare, title: 'Works with Any Chat Format', desc: 'WhatsApp exports, SMS backups, iOS Messages, email threads — just upload or paste. The format is detected automatically.', accent: 'from-rose-500 to-red-500' },
+  { icon: Download, title: 'Export Case Files for Your Lawyer', desc: 'Generate a structured PDF with your evidence timeline, AI analysis summaries, and financial records - ready to hand to your lawyer.', accent: 'from-amber-500 to-orange-500' },
+  { icon: MessageSquare, title: 'Works with Any Chat Format', desc: 'WhatsApp exports, SMS backups, iOS Messages, email threads - just upload or paste. The format is detected automatically.', accent: 'from-rose-500 to-red-500' },
   { icon: AlertTriangle, title: 'Document Incidents', desc: 'Record incidents with dates, descriptions, and attached evidence. Build a chronological log that holds up under scrutiny.', accent: 'from-indigo-500 to-violet-500' },
 ]
 
 const howItWorks = [
   { num: '01', icon: Upload, title: 'Upload Your Evidence', desc: 'Add chats, screenshots, documents, and financial records. Everything is encrypted on your device and organized automatically.', screenshot: '/screenshots/vault-timeline.png', imgAlt: 'Evidence vault upload interface', direction: 'left' as const, tags: ['WhatsApp', 'SMS', 'Email', 'Photos', 'Documents'] },
-  { num: '02', icon: BarChart3, title: 'AI Organizes & Analyzes', desc: 'AI builds timelines, identifies important patterns in conversations, and calculates financial summaries — saving you hours of manual work.', screenshot: '/screenshots/chat-analyzer.png', imgAlt: 'AI chat analysis results', direction: 'right' as const },
-  { num: '03', icon: Download, title: 'Share with Your Lawyer', desc: 'Export a structured case file as PDF — with evidence index, conversation analysis, and financial summaries. Your lawyer gets what they need, fast.', screenshot: '/screenshots/income-tracker.png', imgAlt: 'Case file export', direction: 'left' as const },
+  { num: '02', icon: BarChart3, title: 'AI Organizes & Analyzes', desc: 'AI builds timelines, identifies important patterns in conversations, and calculates financial summaries - saving you hours of manual work.', screenshot: '/screenshots/chat-analyzer.png', imgAlt: 'AI chat analysis results', direction: 'right' as const },
+  { num: '03', icon: Download, title: 'Share with Your Lawyer', desc: 'Export a structured case file as PDF - with evidence index, conversation analysis, and financial summaries. Your lawyer gets what they need, fast.', screenshot: '/screenshots/income-tracker.png', imgAlt: 'Case file export', direction: 'left' as const },
 ]
 
 const menFeatures = [
@@ -153,7 +153,7 @@ const menFeatures = [
 ]
 
 const womenFeatures = [
-  { text: 'Dowry documentation — gifts, receipts, transfers', icon: Gift },
+  { text: 'Dowry documentation - gifts, receipts, transfers', icon: Gift },
   { text: 'Incident log with dates and evidence attachments', icon: AlertTriangle },
   { text: 'Maintenance calculator based on legal guidelines', icon: Scale },
   { text: 'Medical report organizer', icon: Heart },
@@ -164,16 +164,16 @@ const securityCards = [
   { icon: Lock, title: 'Encrypted on Your Device', desc: 'Your files are encrypted in your browser before they ever leave your device. Even we cannot read them.', glow: 'hover:shadow-blue-500/10' },
   { icon: Fingerprint, title: 'Tamper-Proof Records', desc: 'Every file gets a unique digital fingerprint. If anything is altered, it shows immediately.', glow: 'hover:shadow-purple-500/10' },
   { icon: KeyRound, title: 'Only You Have the Key', desc: 'Your encryption key is derived from your account. We never store it, never see it, never have access.', glow: 'hover:shadow-emerald-500/10' },
-  { icon: Server, title: 'Your Data, Only Yours', desc: 'Database-level policies ensure no one — not even our team — can access another user\'s data.', glow: 'hover:shadow-amber-500/10' },
+  { icon: Server, title: 'Your Data, Only Yours', desc: 'Database-level policies ensure no one - not even our team - can access another user\'s data.', glow: 'hover:shadow-amber-500/10' },
 ]
 
 const faqs = [
-  { q: 'Is this legal advice?', a: 'No. Blue Drum AI is a documentation and organization tool — not a law firm. It helps you collect and structure your evidence so your lawyer can work more effectively. Always consult a qualified lawyer for legal advice specific to your situation.' },
-  { q: 'Who is this for?', a: 'Anyone in India going through or preparing for a family dispute — divorce, separation, custody, maintenance, or domestic issues. We have dedicated tools for both men and women, covering different legal contexts like alimony, dowry, and DV documentation.' },
-  { q: 'How is my data kept private?', a: 'Your files are encrypted on your device before upload — we literally cannot read them. Each account has its own encryption key, and database-level security ensures only you can access your records.' },
-  { q: 'What chat formats can I upload?', a: 'WhatsApp exports (.txt), Android SMS backups (.csv), iOS Messages, email threads (.eml), and manual text paste. Just upload or paste — the format is detected automatically.' },
+  { q: 'Is this legal advice?', a: 'No. Blue Drum AI is a documentation and organization tool - not a law firm. It helps you collect and structure your evidence so your lawyer can work more effectively. Always consult a qualified lawyer for legal advice specific to your situation.' },
+  { q: 'Who is this for?', a: 'Anyone in India going through or preparing for a family dispute - divorce, separation, custody, maintenance, or domestic issues. We have dedicated tools for both men and women, covering different legal contexts like alimony, dowry, and DV documentation.' },
+  { q: 'How is my data kept private?', a: 'Your files are encrypted on your device before upload - we literally cannot read them. Each account has its own encryption key, and database-level security ensures only you can access your records.' },
+  { q: 'What chat formats can I upload?', a: 'WhatsApp exports (.txt), Android SMS backups (.csv), iOS Messages, email threads (.eml), and manual text paste. Just upload or paste - the format is detected automatically.' },
   { q: 'Is it really free?', a: 'Yes. The free plan includes the evidence vault (50 files), AI conversation analysis (5/month), income tracking, and PDF export. No credit card required. Premium (₹199/month) removes all limits.' },
-  { q: 'Will my lawyer accept this?', a: 'Blue Drum AI generates structured PDFs with timestamped evidence, organized timelines, and financial summaries — exactly what lawyers ask clients to prepare. Many users report that their lawyers were impressed by the level of organization.' },
+  { q: 'Will my lawyer accept this?', a: 'Blue Drum AI generates structured PDFs with timestamped evidence, organized timelines, and financial summaries - exactly what lawyers ask clients to prepare. Many users report that their lawyers were impressed by the level of organization.' },
 ]
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -320,14 +320,14 @@ export default function LandingPage() {
 
             <BlurIn delay={0.45}>
               <p className="mx-auto mt-6 max-w-2xl px-4 sm:px-0 text-base leading-relaxed text-gray-500 dark:text-gray-400 sm:text-lg md:text-xl">
-                Blue Drum AI helps you collect your chats, documents, and financial records — then
+                Blue Drum AI helps you collect your chats, documents, and financial records - then
                 organizes them into a structured case file your lawyer can actually use.
                 <span className="font-medium text-gray-700 dark:text-gray-200"> No legal knowledge required.</span>
               </p>
             </BlurIn>
 
             <BlurIn delay={0.6}>
-              <div className="mt-10 sm:mt-9 flex flex-col items-center justify-center gap-3 px-4 sm:px-0 sm:flex-row">
+              <div className="mt-10 sm:mt-9 flex flex-col items-center justify-center gap-3 px-4 sm:px-0 sm:flex-row sm:flex-wrap">
                 <Link to="/sign-up" className="w-full sm:w-auto">
                   <ShimmerButton className="w-full sm:w-auto">
                     Get Started Free
@@ -335,16 +335,18 @@ export default function LandingPage() {
                   </ShimmerButton>
                 </Link>
                 <button
-                  onClick={() => scrollTo('how-it-works')}
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-gray-200 dark:border-primary-500/20 bg-white dark:bg-primary-900/20 px-6 py-3 text-sm font-semibold text-gray-700 dark:text-gray-200 shadow-sm transition-all hover:border-gray-300 dark:hover:border-primary-500/30 hover:shadow-md sm:w-auto sm:px-8 sm:py-4 sm:text-base"
+                  onClick={() => setShowSample(true)}
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-primary-200 dark:border-primary-500/30 bg-primary-50/80 dark:bg-primary-900/30 px-6 py-3 text-sm font-semibold text-primary-700 dark:text-primary-300 shadow-sm transition-all hover:border-primary-300 dark:hover:border-primary-500/50 hover:shadow-md sm:w-auto sm:px-8 sm:py-4 sm:text-base"
                 >
-                  See How It Works
+                  <FileText className="h-4 w-4" />
+                  See a Sample Case File
                 </button>
+                
               </div>
             </BlurIn>
 
             <BlurIn delay={0.75}>
-              <p className="mt-5 text-xs text-gray-400 dark:text-gray-500">Free plan available — no credit card needed</p>
+              <p className="mt-5 text-xs text-gray-400 dark:text-gray-500">Free plan available - no credit card needed</p>
             </BlurIn>
           </div>
 
@@ -458,7 +460,7 @@ export default function LandingPage() {
             <FadeIn><SectionLabel>Is This For You?</SectionLabel></FadeIn>
             <FadeIn delay={0.1}>
               <h2 className="text-3xl font-bold tracking-tight sm:text-4xl dark:text-white">
-                Blue Drum AI is built for people who need to get organized — fast
+                Blue Drum AI is built for people who need to get organized - fast
               </h2>
             </FadeIn>
             <FadeIn delay={0.2}>
@@ -547,7 +549,7 @@ export default function LandingPage() {
                     <div className="space-y-2">
                       {[
                         'Threatening language detected in 3 messages',
-                        'Financial non-compliance — contradicts court order',
+                        'Financial non-compliance - contradicts court order',
                         'Escalating tone across the conversation',
                       ].map((f, i) => (
                         <div key={i} className="flex items-start gap-2 text-xs">
@@ -624,7 +626,7 @@ export default function LandingPage() {
             {showcaseFeatures.map((item, idx) => (
               <div key={item.title} className={`${activeScreenshot === idx ? 'block' : 'hidden'}`}>
                 <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-5">
-                  {/* Screenshot — 3 cols */}
+                  {/* Screenshot - 3 cols */}
                   <div className="lg:col-span-3">
                     <div className="overflow-hidden rounded-2xl border border-gray-200/70 dark:border-primary-500/20 bg-gradient-to-b from-gray-50 to-white dark:from-primary-900/20 dark:to-black/50 p-1 shadow-2xl shadow-gray-300/30 dark:shadow-primary-900/10">
                       <BrowserChrome />
@@ -637,7 +639,7 @@ export default function LandingPage() {
                     </div>
                   </div>
 
-                  {/* Description — 2 cols */}
+                  {/* Description - 2 cols */}
                   <div className="lg:col-span-2">
                     <div className={`mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${item.accent} shadow-lg`}>
                       <item.icon className="h-6 w-6 text-white" />
@@ -694,7 +696,7 @@ export default function LandingPage() {
             <FadeIn><SectionLabel>How It Works</SectionLabel></FadeIn>
             <FadeIn delay={0.1}>
               <h2 className="text-3xl font-bold tracking-tight sm:text-4xl dark:text-white">
-                From scattered files to a structured case — in minutes
+                From scattered files to a structured case - in minutes
               </h2>
             </FadeIn>
             <FadeIn delay={0.2}>
@@ -937,7 +939,7 @@ export default function LandingPage() {
               <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">Everything you need to get started.</p>
               <hr className="my-6 border-blue-100/50 dark:border-gray-700" />
               <ul className="space-y-3">
-                {['Encrypted vault — 50 files, 100 MB', '5 AI analyses / month', '3 PDF exports / month', '3 Breakup Generator uses / month', 'Red Flag Experience — 3 sessions / month'].map((x) => (
+                {['Encrypted vault - 50 files, 100 MB', '5 AI analyses / month', '3 PDF exports / month', '3 Breakup Generator uses / month', 'Red Flag Experience - 3 sessions / month'].map((x) => (
                   <li key={x} className="flex items-center gap-2.5 text-sm text-gray-600 dark:text-gray-300"><CheckCircle2 className="h-4 w-4 shrink-0 text-primary-500" />{x}</li>
                 ))}
               </ul>
@@ -959,7 +961,7 @@ export default function LandingPage() {
               <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">Unlimited everything. Priority support.</p>
               <hr className="my-6 border-primary-100/50 dark:border-gray-700" />
               <ul className="space-y-3">
-                {['Everything in Free', 'Unlimited vault storage — 5 GB', 'Unlimited AI analyses', 'Unlimited PDF exports', 'Unlimited Breakup Generator', 'Unlimited Red Flag sessions', 'Priority support'].map((x) => (
+                {['Everything in Free', 'Unlimited vault storage - 5 GB', 'Unlimited AI analyses', 'Unlimited PDF exports', 'Unlimited Breakup Generator', 'Unlimited Red Flag sessions', 'Priority support'].map((x) => (
                   <li key={x} className="flex items-center gap-2.5 text-sm text-gray-600 dark:text-gray-300"><CheckCircle2 className="h-4 w-4 shrink-0 text-primary-500" />{x}</li>
                 ))}
               </ul>

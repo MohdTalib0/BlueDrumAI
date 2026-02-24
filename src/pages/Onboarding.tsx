@@ -26,7 +26,7 @@ const whatYouCanDo = [
   {
     icon: Brain,
     title: 'Analyze conversations with AI',
-    desc: 'Paste WhatsApp or SMS chats. AI identifies key moments and patterns — saving you hours.',
+    desc: 'Paste WhatsApp or SMS chats. AI identifies key moments and patterns - saving you hours.',
     color: 'from-purple-500 to-pink-600',
   },
   {
@@ -216,12 +216,12 @@ export default function Onboarding() {
                   required
                 >
                   <option value="">Select your situation</option>
-                  <option value="married">Married — considering next steps</option>
-                  <option value="separated">Separated — preparing documentation</option>
-                  <option value="divorced">Divorced — ongoing proceedings</option>
-                  <option value="live_in">Live-in — documenting the relationship</option>
-                  <option value="dating">Dating — want to be prepared</option>
-                  <option value="single">Single — researching for someone I know</option>
+                  <option value="married">Married - considering next steps</option>
+                  <option value="separated">Separated - preparing documentation</option>
+                  <option value="divorced">Divorced - ongoing proceedings</option>
+                  <option value="live_in">Live-in - documenting the relationship</option>
+                  <option value="dating">Dating - want to be prepared</option>
+                  <option value="single">Single - researching for someone I know</option>
                 </select>
               </div>
 
@@ -279,7 +279,7 @@ export default function Onboarding() {
                 onClick={() => setStep(3)}
                 className="btn-primary flex-1 flex items-center justify-center gap-2"
               >
-                Got it — let&apos;s start
+                Got it - let&apos;s start
                 <ArrowRight className="h-4 w-4" />
               </button>
             </div>
@@ -291,7 +291,7 @@ export default function Onboarding() {
           <div>
             <div className="mb-8 text-center">
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white">What would you like to do first?</h1>
-              <p className="mt-2 text-gray-600 dark:text-gray-400">Pick one to get started — you can always do the rest later.</p>
+              <p className="mt-2 text-gray-600 dark:text-gray-400">Pick one to get started - you can always do the rest later.</p>
             </div>
 
             <div className="space-y-3">
@@ -358,7 +358,7 @@ export default function Onboarding() {
         {/* Trust note */}
         <div className="mt-6 flex items-center justify-center gap-2 text-xs text-gray-400 dark:text-gray-500">
           <Lock className="h-3.5 w-3.5" />
-          <span>Your data is encrypted and private — even from us</span>
+          <span>Your data is encrypted and private - even from us</span>
         </div>
       </div>
     </div>

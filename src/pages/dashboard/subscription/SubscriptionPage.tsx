@@ -133,7 +133,7 @@ export default function SubscriptionPage() {
         key: d.razorpay_key,
         subscription_id: d.subscription_id,
         name: 'Blue Drum AI',
-        description: 'Premium Plan — ₹199/month',
+        description: 'Premium Plan - ₹199/month',
         theme: { color: '#2563eb' },
         handler: async (response: { razorpay_payment_id: string; razorpay_subscription_id: string; razorpay_signature: string }) => {
           try {

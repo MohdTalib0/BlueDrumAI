@@ -213,7 +213,7 @@ export default function MaintenanceDashboard() {
             </li>
             <li className="flex items-start gap-2">
               <span className="mt-0.5">•</span>
-              <span>All calculations are estimates — consult a lawyer for your specific case</span>
+              <span>All calculations are estimates - consult a lawyer for your specific case</span>
             </li>
           </ul>
         </div>

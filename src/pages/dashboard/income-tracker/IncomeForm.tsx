@@ -217,7 +217,7 @@ export default function IncomeForm() {
   }
 
   return (
-    <DashboardLayout title={isEditMode ? 'Edit Income Entry' : 'Income Tracker'} subtitle={isEditMode ? 'Update your income and expense data' : 'Maintenance and alimony are calculated from documented income — this is what judges review'} backHref="/dashboard/income-tracker/history">
+    <DashboardLayout title={isEditMode ? 'Edit Income Entry' : 'Income Tracker'} subtitle={isEditMode ? 'Update your income and expense data' : 'Maintenance and alimony are calculated from documented income - this is what judges review'} backHref="/dashboard/income-tracker/history">
       <div className="w-full max-w-5xl mx-auto">
         {/* Success Message */}
         {success && (
@@ -228,7 +228,7 @@ export default function IncomeForm() {
               </div>
               <div>
                 <p className="font-bold text-green-800 dark:text-green-300">Financial record saved!</p>
-                <p className="mt-1 text-sm text-green-700 dark:text-green-400">Your income and expenses are now documented. A court-format affidavit can be generated from this data — exactly what judges review for maintenance decisions.</p>
+                <p className="mt-1 text-sm text-green-700 dark:text-green-400">Your income and expenses are now documented. A court-format affidavit can be generated from this data - exactly what judges review for maintenance decisions.</p>
                 <p className="mt-2 text-xs text-green-600 dark:text-green-500">Redirecting to your history...</p>
               </div>
             </div>

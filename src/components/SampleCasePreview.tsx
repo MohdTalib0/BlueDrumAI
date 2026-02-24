@@ -105,7 +105,7 @@ export default function SampleCasePreview({ open, onClose }: Props) {
           {/* Document-style wrapper */}
           <div className="mx-auto max-w-2xl rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-black shadow-sm">
 
-            {/* Document header — shared */}
+            {/* Document header - shared */}
             <div className="border-b border-gray-100 dark:border-gray-800 px-6 py-5">
               <div className="flex items-center justify-between">
                 <div>
@@ -149,10 +149,10 @@ export default function SampleCasePreview({ open, onClose }: Props) {
                   <h4 className="text-sm font-bold text-gray-900 dark:text-white mb-2">Timeline Highlights</h4>
                   <div className="space-y-2">
                     {[
-                      { date: '12 Jan', event: 'First evidence uploaded — chat screenshots', color: 'bg-blue-500' },
-                      { date: '18 Jan', event: 'WhatsApp conversation analyzed — Risk score: 68', color: 'bg-purple-500' },
+                      { date: '12 Jan', event: 'First evidence uploaded - chat screenshots', color: 'bg-blue-500' },
+                      { date: '18 Jan', event: 'WhatsApp conversation analyzed - Risk score: 68', color: 'bg-purple-500' },
                       { date: '22 Jan', event: 'Property documents added to vault', color: 'bg-blue-500' },
-                      { date: '28 Jan', event: 'Financial records submitted — Affidavit generated', color: 'bg-emerald-500' },
+                      { date: '28 Jan', event: 'Financial records submitted - Affidavit generated', color: 'bg-emerald-500' },
                     ].map((item) => (
                       <div key={item.date} className="flex items-center gap-3">
                         <div className={`h-2 w-2 rounded-full ${item.color} shrink-0`} />
@@ -165,7 +165,7 @@ export default function SampleCasePreview({ open, onClose }: Props) {
 
                 <div className="rounded-lg border border-primary-100 dark:border-primary-900/30 bg-primary-50/50 dark:bg-primary-900/10 p-3">
                   <p className="text-xs font-medium text-primary-700 dark:text-primary-300">
-                    This case file contains organized evidence, AI conversation analysis, and financial summaries — structured for immediate legal review.
+                    This case file contains organized evidence, AI conversation analysis, and financial summaries - structured for immediate legal review.
                   </p>
                 </div>
               </div>
@@ -280,7 +280,7 @@ export default function SampleCasePreview({ open, onClose }: Props) {
 
         {/* Footer */}
         <div className="border-t border-gray-200 dark:border-gray-800 px-5 py-3 flex items-center justify-between shrink-0 bg-gray-50 dark:bg-gray-950">
-          <p className="text-[11px] text-gray-400">Sample data — not a real case</p>
+          <p className="text-[11px] text-gray-400">Sample data - not a real case</p>
           <button onClick={onClose} className="inline-flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all hover:bg-primary-700">
             <span>Start Building Yours</span>
             <ChevronDown className="h-3.5 w-3.5 rotate-[-90deg]" />

@@ -69,7 +69,7 @@ export default function VerifyEmail() {
             <XCircle className="mx-auto mb-4 h-10 w-10 text-red-500" />
             <h1 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Verification failed</h1>
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
-              The link may have expired or already been used. Try signing in — if your email
+              The link may have expired or already been used. Try signing in - if your email
               isn't verified yet, you can request a new link.
             </p>
             <button

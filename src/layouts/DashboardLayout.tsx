@@ -177,7 +177,7 @@ export function DashboardLayout({ children, title = 'Dashboard', subtitle, right
 
             {/* User menu dropdown */}
             <div className="relative" ref={userMenuRef}>
-              {/* Ghost trigger — just the name */}
+              {/* Ghost trigger - just the name */}
               <button
                 onClick={() => setUserMenuOpen(prev => !prev)}
                 className="h-9 px-3 flex items-center text-sm font-medium bg-transparent border-none text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white transition-colors cursor-pointer -tracking-[.08em] rounded-lg"
@@ -531,11 +531,11 @@ export function DashboardLayout({ children, title = 'Dashboard', subtitle, right
                 },
                 {
                   q: 'Is my data private and secure?',
-                  a: 'Yes. All data is stored securely in your private Supabase account with Row-Level Security — only you can access your records. No data is shared with third parties.',
+                  a: 'Yes. All data is stored securely in your private Supabase account with Row-Level Security - only you can access your records. No data is shared with third parties.',
                 },
                 {
                   q: 'What are the gender-specific modules?',
-                  a: 'Certain modules are tailored by gender — e.g. Dowry Vault and DV Log are for women; Breakup Generator and Consent Vault tools are for men. You can switch modules from your Profile Settings.',
+                  a: 'Certain modules are tailored by gender - e.g. Dowry Vault and DV Log are for women; Breakup Generator and Consent Vault tools are for men. You can switch modules from your Profile Settings.',
                 },
                 {
                   q: 'How do I generate a legal document (affidavit)?',

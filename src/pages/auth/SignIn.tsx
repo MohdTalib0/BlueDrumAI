@@ -52,7 +52,7 @@ export default function SignInPage() {
       setSubmitting(false)
       return
     }
-    // signIn succeeded — keep the spinner active.
+    // signIn succeeded - keep the spinner active.
     // The auto-redirect useEffect above will navigate once
     // AuthContext has finished loading the profile.
   }
@@ -74,7 +74,7 @@ export default function SignInPage() {
   return (
     <div className="relative flex min-h-screen flex-col sm:flex-row">
 
-      {/* Mobile background — Lady Justice with low opacity */}
+      {/* Mobile background - Lady Justice with low opacity */}
       <div className="absolute inset-0 sm:hidden">
         <img
           src="https://images.unsplash.com/photo-1589994965851-a8f479c573a9?auto=format&fit=crop&w=800&q=80"
@@ -86,7 +86,7 @@ export default function SignInPage() {
       {/* ── Left column ────────────────────────────────────────────────────── */}
       <div className="relative z-10 flex flex-col sm:w-1/2">
 
-        {/* Mobile header — matches dashboard style */}
+        {/* Mobile header - matches dashboard style */}
         <div className="border-b border-blue-100/50 dark:border-gray-700 backdrop-blur-sm bg-gradient-to-br from-blue-50/40 via-yellow-50/20 to-white/40 dark:from-black dark:via-black dark:to-black px-4 py-3 sm:hidden">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
@@ -204,7 +204,7 @@ export default function SignInPage() {
         </div>
       </div>
 
-      {/* ── Right column — desktop only ──────────────────────────────────── */}
+      {/* ── Right column - desktop only ──────────────────────────────────── */}
       <div className="hidden sm:flex sm:w-1/2 relative overflow-hidden">
         <img
           src="https://images.unsplash.com/photo-1589994965851-a8f479c573a9?auto=format&fit=crop&w=1200&q=80"
@@ -223,7 +223,7 @@ export default function SignInPage() {
               Document your truth.<br />Protect your rights.
             </h2>
             <p className="mb-8 text-base leading-relaxed text-gray-300 max-w-md mx-auto">
-              Securely organize evidence, analyze conversations with AI, and generate lawyer-ready case files — built specifically for Indian family law.
+              Securely organize evidence, analyze conversations with AI, and generate lawyer-ready case files - built specifically for Indian family law.
             </p>
             <div className="flex flex-wrap justify-center gap-3">
               {[

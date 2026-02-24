@@ -125,7 +125,7 @@ export default function ProfilePage() {
     try {
       const { error } = await resetPassword(user.email)
       if (error) throw new Error(error)
-      toast.success('Password reset email sent — check your inbox')
+      toast.success('Password reset email sent - check your inbox')
     } catch (err: any) {
       toast.error(err.message || 'Failed to send reset email')
     } finally {

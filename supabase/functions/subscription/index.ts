@@ -4,6 +4,10 @@ import { getUserId } from '../_shared/auth.ts'
 import { getCorsHeaders } from '../_shared/cors.ts'
 import { getFullUsageSummary, type PlanId } from '../_shared/subscription.ts'
 
+const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
+const FROM_EMAIL = Deno.env.get('FROM_EMAIL') || 'Blue Drum AI <noreply@mail.bluedrumai.com>'
+const APP_URL = Deno.env.get('APP_URL') || 'https://beta.bluedrumai.com'
+
 function getServiceClient() {
   return createClient(
     Deno.env.get('SUPABASE_URL')!,
@@ -17,6 +21,307 @@ function json(body: unknown, status = 200, corsHeaders: Record<string, string>) 
     status,
     headers: { ...corsHeaders, 'Content-Type': 'application/json' },
   })
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Email helpers
+// ═══════════════════════════════════════════════════════════════════════════════
+
+async function sendEmail(to: string, subject: string, html: string) {
+  if (!RESEND_API_KEY) return
+  try {
+    await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ from: FROM_EMAIL, to: [to], subject, html }),
+    })
+  } catch (err) {
+    console.error('Email send failed:', err)
+  }
+}
+
+function emailShell(content: string): string {
+  return `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; background-color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+<table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f1f5f9;">
+<tr>
+<td align="center" style="padding: 40px 16px;">
+<table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="max-width: 560px;">
+
+  <!-- Logo + Brand -->
+  <tr>
+    <td align="center" style="padding-bottom: 32px;">
+      <a href="${APP_URL}" style="text-decoration: none;">
+        <img src="https://i.ibb.co/WvFF3DKn/logo.png" alt="BlueDrumAI" width="48" height="48" style="display: block; border-radius: 12px; margin: 0 auto 10px;">
+        <span style="font-size: 16px; font-weight: 700; color: #0f172a;">Blue</span><span style="font-size: 16px; font-weight: 700; color: #2563eb;">Drum</span><span style="font-size: 16px; font-weight: 700; color: #0f172a;">AI</span>
+      </a>
+    </td>
+  </tr>
+
+  <!-- Main Card -->
+  <tr>
+    <td style="background-color: #ffffff; border-radius: 18px; border: 1px solid #e2e8f0; overflow: hidden;">
+      ${content}
+    </td>
+  </tr>
+
+  <!-- Footer -->
+  <tr>
+    <td style="padding: 32px 20px; text-align: center;">
+      <p style="margin: 0; font-size: 14px; font-weight: 700; color: #0f172a;">
+        <span>Blue</span><span style="color: #2563eb;">Drum</span><span>AI</span>
+      </p>
+      <p style="margin: 6px 0 0; font-size: 12px; color: #64748b;">
+        Structured documentation for life's sensitive moments.
+      </p>
+      <table role="presentation" cellpadding="0" cellspacing="0" style="margin: 16px auto 0;">
+        <tr>
+          <td style="padding: 0 8px;"><a href="${APP_URL}/dashboard" style="font-size: 12px; color: #2563eb; text-decoration: none; font-weight: 500;">Dashboard</a></td>
+          <td style="color: #cbd5e1; font-size: 12px;">|</td>
+          <td style="padding: 0 8px;"><a href="${APP_URL}/dashboard/subscription" style="font-size: 12px; color: #2563eb; text-decoration: none; font-weight: 500;">Subscription</a></td>
+          <td style="color: #cbd5e1; font-size: 12px;">|</td>
+          <td style="padding: 0 8px;"><a href="${APP_URL}/dashboard/profile" style="font-size: 12px; color: #2563eb; text-decoration: none; font-weight: 500;">Settings</a></td>
+        </tr>
+      </table>
+      <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid #e2e8f0;">
+        <p style="margin: 0; font-size: 11px; color: #94a3b8;">This platform provides documentation tools only and does not offer legal advice.</p>
+        <p style="margin: 8px 0 0; font-size: 11px; color: #cbd5e1;">&copy; ${new Date().getFullYear()} BlueDrumAI. All rights reserved.</p>
+      </div>
+    </td>
+  </tr>
+
+</table>
+</td>
+</tr>
+</table>
+</body>
+</html>`
+}
+
+function buildWelcomePremiumEmail(name: string): string {
+  return emailShell(`
+      <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+        <tr>
+          <td style="padding: 32px 32px 24px; border-bottom: 1px solid #f1f5f9;">
+            <div style="display: inline-block; background-color: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 999px; padding: 4px 14px; margin-bottom: 16px;">
+              <span style="font-size: 12px; font-weight: 600; color: #059669;">&#10003; Premium Active</span>
+            </div>
+            <h1 style="margin: 0; font-size: 22px; font-weight: 700; color: #0f172a; line-height: 1.3;">
+              Welcome to Premium, ${name}!
+            </h1>
+            <p style="margin: 10px 0 0; font-size: 14px; color: #64748b; line-height: 1.6;">
+              Your account has been upgraded. Here&rsquo;s what you&rsquo;ve unlocked:
+            </p>
+          </td>
+        </tr>
+      </table>
+
+      <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+        <tr>
+          <td style="padding: 28px 32px;">
+            <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+              <tr>
+                <td style="padding: 12px 16px; background-color: #f8fafc; border-radius: 12px; margin-bottom: 8px;">
+                  <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+                    <tr>
+                      <td width="28" style="font-size: 16px;">&#128274;</td>
+                      <td style="font-size: 14px; font-weight: 600; color: #0f172a;">Unlimited evidence uploads</td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+              <tr><td height="8"></td></tr>
+              <tr>
+                <td style="padding: 12px 16px; background-color: #f8fafc; border-radius: 12px;">
+                  <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+                    <tr>
+                      <td width="28" style="font-size: 16px;">&#129504;</td>
+                      <td style="font-size: 14px; font-weight: 600; color: #0f172a;">Unlimited AI conversation analyses</td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+              <tr><td height="8"></td></tr>
+              <tr>
+                <td style="padding: 12px 16px; background-color: #f8fafc; border-radius: 12px;">
+                  <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+                    <tr>
+                      <td width="28" style="font-size: 16px;">&#128200;</td>
+                      <td style="font-size: 14px; font-weight: 600; color: #0f172a;">Full financial tracking &amp; affidavits</td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+              <tr><td height="8"></td></tr>
+              <tr>
+                <td style="padding: 12px 16px; background-color: #f8fafc; border-radius: 12px;">
+                  <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+                    <tr>
+                      <td width="28" style="font-size: 16px;">&#128196;</td>
+                      <td style="font-size: 14px; font-weight: 600; color: #0f172a;">PDF case file exports</td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+              <tr><td height="8"></td></tr>
+              <tr>
+                <td style="padding: 12px 16px; background-color: #f8fafc; border-radius: 12px;">
+                  <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+                    <tr>
+                      <td width="28" style="font-size: 16px;">&#9889;</td>
+                      <td style="font-size: 14px; font-weight: 600; color: #0f172a;">Priority processing &amp; support</td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+
+      <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+        <tr>
+          <td align="center" style="padding: 0 32px 32px;">
+            <a href="${APP_URL}/dashboard" style="display: inline-block; background-color: #2563eb; color: #ffffff; text-decoration: none; font-size: 14px; font-weight: 600; padding: 14px 28px; border-radius: 10px; line-height: 1;">
+              Go to Dashboard &rarr;
+            </a>
+          </td>
+        </tr>
+      </table>`)
+}
+
+function buildPaymentFailedEmail(name: string): string {
+  return emailShell(`
+      <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+        <tr>
+          <td style="padding: 32px 32px 24px; border-bottom: 1px solid #f1f5f9;">
+            <div style="display: inline-block; background-color: #fef2f2; border: 1px solid #fecaca; border-radius: 999px; padding: 4px 14px; margin-bottom: 16px;">
+              <span style="font-size: 12px; font-weight: 600; color: #dc2626;">&#9888; Action Needed</span>
+            </div>
+            <h1 style="margin: 0; font-size: 22px; font-weight: 700; color: #0f172a; line-height: 1.3;">
+              ${name}, your payment didn&rsquo;t go through
+            </h1>
+            <p style="margin: 10px 0 0; font-size: 14px; color: #64748b; line-height: 1.6;">
+              We couldn&rsquo;t process your latest Premium payment. Your account is still active for now, but please update your payment method to avoid losing access.
+            </p>
+          </td>
+        </tr>
+      </table>
+
+      <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+        <tr>
+          <td style="padding: 28px 32px;">
+            <div style="background-color: #fef2f2; border: 1px solid #fecaca; border-radius: 14px; padding: 20px;">
+              <p style="margin: 0 0 6px; font-size: 11px; font-weight: 700; color: #dc2626; text-transform: uppercase; letter-spacing: 0.6px;">
+                What happens next
+              </p>
+              <p style="margin: 0; font-size: 14px; color: #0f172a; line-height: 1.6;">
+                Razorpay will retry the payment automatically. If it fails again, your Premium features &mdash; including unlimited uploads, AI analysis, and PDF exports &mdash; will be paused until payment is resolved.
+              </p>
+            </div>
+          </td>
+        </tr>
+      </table>
+
+      <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+        <tr>
+          <td align="center" style="padding: 0 32px 16px;">
+            <a href="${APP_URL}/dashboard/subscription" style="display: inline-block; background-color: #dc2626; color: #ffffff; text-decoration: none; font-size: 14px; font-weight: 600; padding: 14px 28px; border-radius: 10px; line-height: 1;">
+              Update Payment Method &rarr;
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td align="center" style="padding: 0 32px 32px;">
+            <p style="margin: 0; font-size: 12px; color: #94a3b8;">Your data is safe and encrypted regardless of subscription status.</p>
+          </td>
+        </tr>
+      </table>`)
+}
+
+function buildSubscriptionExpiredEmail(name: string): string {
+  return emailShell(`
+      <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+        <tr>
+          <td style="padding: 32px 32px 24px; border-bottom: 1px solid #f1f5f9;">
+            <h1 style="margin: 0; font-size: 22px; font-weight: 700; color: #0f172a; line-height: 1.3;">
+              ${name}, your Premium plan has ended
+            </h1>
+            <p style="margin: 10px 0 0; font-size: 14px; color: #64748b; line-height: 1.6;">
+              Your subscription has expired and your account is now on the Free plan. Your existing data is safe &mdash; nothing has been deleted.
+            </p>
+          </td>
+        </tr>
+      </table>
+
+      <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+        <tr>
+          <td style="padding: 28px 32px;">
+            <p style="margin: 0 0 16px; font-size: 13px; font-weight: 600; color: #0f172a;">What changes on the Free plan:</p>
+            <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+              <tr>
+                <td style="padding: 10px 16px; background-color: #f8fafc; border-radius: 10px;">
+                  <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+                    <tr>
+                      <td width="24" style="font-size: 14px; color: #dc2626;">&#10007;</td>
+                      <td style="font-size: 13px; color: #334155;">Upload limit: 5 files per month</td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+              <tr><td height="6"></td></tr>
+              <tr>
+                <td style="padding: 10px 16px; background-color: #f8fafc; border-radius: 10px;">
+                  <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+                    <tr>
+                      <td width="24" style="font-size: 14px; color: #dc2626;">&#10007;</td>
+                      <td style="font-size: 13px; color: #334155;">AI analysis: 3 conversations per month</td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+              <tr><td height="6"></td></tr>
+              <tr>
+                <td style="padding: 10px 16px; background-color: #f8fafc; border-radius: 10px;">
+                  <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+                    <tr>
+                      <td width="24" style="font-size: 14px; color: #dc2626;">&#10007;</td>
+                      <td style="font-size: 13px; color: #334155;">PDF exports paused</td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+
+            <div style="margin-top: 20px; background-color: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 14px; padding: 16px;">
+              <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+                <tr>
+                  <td width="24" style="font-size: 16px; vertical-align: top; padding-top: 2px;">&#128274;</td>
+                  <td style="font-size: 13px; color: #065f46; line-height: 1.6;">
+                    <strong>Your data is safe.</strong> All uploaded evidence, analyses, and financial records remain encrypted and accessible on the Free plan.
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </td>
+        </tr>
+      </table>
+
+      <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+        <tr>
+          <td align="center" style="padding: 0 32px 32px;">
+            <a href="${APP_URL}/dashboard/subscription" style="display: inline-block; background-color: #2563eb; color: #ffffff; text-decoration: none; font-size: 14px; font-weight: 600; padding: 14px 28px; border-radius: 10px; line-height: 1;">
+              Resubscribe to Premium &rarr;
+            </a>
+            <p style="margin: 12px 0 0; font-size: 12px; color: #94a3b8;">Just &#8377;199/month &mdash; cancel anytime</p>
+          </td>
+        </tr>
+      </table>`)
 }
 
 serve(async (req) => {
@@ -286,6 +591,15 @@ async function handleWebhook(req: Request, corsHeaders: Record<string, string>) 
 
   const eventType = event.event
 
+  // Fetch user info for emails (non-blocking — don't let email failures break webhook)
+  const { data: userData } = await db
+    .from('users')
+    .select('email, first_name')
+    .eq('id', sub.user_id)
+    .single()
+  const userName = userData?.first_name || 'there'
+  const userEmail = userData?.email
+
   if (eventType === 'subscription.activated' || eventType === 'subscription.charged') {
     const entity = event.payload.subscription.entity
     await db.from('subscriptions').update({
@@ -294,12 +608,20 @@ async function handleWebhook(req: Request, corsHeaders: Record<string, string>) 
       current_period_start: entity.current_start ? new Date(entity.current_start * 1000).toISOString() : undefined,
       current_period_end: entity.current_end ? new Date(entity.current_end * 1000).toISOString() : undefined,
     }).eq('user_id', sub.user_id)
+
+    if (eventType === 'subscription.activated' && userEmail) {
+      sendEmail(userEmail, `Welcome to Premium, ${userName}! Here's what you unlocked`, buildWelcomePremiumEmail(userName))
+    }
   }
 
   if (eventType === 'subscription.halted' || eventType === 'subscription.pending') {
     await db.from('subscriptions').update({
       status: 'past_due',
     }).eq('user_id', sub.user_id)
+
+    if (userEmail) {
+      sendEmail(userEmail, `Action needed: Your BlueDrumAI payment didn't go through`, buildPaymentFailedEmail(userName))
+    }
   }
 
   if (eventType === 'subscription.cancelled' || eventType === 'subscription.completed') {
@@ -308,6 +630,10 @@ async function handleWebhook(req: Request, corsHeaders: Record<string, string>) 
       status: 'expired',
       cancelled_at: new Date().toISOString(),
     }).eq('user_id', sub.user_id)
+
+    if (userEmail) {
+      sendEmail(userEmail, `Your Premium plan has ended — your data is safe`, buildSubscriptionExpiredEmail(userName))
+    }
   }
 
   return json({ ok: true }, 200, corsHeaders)

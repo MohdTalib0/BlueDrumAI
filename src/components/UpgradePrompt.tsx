@@ -56,7 +56,7 @@ export default function UpgradePrompt({ feature, current, limit, onClose }: Prop
             className="w-full flex items-center justify-center gap-2 rounded-xl bg-primary-600 px-4 py-3 text-sm font-bold text-white shadow-md hover:bg-primary-700 transition-colors"
           >
             <Crown className="h-4 w-4" />
-            Upgrade to Premium — ₹199/mo
+            Upgrade to Premium - ₹199/mo
           </button>
 
           <button

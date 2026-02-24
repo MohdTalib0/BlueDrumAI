@@ -318,7 +318,7 @@ export default function Dashboard() {
           )}
         </div>
 
-      {/* ─── Your First Case File — compact zero-state wizard ─── */}
+      {/* ─── Your First Case File - compact zero-state wizard ─── */}
       {isZeroState && (
         <div className="mb-6 sm:mb-8 rounded-xl border border-primary-200/60 dark:border-primary-500/20 bg-gradient-to-br from-primary-50/80 via-white to-blue-50/50 dark:from-primary-900/20 dark:via-black dark:to-black/80 p-4 sm:p-6 shadow-sm">
           <div className="flex items-center gap-2.5 mb-4">
@@ -326,7 +326,7 @@ export default function Dashboard() {
               <FileText className="h-4 w-4 text-white" />
             </div>
             <div>
-              <h2 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white">Get Started — Build Your Case File</h2>
+              <h2 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white">Get Started - Build Your Case File</h2>
             </div>
           </div>
 
@@ -458,7 +458,7 @@ export default function Dashboard() {
       {/* Charts Row */}
       {stats && !loadingStats && (
         <div className="mb-6 sm:mb-8 grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
-          {/* Income Trend Chart — male only */}
+          {/* Income Trend Chart - male only */}
           {isMale && stats.income.monthlyTrend.length > 0 && (
             <div className="rounded-lg border border-gray-200/20 dark:border-primary-500/20 bg-white/50 dark:bg-black p-3 sm:p-4 shadow-sm">
               <div className="mb-3 flex items-center justify-between">
@@ -586,9 +586,9 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* Quick Actions + Recent Activity — side by side */}
+      {/* Quick Actions + Recent Activity - side by side */}
       <div className="mb-6 sm:mb-8 grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-5">
-        {/* Quick Actions — left 3 cols */}
+        {/* Quick Actions - left 3 cols */}
         <div className="lg:col-span-3">
           <h2 className="mb-3 text-sm sm:text-base font-semibold text-gray-900 dark:text-white">Quick Actions</h2>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3">
@@ -622,7 +622,7 @@ export default function Dashboard() {
             ))}
           </div>
 
-          {/* Key Insights — below Quick Actions */}
+          {/* Key Insights - below Quick Actions */}
           {stats && !loadingStats && (stats.vault.total > 0 || stats.chatAnalysis.total > 0 || (isMale && stats.income.totalEntries > 0)) && (
             <div className="mt-4 rounded-lg border border-gray-200/40 dark:border-primary-500/20 bg-white/50 dark:bg-black p-3 sm:p-4 shadow-sm">
               <h3 className="mb-2 text-xs sm:text-sm font-semibold text-gray-900 dark:text-white">Key Insights</h3>
@@ -652,7 +652,7 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* Recent Activity — right 2 cols */}
+        {/* Recent Activity - right 2 cols */}
         <div className="lg:col-span-2">
           <h2 className="mb-3 text-sm sm:text-base font-semibold text-gray-900 dark:text-white">Recent Activity</h2>
           {loadingStats ? (
@@ -775,7 +775,7 @@ export default function Dashboard() {
 
               <div className="border-t border-gray-100 dark:border-gray-800 px-4 py-2.5">
                 <p className="text-[10px] text-gray-400 dark:text-gray-500 text-center">
-                  Documentation tool only — not legal advice
+                  Documentation tool only - not legal advice
                 </p>
               </div>
             </div>

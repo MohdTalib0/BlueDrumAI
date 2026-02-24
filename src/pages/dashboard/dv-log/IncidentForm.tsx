@@ -139,7 +139,7 @@ export default function IncidentForm() {
   return (
     <DashboardLayout
       title={isEditMode ? 'Edit Incident' : 'Log Incident'}
-      subtitle={isEditMode ? 'Update details of this incident' : 'Document what happened — the more detail, the stronger the evidence'}
+      subtitle={isEditMode ? 'Update details of this incident' : 'Document what happened - the more detail, the stronger the evidence'}
       backHref="/dashboard/dv-log"
     >
       <div className="w-full max-w-3xl mx-auto">
@@ -228,7 +228,7 @@ export default function IncidentForm() {
               onChange={(e) => setFormData((p) => ({ ...p, description: e.target.value }))}
               rows={6}
               className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-red-500 focus:ring-2 focus:ring-red-500 focus:outline-none transition-colors dark:bg-black dark:border-gray-600 dark:text-gray-100"
-              placeholder="Describe the incident in as much detail as possible — who was involved, what happened, any injuries, what was said..."
+              placeholder="Describe the incident in as much detail as possible - who was involved, what happened, any injuries, what was said..."
               required
             />
             <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">The more detail you provide, the stronger your documentation will be for legal proceedings.</p>

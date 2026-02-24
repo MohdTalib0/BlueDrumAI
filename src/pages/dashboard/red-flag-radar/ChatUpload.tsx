@@ -182,7 +182,7 @@ export default function ChatUpload() {
   ]
 
   return (
-    <DashboardLayout title="Red Flag Radar" subtitle="Courts consider patterns in conversations — let AI find what matters" backHref="/dashboard">
+    <DashboardLayout title="Red Flag Radar" subtitle="Courts consider patterns in conversations - let AI find what matters" backHref="/dashboard">
       <div className="w-full max-w-4xl mx-auto">
         {/* Success Message */}
         {success && (
@@ -193,7 +193,7 @@ export default function ChatUpload() {
               </div>
               <div>
                 <p className="font-bold text-green-800 dark:text-green-300">Conversation analyzed!</p>
-                <p className="mt-1 text-sm text-green-700 dark:text-green-400">AI has identified key patterns and moments in this conversation. This analysis is now part of your case file — your lawyer can review it immediately.</p>
+                <p className="mt-1 text-sm text-green-700 dark:text-green-400">AI has identified key patterns and moments in this conversation. This analysis is now part of your case file - your lawyer can review it immediately.</p>
                 <p className="mt-2 text-xs text-green-600 dark:text-green-500">Redirecting to your results...</p>
               </div>
             </div>

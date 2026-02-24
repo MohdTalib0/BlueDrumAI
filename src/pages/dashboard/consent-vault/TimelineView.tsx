@@ -554,7 +554,7 @@ export default function TimelineView() {
   return (
     <DashboardLayout
       title="Evidence Vault"
-      subtitle={loading ? 'Loading...' : `${filteredEntries.length} of ${entries.length} entries — a visual timeline helps your lawyer see the full picture`}
+      subtitle={loading ? 'Loading...' : `${filteredEntries.length} of ${entries.length} entries - a visual timeline helps your lawyer see the full picture`}
     >
       <div className="w-full min-w-0 overflow-x-hidden">
         {/* Toolbar */}
