@@ -38,6 +38,7 @@ import { ShimmerButton } from './magicui/ShimmerButton'
 import { Marquee } from './magicui/Marquee'
 import { FadeIn } from './magicui/FadeIn'
 import SampleCasePreview from './SampleCasePreview'
+import { DemoMock } from './landing/DemoMock'
 
 /* ═══════════════════════════════════════════════════════════════════
    HOOKS
@@ -91,11 +92,43 @@ function BrowserChrome({ url = 'app.bluedrumai.com' }: { url?: string }) {
    DATA
    ═══════════════════════════════════════════════════════════════════ */
 
-const navLinks = [
-  { label: 'What You Can Do', id: 'features' },
-  { label: 'How It Works', id: 'how-it-works' },
-  { label: 'Privacy', id: 'security' },
-  { label: 'Pricing', id: 'pricing' },
+const navLinks: Array<
+  | { label: string; path: string; type: 'link' }
+  | { label: string; id: string; type: 'scroll' }
+> = [
+  { label: 'Who Is It For', id: 'who-is-it-for', type: 'scroll' },
+  { label: 'What You Can Do', id: 'features', type: 'scroll' },
+  { label: 'How It Works', id: 'how-it-works', type: 'scroll' },
+  { label: 'Privacy', id: 'security', type: 'scroll' },
+  { label: 'Pricing', id: 'pricing', type: 'scroll' },
+]
+
+const couplesWhoIsFor = [
+  { title: 'Dating and want to be prepared', desc: 'Start documenting gifts, important conversations, and receipts. Peace of mind without paranoia.' },
+  { title: 'Live-in relationship', desc: 'Document your shared life - transfers, agreements, and key moments. Built for Indian legal context.' },
+  { title: "Things aren't great", desc: "You're not ready to leave yet, but you want your ducks in a row. Document now, decide later." },
+  { title: "You've seen messy breakups", desc: "Friends or family went through chaos. You're not taking that risk." },
+]
+
+const divorceWhoIsFor = [
+  { title: 'Going through divorce or separation', desc: 'You need to organize months or years of conversations, financial records, and documents before your hearing.' },
+  { title: 'Your lawyer asked for organized evidence', desc: 'They need a timeline, structured documents, and financial summaries - not a folder of screenshots.' },
+  { title: 'Preparing for maintenance or alimony proceedings', desc: 'Court-format affidavits, income documentation, and expense tracking. Built for Indian law.' },
+  { title: 'Documenting dowry or domestic incidents', desc: 'Gift records, incident logs, medical reports. Structured for legal proceedings.' },
+]
+
+const couplesFeatures = [
+  { icon: Brain, title: 'Red Flag Radar', desc: 'AI analyzes your WhatsApp, SMS, or email conversations. Spots manipulation, gaslighting, and financial threats in seconds.', detail: 'Paste or upload any chat. Our AI identifies patterns you might miss - contradictions, intimidation, isolation tactics. Get a risk score and highlighted moments.', gradient: 'from-violet-400 to-purple-500' },
+  { icon: Lock, title: 'Encrypted Evidence Vault', desc: 'Store screenshots, documents, and receipts. Encrypted on your device before upload - we never see your files.', detail: 'Everything gets automatic timestamps and a visual timeline. When you need it, export a structured case file. Your data stays yours.', gradient: 'from-sky-400 to-blue-500' },
+  { icon: FileText, title: 'Court-Ready Export', desc: 'One click: structured PDF with evidence index, timelines, and summaries. What lawyers actually ask for.', detail: 'Indian family law context built in. Formats that hold up. No spreadsheets, no chaos.', gradient: 'from-teal-400 to-emerald-500' },
+]
+
+const divorceFeatures = [
+  { icon: Lock, title: 'Encrypted Evidence Vault', desc: 'Upload screenshots, documents, photos, and chat exports. Encrypted on your device before upload. Automatic timestamps and visual timeline.', detail: 'Everything is encrypted in your browser before it leaves your device. We cannot read your files. Build a chronological evidence timeline your lawyer can use.', gradient: 'from-sky-400 to-blue-500' },
+  { icon: Brain, title: 'AI Chat Analysis', desc: 'Paste or upload conversations. AI identifies manipulation, gaslighting, financial threats, and key patterns.', detail: 'Our AI analyzes WhatsApp, SMS, and email conversations against Indian legal context. Get a risk score, categorized red flags, and a summary for your lawyer.', gradient: 'from-violet-400 to-purple-500' },
+  { icon: TrendingUp, title: 'Income & Expense Tracker', desc: 'Log financial records for maintenance. Court-format affidavits following Rajnesh v. Neha guidelines.', detail: 'Designed for alimony and maintenance proceedings. Follows Supreme Court guidelines. Monthly income, expenses, disposable income calculations.', gradient: 'from-teal-400 to-emerald-500' },
+  { icon: Gift, title: 'Dowry & DV Documentation', desc: 'Document gifts, transfers, and incidents. Witness management. Medical report organizer. Maintenance calculator.', detail: 'For women: Dowry Vault (gifts, cash, jewelry, property), DV Log (incidents with dates and evidence), Maintenance Calculator.', gradient: 'from-rose-400 to-pink-500' },
+  { icon: FileText, title: 'Court-Ready PDF Export', desc: 'One click: structured case file with evidence index, conversation analysis, financial summaries.', detail: 'Export a comprehensive PDF with timeline, analysis summaries, and financial records. Admissible format. Your lawyer gets what they need, fast.', gradient: 'from-amber-400 to-orange-500' },
 ]
 
 const stats = [
@@ -113,19 +146,19 @@ const isThisForYou = [
 
 const showcaseFeatures = [
   {
-    icon: Lock, screenshot: '/screenshots/vault-timeline.png', alt: 'Encrypted Evidence Vault',
+    icon: Lock, demoVariant: 'vault' as const, alt: 'Encrypted Evidence Vault',
     title: 'Store Evidence Securely', accent: 'from-blue-500 to-cyan-500',
     desc: 'Upload screenshots, documents, photos, and chat exports. Everything is encrypted on your device and timestamped automatically. Build a visual timeline of all your evidence.',
     highlights: ['Encrypted before upload - even we can\'t read your files', 'Automatic timestamps for every file', 'Visual timeline to see your full history'],
   },
   {
-    icon: Brain, screenshot: '/screenshots/chat-analyzer.png', alt: 'AI Chat Analyzer',
+    icon: Brain, demoVariant: 'chat' as const, alt: 'AI Chat Analyzer',
     title: 'Analyze Conversations with AI', accent: 'from-purple-500 to-pink-500',
     desc: 'Paste or upload WhatsApp, SMS, or email conversations. AI identifies important patterns, concerning language, and key moments - so you know what matters before your lawyer does.',
     highlights: ['Works with WhatsApp, SMS, email, and more', 'Highlights key moments and patterns', 'Generates a summary you can share with your lawyer'],
   },
   {
-    icon: TrendingUp, screenshot: '/screenshots/income-tracker.png', alt: 'Income & Expense Tracker',
+    icon: TrendingUp, demoVariant: 'income' as const, alt: 'Income & Expense Tracker',
     title: 'Track Income & Expenses', accent: 'from-emerald-500 to-teal-500',
     desc: 'Log your financial records for maintenance or alimony calculations. Follows court guidelines and generates formatted affidavits with one click.',
     highlights: ['Follows Rajnesh v. Neha court guidelines', 'One-click affidavit generation', 'Monthly income and expense trends'],
@@ -139,9 +172,9 @@ const supportingFeatures = [
 ]
 
 const howItWorks = [
-  { num: '01', icon: Upload, title: 'Upload Your Evidence', desc: 'Add chats, screenshots, documents, and financial records. Everything is encrypted on your device and organized automatically.', screenshot: '/screenshots/vault-timeline.png', imgAlt: 'Evidence vault upload interface', direction: 'left' as const, tags: ['WhatsApp', 'SMS', 'Email', 'Photos', 'Documents'] },
-  { num: '02', icon: BarChart3, title: 'AI Organizes & Analyzes', desc: 'AI builds timelines, identifies important patterns in conversations, and calculates financial summaries - saving you hours of manual work.', screenshot: '/screenshots/chat-analyzer.png', imgAlt: 'AI chat analysis results', direction: 'right' as const },
-  { num: '03', icon: Download, title: 'Share with Your Lawyer', desc: 'Export a structured case file as PDF - with evidence index, conversation analysis, and financial summaries. Your lawyer gets what they need, fast.', screenshot: '/screenshots/income-tracker.png', imgAlt: 'Case file export', direction: 'left' as const },
+  { num: '01', icon: Upload, title: 'Upload Your Evidence', desc: 'Add chats, screenshots, documents, and financial records. Everything is encrypted on your device and organized automatically.', demoVariant: 'vault' as const, imgAlt: 'Evidence vault upload interface', direction: 'left' as const, tags: ['WhatsApp', 'SMS', 'Email', 'Photos', 'Documents'] },
+  { num: '02', icon: BarChart3, title: 'AI Organizes & Analyzes', desc: 'AI builds timelines, identifies important patterns in conversations, and calculates financial summaries - saving you hours of manual work.', demoVariant: 'chat' as const, imgAlt: 'AI chat analysis results', direction: 'right' as const },
+  { num: '03', icon: Download, title: 'Share with Your Lawyer', desc: 'Export a structured case file as PDF - with evidence index, conversation analysis, and financial summaries. Your lawyer gets what they need, fast.', demoVariant: 'income' as const, imgAlt: 'Case file export', direction: 'left' as const },
 ]
 
 const menFeatures = [
@@ -189,6 +222,8 @@ export default function LandingPage() {
   const [scrolled, setScrolled] = useState(false)
   const [activeScreenshot, setActiveScreenshot] = useState(0)
   const [activeModule, setActiveModule] = useState<'men' | 'women'>('men')
+  const [activePersona, setActivePersona] = useState<'couples' | 'divorce'>('couples')
+  const [expandedPersonaCard, setExpandedPersonaCard] = useState<number | null>(null)
   const [showSample, setShowSample] = useState(false)
 
   useScrollReveal()
@@ -229,11 +264,21 @@ export default function LandingPage() {
           </div>
 
           <nav className="hidden items-center gap-1 lg:flex">
-            {navLinks.map((l) => (
-              <button key={l.id} onClick={() => scrollTo(l.id)} className="rounded-lg px-3.5 py-2 text-[13px] font-medium text-gray-500 dark:text-gray-400 transition-colors hover:bg-gray-50 dark:hover:bg-primary-900/20 hover:text-gray-900 dark:hover:text-white">
-                {l.label}
-              </button>
-            ))}
+            {navLinks.map((l) =>
+              l.type === 'link' ? (
+                <Link
+                  key={l.path}
+                  to={l.path}
+                  className="rounded-lg px-3.5 py-2 text-[13px] font-medium text-gray-500 dark:text-gray-400 transition-colors hover:bg-gray-50 dark:hover:bg-primary-900/20 hover:text-gray-900 dark:hover:text-white"
+                >
+                  {l.label}
+                </Link>
+              ) : (
+                <button key={l.id} onClick={() => scrollTo(l.id)} className="rounded-lg px-3.5 py-2 text-[13px] font-medium text-gray-500 dark:text-gray-400 transition-colors hover:bg-gray-50 dark:hover:bg-primary-900/20 hover:text-gray-900 dark:hover:text-white">
+                  {l.label}
+                </button>
+              )
+            )}
           </nav>
 
           <div className="flex items-center gap-2">
@@ -274,26 +319,81 @@ export default function LandingPage() {
         </div>
 
         {mobileMenuOpen && (
-          <div className="border-t border-blue-100/50 dark:border-gray-800 bg-white/80 dark:bg-black/80 backdrop-blur-sm px-5 pb-4 pt-2 lg:hidden">
-            {navLinks.map((l) => (
-              <button key={l.id} onClick={() => scrollTo(l.id)} className="block w-full rounded-lg px-3 py-2.5 text-left text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-primary-900/20">
-                {l.label}
-              </button>
-            ))}
+          <div className="max-h-[calc(100vh-4rem)] overflow-y-auto border-t border-blue-100/50 dark:border-gray-800 bg-white/95 dark:bg-black/95 backdrop-blur-sm px-5 pb-6 pt-4 lg:hidden">
+            <div className="space-y-1">
+              {navLinks.map((l) =>
+                l.type === 'link' ? (
+                  <Link
+                    key={l.path}
+                    to={l.path}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex min-h-[44px] items-center rounded-xl px-4 py-3 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-primary-900/20"
+                  >
+                    {l.label}
+                  </Link>
+                ) : (
+                  <button
+                    key={l.id}
+                    onClick={() => { scrollTo(l.id); setMobileMenuOpen(false) }}
+                    className="flex min-h-[44px] w-full items-center rounded-xl px-4 py-3 text-left text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-primary-900/20"
+                  >
+                    {l.label}
+                  </button>
+                )
+              )}
+            </div>
+            <div className="mt-4 flex flex-col gap-2 border-t border-gray-200 dark:border-gray-700 pt-4">
+              {user ? (
+                <>
+                  <button
+                    onClick={() => { setMobileMenuOpen(false); navigate('/dashboard') }}
+                    className="flex min-h-[44px] items-center justify-center rounded-xl bg-primary-600 px-4 py-3 text-sm font-semibold text-white"
+                  >
+                    Dashboard
+                  </button>
+                  <button
+                    onClick={() => signOut().catch(() => {}).finally(() => { setMobileMenuOpen(false); navigate('/sign-in') })}
+                    className="flex min-h-[44px] items-center justify-center rounded-xl border border-gray-200 dark:border-primary-500/30 px-4 py-3 text-sm font-medium text-gray-600 dark:text-gray-300"
+                  >
+                    Sign out
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    to="/sign-in"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex min-h-[44px] items-center justify-center rounded-xl border border-gray-200 dark:border-primary-500/30 px-4 py-3 text-sm font-medium text-gray-600 dark:text-gray-300"
+                  >
+                    Sign in
+                  </Link>
+                  <Link
+                    to="/sign-up"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex min-h-[44px] items-center justify-center gap-2 rounded-xl bg-primary-600 px-4 py-3 text-sm font-semibold text-white"
+                  >
+                    Get Started <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </>
+              )}
+            </div>
           </div>
         )}
       </header>
 
       {/* ─────────────────────────────── HERO ────────────────────────────── */}
       <section className="relative overflow-hidden">
-        <div className="pointer-events-none absolute inset-0 -z-10">
-          <div className="absolute -top-40 left-1/2 h-[700px] w-[1000px] -translate-x-1/2 rounded-full bg-gradient-to-br from-primary-100/70 via-blue-50/50 to-transparent blur-3xl" />
-          <div className="absolute bottom-0 right-0 h-[400px] w-[400px] rounded-full bg-gradient-to-tl from-indigo-100/30 to-transparent blur-3xl" />
-          <div className="dot-pattern absolute inset-0 opacity-40" />
-          <img src="/drum.svg" alt="" aria-hidden="true" className="absolute -right-20 top-10 h-64 w-64 opacity-[0.04] blur-[1px]" />
-        </div>
+        {/* Base background */}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white via-blue-50/30 to-white dark:from-[#08090e] dark:via-[#0c0f1a] dark:to-[#08090e]" />
+        {/* Soft ambient blobs */}
+        <div className="pointer-events-none absolute -top-40 left-1/2 h-[700px] w-[1000px] -translate-x-1/2 rounded-full bg-gradient-to-br from-primary-100/60 via-blue-50/40 to-transparent dark:from-blue-900/20 dark:via-indigo-900/10 dark:to-transparent blur-3xl" />
+        <div className="pointer-events-none absolute bottom-0 right-0 h-[400px] w-[400px] rounded-full bg-gradient-to-tl from-indigo-100/30 to-transparent dark:from-indigo-900/15 dark:to-transparent blur-3xl" />
+        {/* Grid line pattern */}
+        <div className="pointer-events-none hero-grid-pattern absolute inset-0" />
+        {/* Fade edges so grid doesn't have hard cuts */}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/50 via-transparent to-white/50 dark:from-[#08090e]/70 dark:via-transparent dark:to-[#08090e]/70" />
 
-        <div className="mx-auto max-w-7xl px-5 pb-16 pt-16 sm:pb-24 sm:pt-24 md:pb-28 md:pt-28">
+        <div className="relative mx-auto max-w-7xl px-5 pb-16 pt-16 sm:pb-24 sm:pt-24 md:pb-28 md:pt-28">
           <div className="mx-auto max-w-4xl text-center">
             <BlurIn delay={0.1}>
               <div className="mb-6 inline-flex items-center gap-2.5 rounded-full border border-primary-200/80 dark:border-primary-700/50 bg-primary-50/80 dark:bg-primary-900/30 px-4 py-2 text-xs font-semibold text-primary-700 dark:text-primary-300 shadow-sm transition-all hover:shadow-md hover:bg-primary-100/80 dark:hover:bg-primary-800/40 cursor-default">
@@ -307,8 +407,7 @@ export default function LandingPage() {
 
             <BlurIn delay={0.25}>
               <h1 className="text-[2.25rem] font-extrabold leading-[1.12] tracking-tight sm:text-5xl md:text-6xl lg:text-[4.25rem]">
-                Your evidence is everywhere.
-                <br />
+                <span className="block w-full sm:whitespace-nowrap">Your evidence is everywhere.</span>
                 <span className="animate-gradient-text bg-gradient-to-r from-primary-600 via-blue-500 to-indigo-600">Your lawyer</span>{' '}
                 <WordRotate
                   words={['needs it in one place.', 'needs it organized.', 'needs it structured.', 'needs it now.']}
@@ -350,10 +449,14 @@ export default function LandingPage() {
             </BlurIn>
           </div>
 
-          {/* Dashboard screenshot with browser chrome */}
+          {/* Dashboard demo UI */}
           <div className="fade-in-up visible relative mx-auto mt-14 max-w-5xl sm:mt-18">
-            <div className="rounded-2xl border border-gray-200/70 dark:border-primary-500/20 bg-gradient-to-b from-gray-50 to-white dark:from-primary-900/20 dark:to-black/50 p-1.5 shadow-2xl shadow-gray-300/30 dark:shadow-primary-900/10">
-              <div className="overflow-hidden rounded-xl border border-gray-100 dark:border-primary-500/10">
+            {/* Radial glow behind screenshot */}
+            <div className="pointer-events-none absolute -inset-12 -z-10">
+              <div className="absolute left-1/2 top-1/2 h-[500px] w-[700px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-blue-400/20 via-primary-500/15 to-indigo-400/10 blur-[100px] dark:from-blue-500/15 dark:via-primary-500/10 dark:to-indigo-500/8" />
+            </div>
+            <div className="rounded-2xl border border-gray-200/70 dark:border-gray-700/40 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/40 dark:to-gray-900/60 p-1.5 shadow-2xl shadow-gray-300/30 dark:shadow-blue-900/20">
+              <div className="overflow-hidden rounded-xl border border-gray-100 dark:border-gray-700/30">
                 <BrowserChrome url="app.bluedrumai.com/dashboard" />
                 <div className="bg-gray-900">
                   <img
@@ -372,7 +475,7 @@ export default function LandingPage() {
             </div>
 
             {/* Floating badge: Encrypted */}
-            <div className="animate-float absolute -left-4 top-16 hidden rounded-2xl border border-white/80 dark:border-primary-500/20 bg-white/90 dark:bg-primary-900/20 px-5 py-3.5 shadow-xl backdrop-blur lg:block">
+            <div className="animate-float absolute -left-4 top-16 hidden rounded-2xl border border-white/80 dark:border-gray-700/40 bg-white/90 dark:bg-gray-900/80 px-5 py-3.5 shadow-xl dark:shadow-blue-900/10 backdrop-blur lg:block">
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 shadow-md">
                   <Lock className="h-5 w-5 text-white" />
@@ -385,7 +488,7 @@ export default function LandingPage() {
             </div>
 
             {/* Floating badge: AI Analysis */}
-            <div className="animate-float-delayed absolute -right-4 top-24 hidden rounded-2xl border border-white/80 dark:border-primary-500/20 bg-white/90 dark:bg-primary-900/20 px-5 py-3.5 shadow-xl backdrop-blur lg:block">
+            <div className="animate-float-delayed absolute -right-4 top-24 hidden rounded-2xl border border-white/80 dark:border-gray-700/40 bg-white/90 dark:bg-gray-900/80 px-5 py-3.5 shadow-xl dark:shadow-blue-900/10 backdrop-blur lg:block">
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 shadow-md">
                   <Brain className="h-5 w-5 text-white" />
@@ -398,7 +501,7 @@ export default function LandingPage() {
             </div>
 
             {/* Floating badge: PDF Export */}
-            <div className="animate-float absolute -left-2 bottom-12 hidden rounded-2xl border border-white/80 dark:border-primary-500/20 bg-white/90 dark:bg-primary-900/20 px-4 py-3 shadow-xl backdrop-blur lg:block" style={{ animationDelay: '0.8s' }}>
+            <div className="animate-float absolute -left-2 bottom-12 hidden rounded-2xl border border-white/80 dark:border-gray-700/40 bg-white/90 dark:bg-gray-900/80 px-4 py-3 shadow-xl dark:shadow-blue-900/10 backdrop-blur lg:block" style={{ animationDelay: '0.8s' }}>
               <div className="flex items-center gap-2.5">
                 <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 shadow-md">
                   <FileText className="h-4 w-4 text-white" />
@@ -451,6 +554,145 @@ export default function LandingPage() {
             </div>
           ))}
         </Marquee>
+      </section>
+
+      {/* ──────────────── WHO IS IT FOR? (Tabbed) ─────────────────── */}
+      <section id="who-is-it-for" className="py-20 sm:py-24">
+        <div className="mx-auto max-w-4xl px-5">
+          <div className="text-center">
+            <FadeIn><SectionLabel>Who Is It For?</SectionLabel></FadeIn>
+            <FadeIn delay={0.1}>
+              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl dark:text-white">
+                Built for two very different situations
+              </h2>
+            </FadeIn>
+            <FadeIn delay={0.2}>
+              <p className="mx-auto mt-4 max-w-2xl text-base text-gray-500 dark:text-gray-400 sm:text-lg">
+                Whether you&apos;re being proactive or already in the middle of it - we have the right tools.
+              </p>
+            </FadeIn>
+          </div>
+
+          {/* Tab Switcher */}
+          <FadeIn delay={0.3}>
+            <div className="mx-auto mt-10 flex max-w-md overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-900 p-1">
+              <button
+                onClick={() => { setActivePersona('couples'); setExpandedPersonaCard(null) }}
+                className={`flex-1 rounded-lg px-4 py-3 text-sm font-semibold transition-all ${
+                  activePersona === 'couples'
+                    ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm'
+                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+                }`}
+              >
+                <Sparkles className="mr-1.5 inline h-4 w-4" />
+                For Couples
+              </button>
+              <button
+                onClick={() => { setActivePersona('divorce'); setExpandedPersonaCard(null) }}
+                className={`flex-1 rounded-lg px-4 py-3 text-sm font-semibold transition-all ${
+                  activePersona === 'divorce'
+                    ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm'
+                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+                }`}
+              >
+                <Scale className="mr-1.5 inline h-4 w-4" />
+                For Divorce
+              </button>
+            </div>
+          </FadeIn>
+
+          {/* Tab Content */}
+          <div className="mt-10">
+            {/* Tagline */}
+            <div className="mb-8 text-center">
+              {activePersona === 'couples' ? (
+                <>
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white sm:text-3xl">
+                    Be prepared, <span className="bg-gradient-to-r from-sky-600 to-violet-600 bg-clip-text text-transparent">not blindsided.</span>
+                  </h3>
+                  <p className="mt-3 text-gray-500 dark:text-gray-400">
+                    Document your relationship and organize your evidence. If things ever go left, you're ready.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white sm:text-3xl">
+                    Your evidence is scattered. <span className="bg-gradient-to-r from-sky-600 to-violet-600 bg-clip-text text-transparent">Your lawyer needs it organized.</span>
+                  </h3>
+                  <p className="mt-3 text-gray-500 dark:text-gray-400">
+                    Organize chats, documents, and financial records into a structured case file. Built for Indian family law.
+                  </p>
+                </>
+              )}
+            </div>
+
+            {/* "Is this for you?" cards */}
+            <div className="mb-10">
+              <h4 className="mb-4 text-sm font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400">Is this for you?</h4>
+              <div className="space-y-2.5">
+                {(activePersona === 'couples' ? couplesWhoIsFor : divorceWhoIsFor).map((item, i) => (
+                  <div
+                    key={i}
+                    className="flex items-start justify-between gap-4 rounded-xl border border-gray-200/80 dark:border-gray-700 bg-white/80 dark:bg-gray-800/80 p-4 shadow-sm transition-all hover:border-primary-200 dark:hover:border-primary-500/30 hover:shadow-md"
+                  >
+                    <div>
+                      <h5 className="font-semibold text-gray-800 dark:text-white">{item.title}</h5>
+                      <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{item.desc}</p>
+                    </div>
+                    <CheckCircle2 className="h-5 w-5 shrink-0 text-teal-500" />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Features expandable */}
+            <div>
+              <h4 className="mb-4 text-sm font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400">What you can do</h4>
+              <div className="space-y-3">
+                {(activePersona === 'couples' ? couplesFeatures : divorceFeatures).map((f, i) => (
+                  <div
+                    key={i}
+                    className={`overflow-hidden rounded-xl border transition-all duration-300 ${
+                      expandedPersonaCard === i
+                        ? 'border-primary-300 dark:border-primary-600 bg-white dark:bg-gray-800 shadow-lg'
+                        : 'border-gray-200/80 dark:border-gray-700 bg-white/90 dark:bg-gray-800/90 hover:border-primary-200 dark:hover:border-primary-500/30'
+                    }`}
+                  >
+                    <button
+                      onClick={() => setExpandedPersonaCard(expandedPersonaCard === i ? null : i)}
+                      className="flex w-full items-center gap-4 p-5 text-left"
+                    >
+                      <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${f.gradient} shadow-md`}>
+                        <f.icon className="h-5 w-5 text-white" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h5 className="font-semibold text-gray-800 dark:text-white">{f.title}</h5>
+                        <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">{f.desc}</p>
+                      </div>
+                      <ChevronDown className={`h-5 w-5 shrink-0 text-gray-400 transition-transform duration-300 ${expandedPersonaCard === i ? 'rotate-180' : ''}`} />
+                    </button>
+                    {expandedPersonaCard === i && (
+                      <div className="border-t border-gray-100 dark:border-gray-700 px-5 pb-5 pt-3">
+                        <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-300">{f.detail}</p>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* CTA */}
+            <div className="mt-10 text-center">
+              <Link
+                to="/sign-up"
+                className="group inline-flex items-center gap-2 rounded-xl bg-primary-600 px-8 py-4 text-base font-semibold text-white shadow-lg shadow-primary-600/25 transition-all hover:bg-primary-700 hover:shadow-xl"
+              >
+                Get Started Free <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </Link>
+              <p className="mt-3 text-sm text-gray-400 dark:text-gray-500">Free plan available - no credit card needed</p>
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* ──────────────── IS THIS FOR YOU? ─────────────────────────── */}
@@ -626,16 +868,11 @@ export default function LandingPage() {
             {showcaseFeatures.map((item, idx) => (
               <div key={item.title} className={`${activeScreenshot === idx ? 'block' : 'hidden'}`}>
                 <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-5">
-                  {/* Screenshot - 3 cols */}
+                  {/* Demo UI - 3 cols */}
                   <div className="lg:col-span-3">
                     <div className="overflow-hidden rounded-2xl border border-gray-200/70 dark:border-primary-500/20 bg-gradient-to-b from-gray-50 to-white dark:from-primary-900/20 dark:to-black/50 p-1 shadow-2xl shadow-gray-300/30 dark:shadow-primary-900/10">
                       <BrowserChrome />
-                      <img
-                        src={item.screenshot}
-                        alt={item.alt}
-                        className="w-full max-h-[400px] object-cover object-top"
-                        loading="lazy"
-                      />
+                      <DemoMock variant={item.demoVariant} className="min-h-[320px]" />
                     </div>
                   </div>
 
@@ -710,10 +947,10 @@ export default function LandingPage() {
             {howItWorks.map((s, i) => (
               <FadeIn key={s.num} delay={0.1 * i} direction={s.direction === 'right' ? 'right' : 'left'}>
               <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-2">
-                {/* Screenshot */}
+                {/* Demo UI */}
                 <div className={s.direction === 'right' ? 'lg:order-2' : ''}>
                   <div className="overflow-hidden rounded-2xl border border-gray-200/60 dark:border-primary-500/20 shadow-xl shadow-gray-200/30 dark:shadow-primary-900/10">
-                    <img src={s.screenshot} alt={s.imgAlt} className="w-full max-h-[400px] object-cover object-top" loading="lazy" />
+                    <DemoMock variant={s.demoVariant} className="min-h-[280px] sm:min-h-[340px]" />
                   </div>
                 </div>
                 {/* Text */}
@@ -822,7 +1059,7 @@ export default function LandingPage() {
                   </Link>
                 </div>
                 <div className="overflow-hidden rounded-2xl border border-blue-200/40 dark:border-primary-500/20 shadow-lg">
-                  <img src="/screenshots/income-tracker.png" alt="Income tracker for men" className="w-full max-h-[400px] object-cover object-top" loading="lazy" />
+                  <DemoMock variant="income" className="min-h-[280px] sm:min-h-[340px]" />
                 </div>
               </div>
             </div>
@@ -855,7 +1092,7 @@ export default function LandingPage() {
                   </Link>
                 </div>
                 <div className="overflow-hidden rounded-2xl border border-purple-200/40 dark:border-primary-500/20 shadow-lg">
-                  <img src="/screenshots/vault-timeline.png" alt="Evidence vault for women" className="w-full max-h-[400px] object-cover object-top" loading="lazy" />
+                  <DemoMock variant="vault" className="min-h-[280px] sm:min-h-[340px]" />
                 </div>
               </div>
             </div>
@@ -1098,9 +1335,17 @@ export default function LandingPage() {
             </div>
 
             <nav className="flex flex-wrap gap-6 text-sm text-gray-500 dark:text-gray-400">
-              {navLinks.map((l) => (
-                <button key={l.id} onClick={() => scrollTo(l.id)} className="transition-colors hover:text-gray-900 dark:hover:text-white">{l.label}</button>
-              ))}
+              {navLinks.map((l) =>
+                l.type === 'link' ? (
+                  <Link key={l.path} to={l.path} className="transition-colors hover:text-gray-900 dark:hover:text-white">
+                    {l.label}
+                  </Link>
+                ) : (
+                  <button key={l.id} onClick={() => scrollTo(l.id)} className="transition-colors hover:text-gray-900 dark:hover:text-white">
+                    {l.label}
+                  </button>
+                )
+              )}
               <Link to="/sign-up" className="font-semibold text-primary-600 hover:text-primary-700">Get Started</Link>
             </nav>
           </div>
