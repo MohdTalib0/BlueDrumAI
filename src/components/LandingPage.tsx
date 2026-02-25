@@ -557,139 +557,115 @@ export default function LandingPage() {
       </section>
 
       {/* ──────────────── WHO IS IT FOR? (Tabbed) ─────────────────── */}
-      <section id="who-is-it-for" className="py-20 sm:py-24">
+      <section id="who-is-it-for" className="py-14 sm:py-24">
         <div className="mx-auto max-w-4xl px-5">
           <div className="text-center">
             <FadeIn><SectionLabel>Who Is It For?</SectionLabel></FadeIn>
             <FadeIn delay={0.1}>
-              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl dark:text-white">
+              <h2 className="text-2xl font-bold tracking-tight sm:text-4xl dark:text-white">
                 Built for two very different situations
               </h2>
-            </FadeIn>
-            <FadeIn delay={0.2}>
-              <p className="mx-auto mt-4 max-w-2xl text-base text-gray-500 dark:text-gray-400 sm:text-lg">
-                Whether you&apos;re being proactive or already in the middle of it - we have the right tools.
-              </p>
             </FadeIn>
           </div>
 
           {/* Tab Switcher */}
-          <FadeIn delay={0.3}>
-            <div className="mx-auto mt-10 flex max-w-md overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-900 p-1">
+          <FadeIn delay={0.2}>
+            <div className="mx-auto mt-8 flex max-w-sm overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-900 p-1">
               <button
                 onClick={() => { setActivePersona('couples'); setExpandedPersonaCard(null) }}
-                className={`flex-1 rounded-lg px-4 py-3 text-sm font-semibold transition-all ${
+                className={`flex-1 rounded-lg px-3 py-2.5 text-sm font-semibold transition-all ${
                   activePersona === 'couples'
                     ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm'
                     : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
                 }`}
               >
-                <Sparkles className="mr-1.5 inline h-4 w-4" />
-                For Couples
+                <Sparkles className="mr-1.5 inline h-3.5 w-3.5" />
+                Couples
               </button>
               <button
                 onClick={() => { setActivePersona('divorce'); setExpandedPersonaCard(null) }}
-                className={`flex-1 rounded-lg px-4 py-3 text-sm font-semibold transition-all ${
+                className={`flex-1 rounded-lg px-3 py-2.5 text-sm font-semibold transition-all ${
                   activePersona === 'divorce'
                     ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm'
                     : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
                 }`}
               >
-                <Scale className="mr-1.5 inline h-4 w-4" />
-                For Divorce
+                <Scale className="mr-1.5 inline h-3.5 w-3.5" />
+                Divorce
               </button>
             </div>
           </FadeIn>
 
           {/* Tab Content */}
-          <div className="mt-10">
+          <div className="mt-8">
             {/* Tagline */}
-            <div className="mb-8 text-center">
+            <div className="mb-6 text-center">
               {activePersona === 'couples' ? (
-                <>
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white sm:text-3xl">
-                    Be prepared, <span className="bg-gradient-to-r from-sky-600 to-violet-600 bg-clip-text text-transparent">not blindsided.</span>
-                  </h3>
-                  <p className="mt-3 text-gray-500 dark:text-gray-400">
-                    Document your relationship and organize your evidence. If things ever go left, you're ready.
-                  </p>
-                </>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white sm:text-3xl">
+                  Be prepared, <span className="bg-gradient-to-r from-sky-600 to-violet-600 bg-clip-text text-transparent">not blindsided.</span>
+                </h3>
               ) : (
-                <>
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white sm:text-3xl">
-                    Your evidence is scattered. <span className="bg-gradient-to-r from-sky-600 to-violet-600 bg-clip-text text-transparent">Your lawyer needs it organized.</span>
-                  </h3>
-                  <p className="mt-3 text-gray-500 dark:text-gray-400">
-                    Organize chats, documents, and financial records into a structured case file. Built for Indian family law.
-                  </p>
-                </>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white sm:text-3xl">
+                  Your evidence is scattered. <span className="bg-gradient-to-r from-sky-600 to-violet-600 bg-clip-text text-transparent">Get it organized.</span>
+                </h3>
               )}
             </div>
 
-            {/* "Is this for you?" cards */}
-            <div className="mb-10">
-              <h4 className="mb-4 text-sm font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400">Is this for you?</h4>
-              <div className="space-y-2.5">
+            {/* "Is this for you?" - compact checklist */}
+            <div className="mb-8 rounded-xl border border-gray-200/80 dark:border-gray-700 bg-white/80 dark:bg-gray-800/80 p-4 sm:p-5">
+              <h4 className="mb-3 text-xs font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400">Is this for you?</h4>
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                 {(activePersona === 'couples' ? couplesWhoIsFor : divorceWhoIsFor).map((item, i) => (
-                  <div
-                    key={i}
-                    className="flex items-start justify-between gap-4 rounded-xl border border-gray-200/80 dark:border-gray-700 bg-white/80 dark:bg-gray-800/80 p-4 shadow-sm transition-all hover:border-primary-200 dark:hover:border-primary-500/30 hover:shadow-md"
-                  >
-                    <div>
-                      <h5 className="font-semibold text-gray-800 dark:text-white">{item.title}</h5>
-                      <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{item.desc}</p>
-                    </div>
-                    <CheckCircle2 className="h-5 w-5 shrink-0 text-teal-500" />
+                  <div key={i} className="flex items-center gap-2.5">
+                    <CheckCircle2 className="h-4 w-4 shrink-0 text-teal-500" />
+                    <span className="text-sm text-gray-700 dark:text-gray-300">{item.title}</span>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Features expandable */}
-            <div>
-              <h4 className="mb-4 text-sm font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400">What you can do</h4>
-              <div className="space-y-3">
-                {(activePersona === 'couples' ? couplesFeatures : divorceFeatures).map((f, i) => (
-                  <div
-                    key={i}
-                    className={`overflow-hidden rounded-xl border transition-all duration-300 ${
-                      expandedPersonaCard === i
-                        ? 'border-primary-300 dark:border-primary-600 bg-white dark:bg-gray-800 shadow-lg'
-                        : 'border-gray-200/80 dark:border-gray-700 bg-white/90 dark:bg-gray-800/90 hover:border-primary-200 dark:hover:border-primary-500/30'
-                    }`}
+            {/* Features - compact list */}
+            <div className="space-y-2">
+              {(activePersona === 'couples' ? couplesFeatures : divorceFeatures).map((f, i) => (
+                <div
+                  key={i}
+                  className={`overflow-hidden rounded-xl border transition-all duration-300 ${
+                    expandedPersonaCard === i
+                      ? 'border-primary-300 dark:border-primary-600 bg-white dark:bg-gray-800 shadow-md'
+                      : 'border-gray-200/80 dark:border-gray-700 bg-white/90 dark:bg-gray-800/90 hover:border-primary-200 dark:hover:border-primary-500/30'
+                  }`}
+                >
+                  <button
+                    onClick={() => setExpandedPersonaCard(expandedPersonaCard === i ? null : i)}
+                    className="flex w-full items-center gap-3 p-3.5 sm:p-4 text-left"
                   >
-                    <button
-                      onClick={() => setExpandedPersonaCard(expandedPersonaCard === i ? null : i)}
-                      className="flex w-full items-center gap-4 p-5 text-left"
-                    >
-                      <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${f.gradient} shadow-md`}>
-                        <f.icon className="h-5 w-5 text-white" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h5 className="font-semibold text-gray-800 dark:text-white">{f.title}</h5>
-                        <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">{f.desc}</p>
-                      </div>
-                      <ChevronDown className={`h-5 w-5 shrink-0 text-gray-400 transition-transform duration-300 ${expandedPersonaCard === i ? 'rotate-180' : ''}`} />
-                    </button>
-                    {expandedPersonaCard === i && (
-                      <div className="border-t border-gray-100 dark:border-gray-700 px-5 pb-5 pt-3">
-                        <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-300">{f.detail}</p>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
+                    <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br ${f.gradient} shadow-sm`}>
+                      <f.icon className="h-4 w-4 text-white" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h5 className="text-sm font-semibold text-gray-800 dark:text-white">{f.title}</h5>
+                      <p className="mt-0.5 hidden text-xs text-gray-500 dark:text-gray-400 sm:block">{f.desc}</p>
+                    </div>
+                    <ChevronDown className={`h-4 w-4 shrink-0 text-gray-400 transition-transform duration-300 ${expandedPersonaCard === i ? 'rotate-180' : ''}`} />
+                  </button>
+                  {expandedPersonaCard === i && (
+                    <div className="border-t border-gray-100 dark:border-gray-700 px-4 pb-4 pt-2.5">
+                      <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-300 sm:hidden">{f.desc}</p>
+                      <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-300 mt-1 sm:mt-0">{f.detail}</p>
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
 
             {/* CTA */}
-            <div className="mt-10 text-center">
+            <div className="mt-8 text-center">
               <Link
                 to="/sign-up"
-                className="group inline-flex items-center gap-2 rounded-xl bg-primary-600 px-8 py-4 text-base font-semibold text-white shadow-lg shadow-primary-600/25 transition-all hover:bg-primary-700 hover:shadow-xl"
+                className="group inline-flex items-center gap-2 rounded-xl bg-primary-600 px-7 py-3.5 text-sm font-semibold text-white shadow-lg shadow-primary-600/25 transition-all hover:bg-primary-700 hover:shadow-xl sm:px-8 sm:py-4 sm:text-base"
               >
                 Get Started Free <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Link>
-              <p className="mt-3 text-sm text-gray-400 dark:text-gray-500">Free plan available - no credit card needed</p>
             </div>
           </div>
         </div>
