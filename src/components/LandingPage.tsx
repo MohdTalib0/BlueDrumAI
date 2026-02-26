@@ -98,9 +98,9 @@ const navLinks: Array<
 > = [
   { label: 'Who Is It For', id: 'who-is-it-for', type: 'scroll' },
   { label: 'What You Can Do', id: 'features', type: 'scroll' },
-  { label: 'How It Works', id: 'how-it-works', type: 'scroll' },
-  { label: 'Privacy', id: 'security', type: 'scroll' },
   { label: 'Pricing', id: 'pricing', type: 'scroll' },
+  { label: 'Security', path: '/security', type: 'link' },
+  { label: 'Contact', path: '/contact', type: 'link' },
 ]
 
 const couplesWhoIsFor = [

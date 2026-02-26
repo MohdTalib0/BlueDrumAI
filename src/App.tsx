@@ -5,6 +5,8 @@ import { useAuth } from './context/AuthContext'
 
 import LandingPage from './components/LandingPage'
 import { DocumentTitle } from './components/DocumentTitle'
+import ContactPage from './pages/landing/ContactPage'
+import SecurityPage from './pages/landing/SecurityPage'
 import SignInPage from './pages/auth/SignIn'
 import SignUpPage from './pages/auth/SignUp'
 import ForgotPassword from './pages/auth/ForgotPassword'
@@ -121,6 +123,8 @@ function App() {
       <Suspense fallback={<PageLoader />}>
         <Routes>
           <Route path="/" element={<LandingPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/security" element={<SecurityPage />} />
           <Route path="/sign-in/*" element={<SignInPage />} />
           <Route path="/sign-up/*" element={<SignUpPage />} />
           <Route path="/forgot-password/*" element={<ForgotPassword />} />

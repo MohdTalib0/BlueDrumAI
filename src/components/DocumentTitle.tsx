@@ -5,6 +5,8 @@ const BASE_TITLE = 'Blue Drum AI'
 
 const ROUTE_TITLES: Record<string, string> = {
   '/': 'Organize Evidence, AI Chat Analysis, Lawyer-Ready Case Files | Blue Drum AI',
+  '/contact': 'Contact Us | Blue Drum AI',
+  '/security': 'Security & Privacy | Blue Drum AI',
   '/sign-in': 'Sign In | Blue Drum AI',
   '/sign-up': 'Sign Up Free | Blue Drum AI',
   '/forgot-password': 'Reset Password | Blue Drum AI',
