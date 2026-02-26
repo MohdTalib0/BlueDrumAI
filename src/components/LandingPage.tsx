@@ -474,44 +474,7 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* Floating badge: Encrypted */}
-            <div className="animate-float absolute -left-4 top-16 hidden rounded-2xl border border-white/80 dark:border-gray-700/40 bg-white/90 dark:bg-gray-900/80 px-5 py-3.5 shadow-xl dark:shadow-blue-900/10 backdrop-blur lg:block">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 shadow-md">
-                  <Lock className="h-5 w-5 text-white" />
-                </div>
-                <div>
-                  <div className="text-sm font-bold text-gray-900 dark:text-white">Fully Encrypted</div>
-                  <div className="text-xs text-gray-400">Files protected on your device</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Floating badge: AI Analysis */}
-            <div className="animate-float-delayed absolute -right-4 top-24 hidden rounded-2xl border border-white/80 dark:border-gray-700/40 bg-white/90 dark:bg-gray-900/80 px-5 py-3.5 shadow-xl dark:shadow-blue-900/10 backdrop-blur lg:block">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 shadow-md">
-                  <Brain className="h-5 w-5 text-white" />
-                </div>
-                <div>
-                  <div className="text-sm font-bold text-gray-900 dark:text-white">AI-Powered Insights</div>
-                  <div className="text-xs text-gray-400">Key patterns found instantly</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Floating badge: PDF Export */}
-            <div className="animate-float absolute -left-2 bottom-12 hidden rounded-2xl border border-white/80 dark:border-gray-700/40 bg-white/90 dark:bg-gray-900/80 px-4 py-3 shadow-xl dark:shadow-blue-900/10 backdrop-blur lg:block" style={{ animationDelay: '0.8s' }}>
-              <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 shadow-md">
-                  <FileText className="h-4 w-4 text-white" />
-                </div>
-                <div>
-                  <div className="text-sm font-bold text-gray-900 dark:text-white">Lawyer-Ready Export</div>
-                  <div className="text-xs text-gray-400">Structured PDF case files</div>
-                </div>
-              </div>
-            </div>
+           
           </div>
         </div>
       </section>
