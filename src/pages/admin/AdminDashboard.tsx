@@ -1,6 +1,6 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Users, MessageSquare, Cpu, DollarSign, AlertTriangle } from 'lucide-react'
+import { Users, MessageSquare, Cpu, DollarSign, AlertTriangle, RefreshCw, Wifi } from 'lucide-react'
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer } from 'recharts'
 import { format } from 'date-fns'
 import { AdminLayout } from '../../layouts/AdminLayout'
@@ -39,37 +39,44 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState<AdminStats | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [autoRefresh, setAutoRefresh] = useState(false)
+  const [lastRefresh, setLastRefresh] = useState<Date | null>(null)
   const fetchingRef = useRef(false)
+  const intervalRef = useRef<ReturnType<typeof setInterval>>()
+
+  const fetchStats = useCallback(async (signal?: AbortSignal) => {
+    if (fetchingRef.current || !sessionToken) return
+    fetchingRef.current = true
+    if (!stats) setLoading(true)
+    setError('')
+
+    try {
+      const res = await apiFetch(`${getEdgeFunctionUrl('admin')}/stats`, sessionToken, { signal })
+      if (!res.ok) throw new Error('Failed to fetch admin stats')
+      const data = await res.json()
+      if (data.ok) { setStats(data.stats); setLastRefresh(new Date()) }
+      else throw new Error('Unexpected response')
+    } catch (err: any) {
+      if (err.name === 'AbortError') return
+      setError(err.message || 'Failed to load admin dashboard')
+    } finally {
+      setLoading(false)
+      fetchingRef.current = false
+    }
+  }, [sessionToken, stats])
 
   useEffect(() => {
     const controller = new AbortController()
-
-    async function fetchStats() {
-      if (fetchingRef.current || !sessionToken) return
-      fetchingRef.current = true
-      setLoading(true)
-      setError('')
-
-      try {
-        const res = await apiFetch(`${getEdgeFunctionUrl('admin')}/stats`, sessionToken, {
-          signal: controller.signal,
-        })
-        if (!res.ok) throw new Error('Failed to fetch admin stats')
-        const data = await res.json()
-        if (data.ok) setStats(data.stats)
-        else throw new Error('Unexpected response')
-      } catch (err: any) {
-        if (err.name === 'AbortError') return
-        setError(err.message || 'Failed to load admin dashboard')
-      } finally {
-        setLoading(false)
-        fetchingRef.current = false
-      }
-    }
-
-    fetchStats()
+    fetchStats(controller.signal)
     return () => controller.abort()
-  }, [sessionToken])
+  }, [sessionToken]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (autoRefresh) {
+      intervalRef.current = setInterval(() => fetchStats(), 30_000)
+    }
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current) }
+  }, [autoRefresh, fetchStats])
 
   const tooltipStyle = {
     backgroundColor: '#000',
@@ -95,6 +102,34 @@ export default function AdminDashboard() {
 
   return (
     <AdminLayout title="Overview" subtitle="Platform metrics at a glance">
+      {/* Refresh Controls */}
+      <div className="mb-6 flex flex-wrap items-center gap-3">
+        <button
+          onClick={() => fetchStats()}
+          disabled={loading}
+          className="flex items-center gap-1.5 rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-black px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors disabled:opacity-50"
+        >
+          <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
+          Refresh
+        </button>
+        <button
+          onClick={() => setAutoRefresh(p => !p)}
+          className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
+            autoRefresh
+              ? 'border-green-300 dark:border-green-800 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400'
+              : 'border-gray-200 dark:border-gray-800 bg-white dark:bg-black text-gray-600 dark:text-gray-400'
+          }`}
+        >
+          <Wifi className="h-3.5 w-3.5" />
+          Live {autoRefresh ? 'ON' : 'OFF'}
+        </button>
+        {lastRefresh && (
+          <span className="text-[10px] text-gray-400 dark:text-gray-500">
+            Updated {lastRefresh.toLocaleTimeString()}
+          </span>
+        )}
+      </div>
+
       {error && (
         <div className="mb-6 flex items-center gap-3 rounded-xl border border-red-200 dark:border-red-800/40 bg-red-50 dark:bg-red-900/20 p-4 text-sm text-red-700 dark:text-red-300">
           <AlertTriangle className="h-4 w-4 shrink-0" />

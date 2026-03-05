@@ -27,6 +27,79 @@ serve(async (req) => {
     const url = new URL(req.url)
     const path = url.pathname.replace(/.*\/admin/, '')
 
+    // GET /health-check — Live health status for all services
+    if (path === '/health-check' && req.method === 'GET') {
+      const result = await requireAdmin(req, corsHeaders)
+      if ('response' in result) return result.response
+      const { supabase } = result
+
+      const supabaseUrl = Deno.env.get('SUPABASE_URL')!
+      const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+
+      async function checkService(name: string, fn: () => Promise<{ ok: boolean; latency: number; detail?: string }>): Promise<{ name: string; status: 'operational' | 'degraded' | 'down'; latency: number; detail?: string }> {
+        try {
+          const { ok, latency, detail } = await fn()
+          return { name, status: ok ? (latency > 2000 ? 'degraded' : 'operational') : 'down', latency, detail }
+        } catch (err) {
+          return { name, status: 'down', latency: 0, detail: err instanceof Error ? err.message : 'Unknown error' }
+        }
+      }
+
+      const services = await Promise.all([
+        checkService('Database', async () => {
+          const t = Date.now()
+          const { error } = await supabase.from('users').select('id').limit(1)
+          return { ok: !error, latency: Date.now() - t, detail: error?.message }
+        }),
+        checkService('Auth', async () => {
+          const t = Date.now()
+          const resp = await fetch(`${supabaseUrl}/auth/v1/health`, { headers: { apikey: serviceKey } })
+          return { ok: resp.ok, latency: Date.now() - t }
+        }),
+        checkService('Storage', async () => {
+          const t = Date.now()
+          const { error } = await supabase.storage.listBuckets()
+          return { ok: !error, latency: Date.now() - t, detail: error?.message }
+        }),
+        checkService('Edge Functions', async () => {
+          const t = Date.now()
+          const resp = await fetch(`${supabaseUrl}/functions/v1/health`, { headers: { Authorization: `Bearer ${serviceKey}` } })
+          return { ok: resp.ok, latency: Date.now() - t }
+        }),
+        checkService('AI (OpenRouter)', async () => {
+          const t = Date.now()
+          const key = Deno.env.get('OPENROUTER_API_KEY')
+          if (!key) return { ok: false, latency: 0, detail: 'API key not configured' }
+          const resp = await fetch('https://openrouter.ai/api/v1/models', { headers: { Authorization: `Bearer ${key}` }, signal: AbortSignal.timeout(5000) })
+          return { ok: resp.ok, latency: Date.now() - t }
+        }),
+        checkService('Vault (Table)', async () => {
+          const t = Date.now()
+          const { error } = await supabase.from('vault_entries').select('id').limit(1)
+          return { ok: !error, latency: Date.now() - t, detail: error?.message }
+        }),
+        checkService('Income Tracker', async () => {
+          const t = Date.now()
+          const { error } = await supabase.from('income_tracker').select('id').limit(1)
+          return { ok: !error, latency: Date.now() - t, detail: error?.message }
+        }),
+        checkService('Red Flag Radar', async () => {
+          const t = Date.now()
+          const { error } = await supabase.from('chat_analyses').select('id').limit(1)
+          return { ok: !error, latency: Date.now() - t, detail: error?.message }
+        }),
+      ])
+
+      const overallStatus = services.every(s => s.status === 'operational') ? 'operational'
+        : services.some(s => s.status === 'down') ? 'down'
+        : 'degraded'
+
+      return new Response(JSON.stringify({
+        ok: true,
+        data: { services, overallStatus, checkedAt: new Date().toISOString() },
+      }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+    }
+
     // GET /stats — Overview stats
     if (path === '/stats' && req.method === 'GET') {
       const result = await requireAdmin(req, corsHeaders)
@@ -556,6 +629,322 @@ serve(async (req) => {
           recentSessions: enrichedSessions,
         },
       }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+    }
+
+    // ──────────────────────────────────────────────────────────────
+    // GET /monitoring — System health & API call monitoring
+    // ──────────────────────────────────────────────────────────────
+    if (path === '/monitoring' && req.method === 'GET') {
+      const result = await requireAdmin(req, corsHeaders)
+      if ('response' in result) return result.response
+      const { supabase } = result
+
+      const hoursBack = parseInt(url.searchParams.get('hours') || '24')
+      const since = new Date(Date.now() - hoursBack * 60 * 60 * 1000).toISOString()
+
+      const [
+        { data: apiLogs },
+        { count: totalRequests },
+        { count: errorCount },
+        { data: recentErrors },
+        { data: endpointBreakdown },
+      ] = await Promise.all([
+        supabase.from('api_logs').select('endpoint, status_code, response_time_ms, method, created_at').gte('created_at', since).order('created_at', { ascending: false }).limit(1000),
+        supabase.from('api_logs').select('*', { count: 'exact', head: true }).gte('created_at', since),
+        supabase.from('api_logs').select('*', { count: 'exact', head: true }).gte('created_at', since).gte('status_code', 400),
+        supabase.from('api_logs').select('id, endpoint, status_code, method, error_message, ip_address, response_time_ms, created_at').gte('created_at', since).gte('status_code', 400).order('created_at', { ascending: false }).limit(50),
+        supabase.from('api_logs').select('endpoint, status_code, response_time_ms').gte('created_at', since).limit(2000),
+      ])
+
+      const avgResponseTime = apiLogs?.length
+        ? Math.round((apiLogs as any[]).reduce((s: number, l: any) => s + (l.response_time_ms || 0), 0) / apiLogs.length)
+        : 0
+
+      const endpointStats: Record<string, { calls: number; errors: number; avgMs: number; totalMs: number }> = {}
+      ;(endpointBreakdown || []).forEach((l: any) => {
+        const ep = l.endpoint || 'unknown'
+        if (!endpointStats[ep]) endpointStats[ep] = { calls: 0, errors: 0, avgMs: 0, totalMs: 0 }
+        endpointStats[ep].calls++
+        endpointStats[ep].totalMs += l.response_time_ms || 0
+        if (l.status_code >= 400) endpointStats[ep].errors++
+      })
+      const endpoints = Object.entries(endpointStats)
+        .map(([name, s]) => ({ name, calls: s.calls, errors: s.errors, avgMs: s.calls > 0 ? Math.round(s.totalMs / s.calls) : 0, errorRate: s.calls > 0 ? Math.round((s.errors / s.calls) * 10000) / 100 : 0 }))
+        .sort((a, b) => b.calls - a.calls)
+
+      const requestsByHour: Record<string, { total: number; errors: number }> = {}
+      ;(apiLogs || []).forEach((l: any) => {
+        const hour = l.created_at?.substring(0, 13)
+        if (!hour) return
+        if (!requestsByHour[hour]) requestsByHour[hour] = { total: 0, errors: 0 }
+        requestsByHour[hour].total++
+        if (l.status_code >= 400) requestsByHour[hour].errors++
+      })
+      const requestTrend = Object.entries(requestsByHour)
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([hour, d]) => ({ hour: hour.substring(11) + ':00', ...d }))
+
+      const statusCodes: Record<number, number> = {}
+      ;(apiLogs || []).forEach((l: any) => {
+        statusCodes[l.status_code] = (statusCodes[l.status_code] || 0) + 1
+      })
+
+      return new Response(JSON.stringify({
+        ok: true,
+        data: {
+          summary: {
+            totalRequests: totalRequests ?? 0,
+            errorCount: errorCount ?? 0,
+            errorRate: (totalRequests ?? 0) > 0 ? Math.round(((errorCount ?? 0) / (totalRequests ?? 1)) * 10000) / 100 : 0,
+            avgResponseTime,
+            hoursBack,
+          },
+          endpoints,
+          requestTrend,
+          statusCodes,
+          recentErrors: recentErrors || [],
+        },
+      }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+    }
+
+    // ──────────────────────────────────────────────────────────────
+    // GET /audit-logs — View audit trail
+    // ──────────────────────────────────────────────────────────────
+    if (path === '/audit-logs' && req.method === 'GET') {
+      const result = await requireAdmin(req, corsHeaders)
+      if ('response' in result) return result.response
+      const { supabase } = result
+
+      const page = parseInt(url.searchParams.get('page') || '1')
+      const limit = Math.min(parseInt(url.searchParams.get('limit') || '50'), 100)
+      const action = url.searchParams.get('action') || ''
+      const resource = url.searchParams.get('resource') || ''
+      const offset = (page - 1) * limit
+
+      let query = supabase
+        .from('audit_logs')
+        .select('id, user_id, action, resource_type, resource_id, changes, ip_address, user_agent, request_id, metadata, created_at', { count: 'exact' })
+        .order('created_at', { ascending: false })
+        .range(offset, offset + limit - 1)
+
+      if (action) query = query.eq('action', action)
+      if (resource) query = query.eq('resource_type', resource)
+
+      const { data, count, error: dbErr } = await query
+      if (dbErr) {
+        return new Response(JSON.stringify({ ok: false, error: dbErr.message }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+      }
+
+      const userIds = [...new Set((data || []).map((l: any) => l.user_id).filter(Boolean))]
+      let userMap: Record<string, string> = {}
+      if (userIds.length > 0) {
+        const { data: users } = await supabase.from('users').select('id, email, first_name, last_name').in('id', userIds)
+        users?.forEach((u: any) => { userMap[u.id] = u.first_name ? `${u.first_name} ${u.last_name || ''}`.trim() : u.email })
+      }
+
+      const enriched = (data || []).map((l: any) => ({ ...l, user_name: userMap[l.user_id] || 'System' }))
+
+      // Distinct action and resource types for filters
+      const [{ data: actionTypes }, { data: resourceTypes }] = await Promise.all([
+        supabase.from('audit_logs').select('action').limit(500),
+        supabase.from('audit_logs').select('resource_type').limit(500),
+      ])
+      const actions = [...new Set((actionTypes || []).map((a: any) => a.action))].sort()
+      const resources = [...new Set((resourceTypes || []).map((r: any) => r.resource_type))].sort()
+
+      return new Response(JSON.stringify({ ok: true, logs: enriched, total: count || 0, page, limit, filters: { actions, resources } }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+    }
+
+    // ──────────────────────────────────────────────────────────────
+    // INCIDENTS CRUD
+    // ──────────────────────────────────────────────────────────────
+
+    // GET /incidents
+    if (path === '/incidents' && req.method === 'GET') {
+      const result = await requireAdmin(req, corsHeaders)
+      if ('response' in result) return result.response
+      const { supabase } = result
+
+      const status = url.searchParams.get('status') || ''
+      let query = supabase
+        .from('admin_incidents')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(100)
+
+      if (status) query = query.eq('status', status)
+
+      const { data, error: dbErr } = await query
+      if (dbErr) {
+        return new Response(JSON.stringify({ ok: false, error: dbErr.message }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+      }
+
+      const creatorIds = [...new Set((data || []).map((i: any) => i.created_by).filter(Boolean))]
+      let creatorMap: Record<string, string> = {}
+      if (creatorIds.length > 0) {
+        const { data: users } = await supabase.from('users').select('id, email, first_name').in('id', creatorIds)
+        users?.forEach((u: any) => { creatorMap[u.id] = u.first_name || u.email })
+      }
+
+      const enriched = (data || []).map((i: any) => ({ ...i, created_by_name: creatorMap[i.created_by] || 'Unknown' }))
+
+      return new Response(JSON.stringify({ ok: true, incidents: enriched }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+    }
+
+    // POST /incidents
+    if (path === '/incidents' && req.method === 'POST') {
+      const result = await requireAdmin(req, corsHeaders)
+      if ('response' in result) return result.response
+      const { supabase, user } = result
+
+      const body = await req.json()
+      if (!body.title) {
+        return new Response(JSON.stringify({ ok: false, error: 'Title is required' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+      }
+
+      const { data, error: dbErr } = await supabase.from('admin_incidents').insert({
+        title: body.title,
+        description: body.description || null,
+        severity: body.severity || 'medium',
+        status: 'open',
+        affected_service: body.affected_service || null,
+        affected_user_count: body.affected_user_count || 0,
+        affected_user_ids: body.affected_user_ids || [],
+        created_by: user.id,
+      }).select().single()
+
+      if (dbErr) {
+        return new Response(JSON.stringify({ ok: false, error: dbErr.message }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+      }
+
+      return new Response(JSON.stringify({ ok: true, incident: data }), { status: 201, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+    }
+
+    // PATCH /incidents/:id
+    if (path.match(/^\/incidents\/[^/]+$/) && req.method === 'PATCH') {
+      const result = await requireAdmin(req, corsHeaders)
+      if ('response' in result) return result.response
+      const { supabase } = result
+
+      const incidentId = path.replace('/incidents/', '')
+      const body = await req.json()
+
+      const allowed: Record<string, unknown> = {}
+      if (body.title) allowed.title = body.title
+      if (body.description !== undefined) allowed.description = body.description
+      if (body.severity) allowed.severity = body.severity
+      if (body.status) {
+        allowed.status = body.status
+        if (body.status === 'resolved' || body.status === 'closed') {
+          allowed.resolved_at = new Date().toISOString()
+        }
+      }
+      if (body.affected_service !== undefined) allowed.affected_service = body.affected_service
+      if (body.affected_user_count !== undefined) allowed.affected_user_count = body.affected_user_count
+      if (body.root_cause !== undefined) allowed.root_cause = body.root_cause
+      if (body.resolution !== undefined) allowed.resolution = body.resolution
+
+      if (Object.keys(allowed).length === 0) {
+        return new Response(JSON.stringify({ ok: false, error: 'No valid fields' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+      }
+
+      const { error: updateErr } = await supabase.from('admin_incidents').update(allowed).eq('id', incidentId)
+      if (updateErr) {
+        return new Response(JSON.stringify({ ok: false, error: updateErr.message }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+      }
+
+      return new Response(JSON.stringify({ ok: true }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+    }
+
+    // ──────────────────────────────────────────────────────────────
+    // ALERTS CRUD
+    // ──────────────────────────────────────────────────────────────
+
+    // GET /alerts
+    if (path === '/alerts' && req.method === 'GET') {
+      const result = await requireAdmin(req, corsHeaders)
+      if ('response' in result) return result.response
+      const { supabase } = result
+
+      const [{ data: alerts }, { data: history }] = await Promise.all([
+        supabase.from('admin_alerts').select('*').order('created_at', { ascending: false }),
+        supabase.from('admin_alert_history').select('*').order('created_at', { ascending: false }).limit(50),
+      ])
+
+      return new Response(JSON.stringify({ ok: true, alerts: alerts || [], history: history || [] }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+    }
+
+    // POST /alerts
+    if (path === '/alerts' && req.method === 'POST') {
+      const result = await requireAdmin(req, corsHeaders)
+      if ('response' in result) return result.response
+      const { supabase, user } = result
+
+      const body = await req.json()
+      if (!body.name || !body.metric || body.threshold === undefined) {
+        return new Response(JSON.stringify({ ok: false, error: 'name, metric, and threshold are required' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+      }
+
+      const { data, error: dbErr } = await supabase.from('admin_alerts').insert({
+        name: body.name,
+        description: body.description || null,
+        metric: body.metric,
+        condition: body.condition || 'gt',
+        threshold: body.threshold,
+        time_window_minutes: body.time_window_minutes || 60,
+        is_active: true,
+        created_by: user.id,
+      }).select().single()
+
+      if (dbErr) {
+        return new Response(JSON.stringify({ ok: false, error: dbErr.message }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+      }
+
+      return new Response(JSON.stringify({ ok: true, alert: data }), { status: 201, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+    }
+
+    // PATCH /alerts/:id — toggle active, update fields
+    if (path.match(/^\/alerts\/[^/]+$/) && req.method === 'PATCH') {
+      const result = await requireAdmin(req, corsHeaders)
+      if ('response' in result) return result.response
+      const { supabase } = result
+
+      const alertId = path.replace('/alerts/', '')
+      const body = await req.json()
+
+      const allowed: Record<string, unknown> = {}
+      if (body.name) allowed.name = body.name
+      if (body.description !== undefined) allowed.description = body.description
+      if (body.is_active !== undefined) allowed.is_active = body.is_active
+      if (body.threshold !== undefined) allowed.threshold = body.threshold
+      if (body.condition) allowed.condition = body.condition
+      if (body.time_window_minutes) allowed.time_window_minutes = body.time_window_minutes
+
+      if (Object.keys(allowed).length === 0) {
+        return new Response(JSON.stringify({ ok: false, error: 'No valid fields' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+      }
+
+      const { error: updateErr } = await supabase.from('admin_alerts').update(allowed).eq('id', alertId)
+      if (updateErr) {
+        return new Response(JSON.stringify({ ok: false, error: updateErr.message }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+      }
+
+      return new Response(JSON.stringify({ ok: true }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+    }
+
+    // DELETE /alerts/:id
+    if (path.match(/^\/alerts\/[^/]+$/) && req.method === 'DELETE') {
+      const result = await requireAdmin(req, corsHeaders)
+      if ('response' in result) return result.response
+      const { supabase } = result
+
+      const alertId = path.replace('/alerts/', '')
+      const { error: delErr } = await supabase.from('admin_alerts').delete().eq('id', alertId)
+      if (delErr) {
+        return new Response(JSON.stringify({ ok: false, error: delErr.message }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+      }
+
+      return new Response(JSON.stringify({ ok: true }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
     }
 
     return new Response(JSON.stringify({ ok: false, error: 'Not found' }), { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })

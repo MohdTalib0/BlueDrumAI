@@ -49,6 +49,9 @@ const FeatureUsagePage = lazy(() => import('./pages/admin/FeatureUsagePage'))
 const UserTrajectory = lazy(() => import('./pages/admin/UserTrajectory'))
 const SubscriptionsAdmin = lazy(() => import('./pages/admin/SubscriptionsAdmin'))
 const GeoAnalytics = lazy(() => import('./pages/admin/GeoAnalytics'))
+const MonitoringPage = lazy(() => import('./pages/admin/MonitoringPage'))
+const AuditLogPage = lazy(() => import('./pages/admin/AuditLogPage'))
+const IncidentsPage = lazy(() => import('./pages/admin/IncidentsPage'))
 
 function PageLoader() {
   return (
@@ -176,6 +179,9 @@ function App() {
           <Route path="/admin/feature-usage" element={<AdminRoute><FeatureUsagePage /></AdminRoute>} />
           <Route path="/admin/feedback" element={<AdminRoute><FeedbackManagement /></AdminRoute>} />
           <Route path="/admin/ai-usage" element={<AdminRoute><AIUsagePage /></AdminRoute>} />
+          <Route path="/admin/monitoring" element={<AdminRoute><MonitoringPage /></AdminRoute>} />
+          <Route path="/admin/incidents" element={<AdminRoute><IncidentsPage /></AdminRoute>} />
+          <Route path="/admin/audit-logs" element={<AdminRoute><AuditLogPage /></AdminRoute>} />
           <Route path="/admin/subscriptions" element={<AdminRoute><SubscriptionsAdmin /></AdminRoute>} />
           <Route path="/admin/geo" element={<AdminRoute><GeoAnalytics /></AdminRoute>} />
         </Routes>

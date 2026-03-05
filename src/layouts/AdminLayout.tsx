@@ -1,6 +1,6 @@
 import { ReactNode, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { Home, Users, MessageSquare, Activity, LogOut, Menu, X, Shield, Moon, Sun, ArrowLeft, BarChart3, CreditCard, Globe } from 'lucide-react'
+import { Home, Users, MessageSquare, Activity, LogOut, Menu, X, Shield, Moon, Sun, ArrowLeft, BarChart3, CreditCard, Globe, Monitor, FileText, AlertTriangle } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useDarkMode } from '../hooks/useDarkMode'
 
@@ -12,10 +12,13 @@ interface Props {
 
 const navItems = [
   { label: 'Overview', icon: Home, href: '/admin' },
+  { label: 'Monitoring', icon: Monitor, href: '/admin/monitoring' },
+  { label: 'Incidents', icon: AlertTriangle, href: '/admin/incidents' },
   { label: 'Users', icon: Users, href: '/admin/users' },
   { label: 'Feature Usage', icon: BarChart3, href: '/admin/feature-usage' },
   { label: 'Feedback', icon: MessageSquare, href: '/admin/feedback' },
   { label: 'AI Usage', icon: Activity, href: '/admin/ai-usage' },
+  { label: 'Audit Logs', icon: FileText, href: '/admin/audit-logs' },
   { label: 'Subscriptions', icon: CreditCard, href: '/admin/subscriptions' },
   { label: 'Geo & Sessions', icon: Globe, href: '/admin/geo' },
 ]
